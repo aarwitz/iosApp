@@ -1,5 +1,6 @@
-import Foundation
+//RootView.swift
 
+import Foundation
 struct UserProfile: Codable, Identifiable {
     var id: UUID = UUID()
     var name: String
