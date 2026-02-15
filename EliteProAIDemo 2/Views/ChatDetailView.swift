@@ -1,29 +1,34 @@
 import SwiftUI
 
-struct ChatView: View {
+struct ChatDetailView: View {
     @EnvironmentObject private var store: AppStore
     @State private var draft: String = ""
+    let conversation: Conversation
+    
+    private var messages: [ChatMessage] {
+        store.conversations.first(where: { $0.id == conversation.id })?.messages ?? conversation.messages
+    }
 
     var body: some View {
         VStack(spacing: 0) {
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(spacing: 10) {
-                        ForEach(store.chat) { msg in
+                        ForEach(messages) { msg in
                             HStack {
                                 if msg.isMe { Spacer(minLength: 24) }
                                 Text(msg.text)
                                     .font(.system(.body, design: .rounded))
-                                    .foregroundStyle(Color.white.opacity(0.95))
+                                    .foregroundStyle(Color.primary.opacity(0.95))
                                     .padding(.horizontal, 12)
                                     .padding(.vertical, 10)
                                     .background(
                                         RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                            .fill(Color.white.opacity(msg.isMe ? 0.12 : 0.07))
+                                            .fill(EPTheme.card)
                                     )
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                                            .stroke(EPTheme.cardStroke, lineWidth: 1)
                                     )
                                 if !msg.isMe { Spacer(minLength: 24) }
                             }
@@ -33,12 +38,12 @@ struct ChatView: View {
                     .padding(16)
                 }
                 .onAppear {
-                    if let last = store.chat.last {
+                    if let last = messages.last {
                         proxy.scrollTo(last.id, anchor: .bottom)
                     }
                 }
-                .onChange(of: store.chat.count) { _ in
-                    if let last = store.chat.last {
+                .onChange(of: messages.count) { _ in
+                    if let last = messages.last {
                         withAnimation(.easeOut(duration: 0.2)) {
                             proxy.scrollTo(last.id, anchor: .bottom)
                         }
@@ -53,13 +58,13 @@ struct ChatView: View {
                     .textFieldStyle(.plain)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 10)
-                    .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.white.opacity(0.06)))
-                    .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(Color.white.opacity(0.10), lineWidth: 1))
+                    .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(EPTheme.card))
+                    .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(EPTheme.cardStroke, lineWidth: 1))
 
                 Button {
                     let trimmed = draft.trimmingCharacters(in: .whitespacesAndNewlines)
                     guard !trimmed.isEmpty else { return }
-                    store.addChatMessage(text: trimmed)
+                    store.addChatMessage(to: conversation.id, text: trimmed)
                     draft = ""
                 } label: {
                     Image(systemName: "paperplane.fill")
@@ -71,7 +76,7 @@ struct ChatView: View {
             }
             .padding(12)
         }
-        .navigationTitle("Chat")
+        .navigationTitle(conversation.contactName)
         .navigationBarTitleDisplayMode(.inline)
     }
 }

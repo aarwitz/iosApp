@@ -18,93 +18,134 @@ struct SideMenuOverlay: View {
 
 struct SideMenu: View {
     @EnvironmentObject private var store: AppStore
+    @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
 
-            HStack(spacing: 10) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .fill(EPTheme.accent.opacity(0.18))
-                    Image(systemName: "bolt.circle.fill")
-                        .font(.system(size: 28))
-                        .foregroundStyle(EPTheme.accent)
+            // Name / avatar header — tappable → opens Profile
+            Button {
+                store.closeMenu()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    store.showProfile = true
                 }
-                .frame(width: 42, height: 42)
+            } label: {
+                HStack(spacing: 10) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .fill(EPTheme.accent.opacity(0.18))
+                        Image(systemName: "bolt.circle.fill")
+                            .font(.system(size: 28))
+                            .foregroundStyle(EPTheme.accent)
+                    }
+                    .frame(width: 42, height: 42)
 
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Elite Pro AI +")
-                        .font(.system(.headline, design: .rounded))
-                    Text(store.profile.email)
-                        .font(.system(.subheadline, design: .rounded))
-                        .foregroundStyle(EPTheme.softText)
-                        .lineLimit(1)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(store.profile.name)
+                            .font(.system(.headline, design: .rounded))
+                            .foregroundStyle(EPTheme.primaryText(for: colorScheme))
+                        Text(store.profile.email)
+                            .font(.system(.subheadline, design: .rounded))
+                            .foregroundStyle(EPTheme.softText(for: colorScheme))
+                            .lineLimit(1)
+                    }
+
+                    Spacer()
+
+                    Button {
+                        store.closeMenu()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(EPTheme.softText(for: colorScheme))
+                            .padding(10)
+                            .background(Circle().fill((colorScheme == .dark ? Color.white : Color.black).opacity(0.06)))
+                    }
+                    .accessibilityLabel("Close menu")
                 }
-
-                Spacer()
-
-                Button {
-                    store.closeMenu()
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(EPTheme.softText)
-                        .padding(10)
-                        .background(Circle().fill(Color.white.opacity(0.06)))
-                }
-                .accessibilityLabel("Close menu")
             }
+            .buttonStyle(.plain)
             .padding(.bottom, 8)
 
             Divider().overlay(EPTheme.divider)
 
-            MenuRow(icon: "gift", title: "Rewards") {
-                store.selectedTab = .rewards
+            MenuRow(icon: "person.crop.circle", title: "Profile") {
                 store.closeMenu()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    store.showProfile = true
+                }
             }
 
-            MenuRow(icon: "flag", title: "Challenges") {
-                store.selectedTab = .challenges
+            MenuRow(icon: "gift", title: "Rewards") {
                 store.closeMenu()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    store.showRewards = true
+                }
             }
 
             MenuRow(icon: "questionmark.circle", title: "Connector") {
-                store.selectedTab = .connector
                 store.closeMenu()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    store.showConnector = true
+                }
             }
 
-            MenuRow(icon: "person.2", title: "Groups") {
-                store.selectedTab = .groups
+            MenuRow(icon: "bookmark", title: "Bookmarks") {
                 store.closeMenu()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    store.showBookmarks = true
+                }
             }
 
-            MenuRow(icon: "bubble.left.and.bubble.right", title: "Community") {
-                store.selectedTab = .groups
+            MenuRow(icon: "gearshape", title: "Settings") {
                 store.closeMenu()
-                // GroupsView has a link into community feed
-                NotificationCenter.default.post(name: .openCommunityFeed, object: nil)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    store.showSettings = true
+                }
             }
 
             Spacer()
 
-            EPCard {
-                HStack {
-                    Image(systemName: "info.circle")
-                        .foregroundStyle(EPTheme.softText)
-                    Text("Demo build · mock data only")
-                        .foregroundStyle(EPTheme.softText)
-                        .font(.system(.footnote, design: .rounded))
-                    Spacer()
+            // Footer links
+            VStack(spacing: 8) {
+                HStack(spacing: 16) {
+                    Button {
+                        // Help action
+                    } label: {
+                        Text("Help")
+                            .font(.system(.caption, design: .rounded))
+                            .foregroundStyle(EPTheme.softText(for: colorScheme))
+                    }
+                    .buttonStyle(.plain)
+
+                    Text("•")
+                        .foregroundStyle(EPTheme.softText(for: colorScheme).opacity(0.5))
+                        .font(.system(.caption))
+
+                    Button {
+                        // Privacy action
+                    } label: {
+                        Text("Privacy")
+                            .font(.system(.caption, design: .rounded))
+                            .foregroundStyle(EPTheme.softText(for: colorScheme))
+                    }
+                    .buttonStyle(.plain)
                 }
             }
+            .frame(maxWidth: .infinity)
+            .padding(.bottom, 4)
         }
         .padding(16)
         .frame(maxHeight: .infinity)
-        .background(Color.black.opacity(0.92).ignoresSafeArea())
+        .background(
+            (colorScheme == .dark ? Color.black.opacity(0.92) : Color.white.opacity(0.97))
+                .ignoresSafeArea()
+        )
     }
 }
 
 private struct MenuRow: View {
+    @Environment(\.colorScheme) var colorScheme
     let icon: String
     let title: String
     let action: () -> Void
@@ -114,9 +155,9 @@ private struct MenuRow: View {
             HStack(spacing: 12) {
                 Image(systemName: icon)
                     .frame(width: 22)
-                    .foregroundStyle(Color.white.opacity(0.9))
+                    .foregroundStyle(EPTheme.primaryText(for: colorScheme).opacity(0.9))
                 Text(title)
-                    .foregroundStyle(Color.white.opacity(0.95))
+                    .foregroundStyle(EPTheme.primaryText(for: colorScheme))
                     .font(.system(.headline, design: .rounded))
                 Spacer()
             }

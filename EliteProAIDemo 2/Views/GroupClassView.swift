@@ -29,7 +29,6 @@ struct GroupClassView: View {
             }
         }
         .scrollContentBackground(.hidden)
-        .background(Color.black)
         .navigationTitle("Group Classes")
         .navigationBarTitleDisplayMode(.inline)
     }

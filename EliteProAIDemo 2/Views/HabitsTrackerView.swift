@@ -27,7 +27,6 @@ struct HabitsTrackerView: View {
             }
         }
         .scrollContentBackground(.hidden)
-        .background(Color.black)
         .navigationTitle("Habits Tracker")
         .navigationBarTitleDisplayMode(.inline)
     }

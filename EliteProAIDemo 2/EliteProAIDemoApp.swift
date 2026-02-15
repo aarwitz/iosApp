@@ -8,7 +8,6 @@ struct EliteProAIDemoApp: App {
         WindowGroup {
             RootView()
                 .environmentObject(store)
-                .preferredColorScheme(.dark)
         }
     }
 }

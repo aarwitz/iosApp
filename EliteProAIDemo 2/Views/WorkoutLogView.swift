@@ -29,7 +29,7 @@ struct WorkoutLogView: View {
 
                         ForEach(saved, id: \.self) { item in
                             Text("• \(item)")
-                                .foregroundStyle(Color.white.opacity(0.9))
+                                .foregroundStyle(Color.primary.opacity(0.9))
                                 .font(.system(.subheadline, design: .rounded))
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }

@@ -74,7 +74,7 @@ struct HomeView: View {
             HStack(spacing: 12) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(Color.white.opacity(0.07))
+                        .fill(EPTheme.accent.opacity(0.1))
                     Image(systemName: "person.crop.circle.fill")
                         .font(.system(size: 42))
                         .foregroundStyle(EPTheme.accent)
@@ -136,52 +136,78 @@ struct HomeView: View {
 
     private var chatPreview: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Chat")
+            Text("Messages")
                 .font(.system(.headline, design: .rounded))
-                .foregroundStyle(Color.white.opacity(0.9))
+                .foregroundStyle(Color.primary.opacity(0.9))
 
             EPCard {
                 VStack(spacing: 10) {
-                    ForEach(store.chat.suffix(4)) { msg in
-                        HStack {
-                            if msg.isMe { Spacer(minLength: 20) }
-                            Text(msg.text)
-                                .font(.system(.subheadline, design: .rounded))
-                                .foregroundStyle(Color.white.opacity(0.95))
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 8)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                        .fill(Color.white.opacity(msg.isMe ? 0.10 : 0.06))
-                                )
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
-                                )
-                            if !msg.isMe { Spacer(minLength: 20) }
+                    ForEach(store.conversations.prefix(3)) { conversation in
+                        NavigationLink {
+                            ChatDetailView(conversation: conversation)
+                        } label: {
+                            HStack(spacing: 10) {
+                                ZStack {
+                                    Circle()
+                                        .fill(EPTheme.accent.opacity(0.15))
+                                    Image(systemName: "person.circle.fill")
+                                        .font(.system(size: 18))
+                                        .foregroundStyle(EPTheme.accent)
+                                }
+                                .frame(width: 34, height: 34)
+                                
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(conversation.contactName)
+                                        .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                                        .foregroundStyle(Color.primary)
+                                    Text(conversation.lastMessage)
+                                        .font(.system(.caption, design: .rounded))
+                                        .foregroundStyle(EPTheme.softText)
+                                        .lineLimit(1)
+                                }
+                                
+                                Spacer()
+                                
+                                if conversation.unreadCount > 0 {
+                                    ZStack {
+                                        Circle()
+                                            .fill(EPTheme.accent)
+                                        Text("\(conversation.unreadCount)")
+                                            .font(.system(.caption2, design: .rounded).weight(.bold))
+                                            .foregroundStyle(.black)
+                                    }
+                                    .frame(width: 18, height: 18)
+                                }
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        
+                        if conversation.id != store.conversations.prefix(3).last?.id {
+                            Divider().overlay(EPTheme.divider)
                         }
                     }
 
                     NavigationLink {
-                        ChatView()
+                        ChatListView()
                     } label: {
                         HStack {
-                            Text("Write something…")
-                                .foregroundStyle(EPTheme.softText)
-                                .font(.system(.subheadline, design: .rounded))
+                            Text("View all messages")
+                                .foregroundStyle(EPTheme.accent)
+                                .font(.system(.subheadline, design: .rounded).weight(.medium))
                             Spacer()
-                            Image(systemName: "paperplane.fill")
-                                .foregroundStyle(EPTheme.softText)
+                            Image(systemName: "chevron.right")
+                                .foregroundStyle(EPTheme.accent)
+                                .font(.system(size: 12, weight: .semibold))
                         }
                         .padding(.horizontal, 12)
                         .padding(.vertical, 10)
                         .background(
                             RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .fill(Color.white.opacity(0.05))
+                                .fill(EPTheme.accent.opacity(0.08))
                         )
                         .overlay(
                             RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                                .stroke(EPTheme.accent.opacity(0.2), lineWidth: 1)
                         )
                     }
                     .buttonStyle(.plain)

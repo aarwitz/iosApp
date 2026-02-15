@@ -121,7 +121,7 @@ struct GroupDetailView: View {
                             }
                             Text(p.text)
                                 .font(.system(.body, design: .rounded))
-                                .foregroundStyle(Color.white.opacity(0.92))
+                                .foregroundStyle(Color.primary.opacity(0.92))
                         }
                     }
                 }
@@ -155,7 +155,7 @@ struct CommunityFeedView: View {
                             }
                             Text(p.text)
                                 .font(.system(.body, design: .rounded))
-                                .foregroundStyle(Color.white.opacity(0.92))
+                                .foregroundStyle(Color.primary.opacity(0.92))
                         }
                     }
                 }

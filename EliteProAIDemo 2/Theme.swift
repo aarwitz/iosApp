@@ -2,17 +2,47 @@ import SwiftUI
 
 enum EPTheme {
     static let accent = Color(red: 1.0, green: 0.45, blue: 0.10)   // orange-ish
-    static let card = Color(red: 0.12, green: 0.12, blue: 0.14)
-    static let cardStroke = Color.white.opacity(0.12)
-    static let softText = Color.white.opacity(0.72)
-    static let divider = Color.white.opacity(0.10)
+    
+    // Adaptive colors — automatically respond to light/dark mode
+    static let card = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.12, green: 0.12, blue: 0.14, alpha: 1)
+            : UIColor(red: 0.95, green: 0.95, blue: 0.97, alpha: 1)
+    })
+    
+    static let cardStroke = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor.white.withAlphaComponent(0.12)
+            : UIColor.black.withAlphaComponent(0.08)
+    })
+    
+    static let softText = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor.white.withAlphaComponent(0.72)
+            : UIColor.black.withAlphaComponent(0.55)
+    })
+    
+    static let divider = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor.white.withAlphaComponent(0.10)
+            : UIColor.black.withAlphaComponent(0.12)
+    })
+    
+    static let primaryText = Color.primary
+    
+    // Convenience functions for cases that still pass colorScheme
+    static func card(for colorScheme: ColorScheme) -> Color { card }
+    static func cardStroke(for colorScheme: ColorScheme) -> Color { cardStroke }
+    static func softText(for colorScheme: ColorScheme) -> Color { softText }
+    static func divider(for colorScheme: ColorScheme) -> Color { divider }
+    static func primaryText(for colorScheme: ColorScheme) -> Color { primaryText }
 }
 
 struct EPButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(.headline, design: .rounded))
-            .foregroundStyle(Color.white.opacity(configuration.isPressed ? 0.85 : 0.95))
+            .foregroundStyle(Color.primary.opacity(configuration.isPressed ? 0.7 : 1.0))
             .padding(.vertical, 14)
             .frame(maxWidth: .infinity)
             .background(
