@@ -11,11 +11,6 @@ struct HomeView: View {
 
                 creditsCard
 
-                Text("My Wellness")
-                    .font(.system(.headline, design: .rounded))
-                    .foregroundStyle(EPTheme.softText)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.top, 2)
 
                 VStack(spacing: 10) {
                     NavigationLink {
@@ -24,7 +19,6 @@ struct HomeView: View {
                         HStack {
                             Image(systemName: "person")
                             Text("1–1 Coaching Session")
-                            Spacer()
                         }
                     }
                     .buttonStyle(EPButtonStyle())

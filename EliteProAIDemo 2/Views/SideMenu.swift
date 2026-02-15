@@ -100,8 +100,7 @@ struct SideMenu: View {
         }
         .padding(16)
         .frame(maxHeight: .infinity)
-        .background(Color.black.opacity(0.92))
-        .ignoresSafeArea()
+        .background(Color.black.opacity(0.92).ignoresSafeArea())
     }
 }
 
