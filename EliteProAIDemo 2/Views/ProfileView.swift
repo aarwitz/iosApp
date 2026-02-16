@@ -163,6 +163,9 @@ struct ProfileView: View {
 
                 // MARK: – Weekly Stats (This Week / Last Week)
                 weeklyStatsSection
+                
+                // Wellness Tools (moved from Connector)
+                wellnessToolsCard()
 
                 // MARK: – Rewards Redeemable
                 EPCard {
@@ -192,6 +195,49 @@ struct ProfileView: View {
         .sheet(isPresented: $showBarcodeSheet) {
             barcodeSheet
         }
+    }
+
+    @ViewBuilder
+    private func wellnessToolRow(icon: String, title: String, subtitle: String, color: Color, destination: AnyView) -> some View {
+        NavigationLink {
+            destination
+        } label: {
+            HStack(spacing: 12) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(color.opacity(0.15))
+                    Image(systemName: icon)
+                        .font(.system(size: 20))
+                        .foregroundStyle(color)
+                }
+                .frame(width: 44, height: 44)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(.system(.body, design: .rounded).weight(.semibold))
+                        .foregroundStyle(Color.primary)
+                    Text(subtitle)
+                        .font(.system(.caption, design: .rounded))
+                        .foregroundStyle(EPTheme.softText)
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(EPTheme.softText)
+            }
+            .padding(12)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(EPTheme.card)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(EPTheme.cardStroke, lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: – Barcode Sheet
@@ -321,6 +367,42 @@ struct ProfileView: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
         .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(color.opacity(0.08)))
+    }
+
+    // MARK: – Wellness Tools (moved from Connector)
+    @ViewBuilder
+    private func wellnessToolsCard() -> some View {
+        EPCard {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("My Wellness Tools")
+                    .font(.system(.title3, design: .rounded).weight(.semibold))
+                    .foregroundStyle(Color.primary)
+
+                wellnessToolRow(
+                    icon: "heart.text.square.fill",
+                    title: "Nutrition Check-In",
+                    subtitle: "Track your meals and progress",
+                    color: .green,
+                    destination: AnyView(NutritionView())
+                )
+
+                wellnessToolRow(
+                    icon: "figure.strengthtraining.traditional",
+                    title: "Workout Log",
+                    subtitle: "Record today's training session",
+                    color: .red,
+                    destination: AnyView(WorkoutLogView())
+                )
+
+                wellnessToolRow(
+                    icon: "chart.line.uptrend.xyaxis",
+                    title: "Habits & Performance",
+                    subtitle: "Track streaks and improvements",
+                    color: .cyan,
+                    destination: AnyView(HabitsTrackerView())
+                )
+            }
+        }
     }
 }
 

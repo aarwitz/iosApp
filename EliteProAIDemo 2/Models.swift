@@ -11,6 +11,29 @@ struct UserProfile: Codable, Identifiable {
     var role: String
     var buildingName: String = ""
     var buildingOwner: String = ""
+
+    enum CodingKeys: String, CodingKey {
+        case id, name, email, role, buildingName, buildingOwner
+    }
+
+    init(id: UUID = UUID(), name: String, email: String, role: String, buildingName: String = "", buildingOwner: String = "") {
+        self.id = id
+        self.name = name
+        self.email = email
+        self.role = role
+        self.buildingName = buildingName
+        self.buildingOwner = buildingOwner
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try c.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
+        self.name = try c.decodeIfPresent(String.self, forKey: .name) ?? ""
+        self.email = try c.decodeIfPresent(String.self, forKey: .email) ?? ""
+        self.role = try c.decodeIfPresent(String.self, forKey: .role) ?? "Member"
+        self.buildingName = try c.decodeIfPresent(String.self, forKey: .buildingName) ?? ""
+        self.buildingOwner = try c.decodeIfPresent(String.self, forKey: .buildingOwner) ?? ""
+    }
 }
 
 struct HabitCredits: Codable {
@@ -226,5 +249,70 @@ struct AmenityInvitation: Identifiable {
     var reservationConfirmed: Bool
     var message: String
     var imagePlaceholder: String   // SF Symbol
+}
+
+// MARK: – Shared Community Filter
+
+enum CommunityFilter: String, CaseIterable, Codable {
+    case echelon = "Echelon"
+    case barkan = "Barkan Mgmt. Buildings"
+    case seaport = "Seaport"
+    case boston = "Boston"
+    case massachusetts = "Massachusetts"
+    case usa = "USA"
+    
+    var displayName: String {
+        switch self {
+        case .echelon: return "🏢 Echelon"
+        case .barkan: return "🏗️ Barkan Mgmt. Buildings"
+        case .seaport: return "🌊 Seaport"
+        case .boston: return "🏙️ Boston"
+        case .massachusetts: return "🌲 Massachusetts"
+        case .usa: return "🇺🇸 USA"
+        }
+    }
+    
+    // Hierarchical community filtering - used by HomeFeedView
+    var includedCommunities: Set<String> {
+        switch self {
+        case .echelon:
+            return ["Echelon"]
+        case .barkan:
+            return ["Barkan Management", "Echelon"]
+        case .seaport:
+            return ["Seaport", "Echelon"]
+        case .boston:
+            return ["Boston", "Seaport", "Echelon", "Barkan Management"]
+        case .massachusetts:
+            return ["Massachusetts", "Boston", "Seaport", "Echelon", "Barkan Management"]
+        case .usa:
+            return []  // Empty means show all (USA includes everything)
+        }
+    }
+    
+    // Used by ConnectorView to filter friend profiles
+    func matchesBuilding(buildingName: String, buildingOwner: String) -> Bool {
+        switch self {
+        case .echelon: return buildingName.contains("Echelon")
+        case .barkan: return buildingOwner.contains("Barkan") || buildingName.contains("Echelon")
+        case .seaport: return buildingName.contains("Seaport") || buildingName.contains("Echelon")
+        case .boston: return true // All our buildings are in Boston
+        case .massachusetts: return true
+        case .usa: return true
+        }
+    }
+    
+    // Used by ChallengesView to filter challenges
+    func matchesChallenge(communityName: String?) -> Bool {
+        guard let name = communityName else { return true }
+        switch self {
+        case .echelon: return name.contains("Echelon") || name.contains("Seaport Tower")
+        case .barkan: return name.contains("Barkan") || name.contains("Echelon") || name.contains("Seaport Tower")
+        case .seaport: return name.contains("Seaport")
+        case .boston: return name.contains("Boston") || name.contains("Seaport") || name.contains("Back Bay") || name.contains("South End")
+        case .massachusetts: return true
+        case .usa: return true
+        }
+    }
 }
 

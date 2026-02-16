@@ -22,33 +22,39 @@ struct RootView: View {
                         .navigationDestination(isPresented: $store.showBookmarks) {
                             BookmarksView()
                         }
-                        .navigationDestination(isPresented: $store.showConnector) {
-                            ConnectorView()
+                        .navigationDestination(isPresented: $store.showChallenges) {
+                            ChallengesView()
+                        }
+                        .navigationDestination(isPresented: $store.showNotifications) {
+                            NotificationsView()
+                        }
+                        .navigationDestination(isPresented: $store.showSchedule) {
+                            ScheduleView()
                         }
                 }
                 .tabItem { Label("Home", systemImage: "house") }
                 .tag(AppTab.home)
 
                 NavigationStack {
-                    ChallengesView()
+                    ConnectorView()
                         .toolbar { menuToolbar }
                 }
-                .tabItem { Label("Challenges", systemImage: "flag") }
-                .tag(AppTab.challenges)
+                .tabItem { Label("Connect", systemImage: "person.2.wave.2") }
+                .tag(AppTab.connector)
 
                 NavigationStack {
                     CommunityView()
                         .toolbar { menuToolbar }
                 }
-                .tabItem { Label("Community", systemImage: "person.2") }
+                .tabItem { Label("Community", systemImage: "hands.sparkles") }
                 .tag(AppTab.community)
 
                 NavigationStack {
-                    ChatListView()
+                    ChallengesView()
                         .toolbar { menuToolbar }
                 }
-                .tabItem { Label("Chat", systemImage: "bubble.left.and.bubble.right") }
-                .tag(AppTab.chat)
+                .tabItem { Label("Challenges", systemImage: "flag.checkered") }
+                .tag(AppTab.challenges)
             }
             .tint(EPTheme.accent)
 

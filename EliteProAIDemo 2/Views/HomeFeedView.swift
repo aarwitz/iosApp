@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HomeFeedView: View {
     @EnvironmentObject private var store: AppStore
+    @Environment(\.colorScheme) private var colorScheme
     @State private var sortOption: FeedSort = .recent
     @State private var selectedStoryFriend: FriendProfile? = nil
     @State private var currentStoryIndex: Int = 0
@@ -12,12 +13,22 @@ struct HomeFeedView: View {
     }
 
     var sortedFeed: [Post] {
+        var filtered = store.feed
+        
+        // Apply community filter
+        if !store.communityFilter.includedCommunities.isEmpty {
+            filtered = filtered.filter { post in
+                store.communityFilter.includedCommunities.contains(post.communityName)
+            }
+        }
+        
+        // Apply sort
         switch sortOption {
         case .recent:
-            return store.feed.sorted { $0.timestamp > $1.timestamp }
+            return filtered.sorted { $0.timestamp > $1.timestamp }
         case .popular:
             // Demo: reverse-alphabetical by author as "popularity" stand-in
-            return store.feed.sorted { $0.author < $1.author }
+            return filtered.sorted { $0.author < $1.author }
         }
     }
 
@@ -64,12 +75,68 @@ struct HomeFeedView: View {
             }
             .padding(16)
         }
-        .navigationTitle("Home")
+        .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                communityFilterHeader
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                NavigationLink {
+                    ChatListView()
+                } label: {
+                    ZStack(alignment: .topTrailing) {
+                        Image(systemName: "bubble.left.and.bubble.right")
+                            .font(.system(size: 18, weight: .semibold))
+                        
+                        // Unread badge
+                        let unreadCount = store.conversations.reduce(0) { $0 + $1.unreadCount }
+                        if unreadCount > 0 {
+                            Circle()
+                                .fill(EPTheme.accent)
+                                .frame(width: 8, height: 8)
+                                .offset(x: 4, y: -4)
+                        }
+                    }
+                }
+            }
+        }
         .fullScreenCover(item: $selectedStoryFriend) { friend in
             StoryViewer(friend: friend, currentIndex: $currentStoryIndex, onDismiss: {
                 selectedStoryFriend = nil
             })
+        }
+    }
+    
+    // MARK: – Community Filter Header
+    
+    private var communityFilterHeader: some View {
+        Menu {
+            ForEach(CommunityFilter.allCases, id: \.self) { filter in
+                Button {
+                    withAnimation {
+                        store.communityFilter = filter
+                    }
+                } label: {
+                    HStack {
+                        Text(filter.displayName)
+                        if store.communityFilter == filter {
+                            Image(systemName: "checkmark")
+                        }
+                    }
+                }
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Image("Circl")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 32)
+                
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(colorScheme == .dark ? .white : .black)
+            }
         }
     }
 

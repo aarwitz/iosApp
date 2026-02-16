@@ -12,7 +12,10 @@ final class AppStore: ObservableObject {
     @Published var showRewards: Bool = false
     @Published var showSettings: Bool = false
     @Published var showBookmarks: Bool = false
-    @Published var showConnector: Bool = false
+    @Published var showChallenges: Bool = false
+    @Published var showNotifications: Bool = false
+    @Published var showSchedule: Bool = false
+    @Published var communityFilter: CommunityFilter = .usa
 
     // Data
     @Published var profile: UserProfile
@@ -59,7 +62,6 @@ final class AppStore: ObservableObject {
             self.credits = snap.credits
             self.trainers = snap.trainers
             self.groups = snap.groups
-            self.feed = snap.feed
             self.chat = snap.chat
         } else {
             self.profile = UserProfile(name: "Luis Mendonca", email: "luis@eliteinhomefitness.com", role: "Member", buildingName: "Echelon Seaport", buildingOwner: "Barkan Management")
@@ -76,16 +78,7 @@ final class AppStore: ObservableObject {
                 Group(name: "Back Bay Running", kind: .activity, locationHint: "Boston • Back Bay", members: 142),
                 Group(name: "Beginner Lifting", kind: .activity, locationHint: "Any • Online", members: 317)
             ]
-
-            self.feed = [
-                Post(groupName: "Seaport Tower — Residents", communityName: "The Seaport", author: "Nina", text: "Anyone want to do a 7am mobility session tomorrow in the gym?", timestamp: Date().addingTimeInterval(-60*12), imagePlaceholder: nil),
-                Post(groupName: "Back Bay Running", communityName: "Back Bay", author: "Sam", text: "5k easy pace this Saturday. Meet at the reservoir 9:30.", timestamp: Date().addingTimeInterval(-60*45), imagePlaceholder: "figure.run"),
-                Post(groupName: "Beginner Lifting", communityName: "The Seaport", author: "Coach Jason", text: "Tip: track 3 numbers weekly — squat, hinge, and press volume. Keep it simple.", timestamp: Date().addingTimeInterval(-60*110), imagePlaceholder: nil),
-                Post(groupName: "Pickle Ball Club", communityName: "The Seaport", author: "Jake R.", text: "The outdoor pickle ball court just opened. I'm making reservations for Sunday. Who's in?", timestamp: Date().addingTimeInterval(-60*5), imagePlaceholder: "sportscourt"),
-                Post(groupName: "Yoga Flow", communityName: "South End", author: "Mei", text: "Sunday morning flow at the park — 8 AM, all levels welcome!", timestamp: Date().addingTimeInterval(-60*22), imagePlaceholder: "leaf"),
-                Post(groupName: "Seaport Tower — Residents", communityName: "The Seaport", author: "Dan K.", text: "The rooftop gym hours are extended through March. 5AM-11PM.", timestamp: Date().addingTimeInterval(-60*90), imagePlaceholder: "building.2")
-            ].sorted { $0.timestamp > $1.timestamp }
-
+            
             self.chat = [
                 ChatMessage(from: "Coach Jason", text: "Hey Luis! How's recovery feeling after last week's sessions?", timestamp: Date().addingTimeInterval(-30), isMe: false),
                 ChatMessage(from: "Coach Jason", text: "I put together a new plan for this week.", timestamp: Date().addingTimeInterval(-28), isMe: false),
@@ -348,6 +341,7 @@ final class AppStore: ObservableObject {
         
         // Demo discoverable friends (for swipe-to-connect)
         self.discoverableFriends = [
+            // Echelon building
             FriendProfile(
                 name: "Aisha Johnson", age: 28,
                 buildingName: "Echelon Seaport", buildingOwner: "Barkan Management",
@@ -356,6 +350,24 @@ final class AppStore: ObservableObject {
                 mutualFriends: 3, workoutsThisWeek: 4, favoriteActivity: "Morning Runners",
                 avatarInitials: "AJ"
             ),
+            FriendProfile(
+                name: "Tyler Brooks", age: 30,
+                buildingName: "Echelon Seaport", buildingOwner: "Barkan Management",
+                bio: "Basketball league organizer. Building a pickup hoops group at Echelon. Who's in?",
+                interests: ["Basketball", "Strength Training", "Cardio"],
+                mutualFriends: 7, workoutsThisWeek: 3, favoriteActivity: "Seaport Tower — Residents",
+                avatarInitials: "TB"
+            ),
+            FriendProfile(
+                name: "Devon Patel", age: 26,
+                buildingName: "Echelon Seaport", buildingOwner: "Barkan Management",
+                bio: "Tech bro who lifts. Tracking everything — macros, sleep, HRV. Data-driven fitness.",
+                interests: ["Strength Training", "Biohacking", "Nutrition", "Recovery"],
+                mutualFriends: 6, workoutsThisWeek: 5, favoriteActivity: "Beginner Lifting",
+                avatarInitials: "DP"
+            ),
+            
+            // Other Seaport buildings
             FriendProfile(
                 name: "Marco Reyes", age: 34,
                 buildingName: "Via Seaport", buildingOwner: "The Fallon Company",
@@ -371,14 +383,6 @@ final class AppStore: ObservableObject {
                 interests: ["Pilates", "Trail Running", "Meditation", "Nutrition"],
                 mutualFriends: 2, workoutsThisWeek: 5, favoriteActivity: "Yoga Flow",
                 avatarInitials: "SC"
-            ),
-            FriendProfile(
-                name: "Tyler Brooks", age: 30,
-                buildingName: "Echelon Seaport", buildingOwner: "Barkan Management",
-                bio: "Basketball league organizer. Building a pickup hoops group at Echelon. Who's in?",
-                interests: ["Basketball", "Strength Training", "Cardio"],
-                mutualFriends: 7, workoutsThisWeek: 3, favoriteActivity: "Seaport Tower — Residents",
-                avatarInitials: "TB"
             ),
             FriendProfile(
                 name: "Priya Sharma", age: 27,
@@ -404,13 +408,51 @@ final class AppStore: ObservableObject {
                 mutualFriends: 3, workoutsThisWeek: 4, favoriteActivity: "Group Classes",
                 avatarInitials: "LK"
             ),
+            
+            // Back Bay buildings
             FriendProfile(
-                name: "Devon Patel", age: 26,
-                buildingName: "Echelon Seaport", buildingOwner: "Barkan Management",
-                bio: "Tech bro who lifts. Tracking everything — macros, sleep, HRV. Data-driven fitness.",
-                interests: ["Strength Training", "Biohacking", "Nutrition", "Recovery"],
-                mutualFriends: 6, workoutsThisWeek: 5, favoriteActivity: "Beginner Lifting",
-                avatarInitials: "DP"
+                name: "Emma Martinez", age: 29,
+                buildingName: "The Clarendon", buildingOwner: "Trinity Place Holdings",
+                bio: "Marathon runner and yoga instructor. Teaching evening classes in Back Bay!",
+                interests: ["Running", "Yoga", "Meditation"],
+                mutualFriends: 2, workoutsThisWeek: 7, favoriteActivity: "Back Bay Running",
+                avatarInitials: "EM"
+            ),
+            FriendProfile(
+                name: "Jake Williams", age: 31,
+                buildingName: "The Viridian", buildingOwner: "Hamilton Company",
+                bio: "Powerlifter competing in local meets. Always down to share lifting tips!",
+                interests: ["Powerlifting", "Strength Training", "Nutrition"],
+                mutualFriends: 1, workoutsThisWeek: 5, favoriteActivity: "Beginner Lifting",
+                avatarInitials: "JW"
+            ),
+            
+            // South End buildings
+            FriendProfile(
+                name: "Maya Rodriguez", age: 27,
+                buildingName: "Troy Boston", buildingOwner: "Samuels & Associates",
+                bio: "Yoga teacher and plant-based nutrition coach. Let's get healthy together!",
+                interests: ["Yoga", "Nutrition", "Meal Prep", "Meditation"],
+                mutualFriends: 4, workoutsThisWeek: 4, favoriteActivity: "Yoga Flow",
+                avatarInitials: "MR"
+            ),
+            
+            // Cambridge buildings  
+            FriendProfile(
+                name: "Alex Kim", age: 28,
+                buildingName: "The Lofts at Kendall Square", buildingOwner: "Boston Properties",
+                bio: "CrossFit athlete training for competitions. Love the grind!",
+                interests: ["CrossFit", "Olympic Lifting", "HIIT"],
+                mutualFriends: 3, workoutsThisWeek: 6, favoriteActivity: "CrossFit Central",
+                avatarInitials: "AK"
+            ),
+            FriendProfile(
+                name: "Rachel Green", age: 26,
+                buildingName: "Avalon at Assembly Row", buildingOwner: "AvalonBay Communities",
+                bio: "Rock climber and outdoor enthusiast. Weekend adventures in the White Mountains!",
+                interests: ["Rock Climbing", "Hiking", "Yoga", "Trail Running"],
+                mutualFriends: 2, workoutsThisWeek: 5, favoriteActivity: "Outdoor Activities",
+                avatarInitials: "RG"
             )
         ]
         
@@ -834,6 +876,57 @@ final class AppStore: ObservableObject {
                 imagePlaceholder: "person.fill"
             )
         ]
+        
+        // Always use fresh demo feed data (not persisted) so community filters work correctly
+        self.feed = [
+            // Echelon building posts (most specific)
+            Post(groupName: "Seaport Tower — Residents", communityName: "Echelon", author: "Nina", text: "Anyone want to do a 7am mobility session tomorrow in the gym?", timestamp: Date().addingTimeInterval(-60*12), imagePlaceholder: nil),
+            Post(groupName: "Pickle Ball Club", communityName: "Echelon", author: "Jake R.", text: "The outdoor pickle ball court just opened. I'm making reservations for Sunday. Who's in?", timestamp: Date().addingTimeInterval(-60*5), imagePlaceholder: "sportscourt"),
+            Post(groupName: "Seaport Tower — Residents", communityName: "Echelon", author: "Dan K.", text: "The rooftop gym hours are extended through March. 5AM-11PM.", timestamp: Date().addingTimeInterval(-60*90), imagePlaceholder: "building.2"),
+            Post(groupName: "Echelon Early Birds", communityName: "Echelon", author: "Sarah L.", text: "6am workout crew meets tomorrow! Coffee after 💪", timestamp: Date().addingTimeInterval(-60*35), imagePlaceholder: "cup.and.saucer"),
+            Post(groupName: "Echelon Yoga", communityName: "Echelon", author: "Emma T.", text: "New evening yoga class starting this week - Tuesdays at 7pm", timestamp: Date().addingTimeInterval(-60*180), imagePlaceholder: "figure.mind.and.body"),
+            Post(groupName: "Echelon Swimming", communityName: "Echelon", author: "Marcus W.", text: "Pool is heated and ready! Lap swim schedule posted in lobby.", timestamp: Date().addingTimeInterval(-60*240), imagePlaceholder: "figure.pool.swim"),
+            
+            // Barkan Management posts (includes multiple buildings)
+            Post(groupName: "Barkan Buildings Fitness", communityName: "Barkan Management", author: "Lisa M.", text: "All Barkan-managed buildings now have 24/7 gym access!", timestamp: Date().addingTimeInterval(-60*150), imagePlaceholder: "building.2"),
+            Post(groupName: "Barkan Wellness Program", communityName: "Barkan Management", author: "David P.", text: "New wellness program launches next month across all Barkan properties 🎉", timestamp: Date().addingTimeInterval(-60*300), imagePlaceholder: "heart.text.square"),
+            Post(groupName: "Barkan Community Events", communityName: "Barkan Management", author: "Rachel K.", text: "Inter-building fitness challenge starting soon! Which building will win?", timestamp: Date().addingTimeInterval(-60*420), imagePlaceholder: "trophy"),
+            
+            // Seaport neighborhood posts
+            Post(groupName: "Beginner Lifting", communityName: "Seaport", author: "Coach Jason", text: "Tip: track 3 numbers weekly — squat, hinge, and press volume. Keep it simple.", timestamp: Date().addingTimeInterval(-60*110), imagePlaceholder: nil),
+            Post(groupName: "Seaport Runners", communityName: "Seaport", author: "Chris B.", text: "Harbor run tomorrow at sunrise 🌅 Meet at the pier!", timestamp: Date().addingTimeInterval(-60*65), imagePlaceholder: "figure.run"),
+            Post(groupName: "Seaport CrossFit", communityName: "Seaport", author: "Alex R.", text: "WOD: 21-15-9 Thrusters and Pull-ups. Who's joining?", timestamp: Date().addingTimeInterval(-60*140), imagePlaceholder: "figure.strengthtraining.traditional"),
+            Post(groupName: "Seaport Beach Volleyball", communityName: "Seaport", author: "Jordan M.", text: "Beach volleyball this weekend! All skill levels welcome 🏐", timestamp: Date().addingTimeInterval(-60*360), imagePlaceholder: "volleyball"),
+            Post(groupName: "Seaport Nutrition Club", communityName: "Seaport", author: "Priya N.", text: "Meal prep workshop next Sunday - learn to prep a week's worth of healthy meals!", timestamp: Date().addingTimeInterval(-60*480), imagePlaceholder: "fork.knife"),
+            
+            // Boston city posts (includes multiple neighborhoods)
+            Post(groupName: "Back Bay Running", communityName: "Boston", author: "Sam", text: "5k easy pace this Saturday. Meet at the reservoir 9:30.", timestamp: Date().addingTimeInterval(-60*45), imagePlaceholder: "figure.run"),
+            Post(groupName: "Yoga Flow", communityName: "Boston", author: "Mei", text: "Sunday morning flow at the park — 8 AM, all levels welcome!", timestamp: Date().addingTimeInterval(-60*22), imagePlaceholder: "leaf"),
+            Post(groupName: "Boston Cycling Club", communityName: "Boston", author: "Tyler J.", text: "40-mile ride along the Charles this Sunday. Fast-paced group!", timestamp: Date().addingTimeInterval(-60*78), imagePlaceholder: "bicycle"),
+            Post(groupName: "Boston Strength & Conditioning", communityName: "Boston", author: "Mike S.", text: "New strongman training program starts Monday. Limited spots!", timestamp: Date().addingTimeInterval(-60*220), imagePlaceholder: "figure.wrestling"),
+            Post(groupName: "Boston Boxing", communityName: "Boston", author: "Amanda L.", text: "Beginner boxing class tonight at 6pm. Gloves provided!", timestamp: Date().addingTimeInterval(-60*8), imagePlaceholder: "figure.boxing"),
+            Post(groupName: "Boston Hiking Group", communityName: "Boston", author: "Kevin H.", text: "Blue Hills hike this Saturday morning. Moderate difficulty, 4 miles.", timestamp: Date().addingTimeInterval(-60*270), imagePlaceholder: "figure.hiking"),
+            Post(groupName: "Boston Food & Fitness", communityName: "Boston", author: "Julia F.", text: "Healthy brunch social after our workout tomorrow! Who's in? 🥑", timestamp: Date().addingTimeInterval(-60*540), imagePlaceholder: "cup.and.saucer.fill"),
+            
+            // Massachusetts state posts (broader region)
+            Post(groupName: "Massachusetts Runners", communityName: "Massachusetts", author: "Tom H.", text: "Spring marathon training starts next week. Join us!", timestamp: Date().addingTimeInterval(-60*200), imagePlaceholder: "figure.run"),
+            Post(groupName: "Mass Fitness Challenge", communityName: "Massachusetts", author: "Patricia G.", text: "Statewide fitness challenge - 10,000 people signed up so far! 🏃‍♀️", timestamp: Date().addingTimeInterval(-60*390), imagePlaceholder: "person.2.fill"),
+            Post(groupName: "Cape Cod Outdoor Fitness", communityName: "Massachusetts", author: "Brian M.", text: "Beach workout sessions starting in April. Can't wait for summer!", timestamp: Date().addingTimeInterval(-60*600), imagePlaceholder: "beach.umbrella"),
+            Post(groupName: "Worcester Weightlifting", communityName: "Massachusetts", author: "Steve C.", text: "Regional powerlifting meet next month - come compete!", timestamp: Date().addingTimeInterval(-60*720), imagePlaceholder: "figure.strengthtraining.traditional"),
+            
+            // USA national posts (broadest scope)
+            Post(groupName: "National Fitness Movement", communityName: "USA", author: "Coach Taylor", text: "National fitness month is coming up! What are your goals? 🇺🇸", timestamp: Date().addingTimeInterval(-60*810), imagePlaceholder: "flag"),
+            Post(groupName: "USA Wellness Summit", communityName: "USA", author: "Dr. Martinez", text: "Virtual wellness summit next week - free registration!", timestamp: Date().addingTimeInterval(-60*900), imagePlaceholder: "video"),
+            Post(groupName: "American Fitness League", communityName: "USA", author: "Commissioner Davis", text: "Season 2 of the AFL starts next month. Join a team near you!", timestamp: Date().addingTimeInterval(-60*1020), imagePlaceholder: "sportscourt.fill")
+        ].sorted { $0.timestamp > $1.timestamp }
+        
+        // Backfill building info if the persisted profile is missing those keys
+        if self.profile.buildingName.isEmpty {
+            self.profile.buildingName = "Echelon Seaport"
+        }
+        if self.profile.buildingOwner.isEmpty {
+            self.profile.buildingOwner = "Barkan Management"
+        }
     }
 
     func persist() {

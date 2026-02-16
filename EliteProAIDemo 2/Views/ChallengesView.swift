@@ -2,10 +2,20 @@ import SwiftUI
 
 struct ChallengesView: View {
     @EnvironmentObject private var store: AppStore
+    @Environment(\.colorScheme) private var colorScheme
     @State private var selectedCategory: ChallengeCategory = .recommended
 
     var filteredChallenges: [Challenge] {
-        store.challenges.filter { $0.category == selectedCategory }
+        var result = store.challenges.filter { $0.category == selectedCategory }
+
+        // Apply community filter
+        // "For You" and "Friends" categories always show (they're personal)
+        if selectedCategory != .recommended && selectedCategory != .friends {
+            result = result.filter { challenge in
+                store.communityFilter.matchesChallenge(communityName: challenge.communityName)
+            }
+        }
+        return result
     }
 
     var body: some View {
@@ -75,8 +85,42 @@ struct ChallengesView: View {
             }
             .padding(16)
         }
-        .navigationTitle("Challenges")
+        .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                communityFilterHeader
+            }
+        }
+    }
+
+    // MARK: – Community Filter Header
+
+    private var communityFilterHeader: some View {
+        Menu {
+            ForEach(CommunityFilter.allCases, id: \.rawValue) { filter in
+                Button {
+                    store.communityFilter = filter
+                } label: {
+                    HStack {
+                        Text(filter.displayName)
+                        if store.communityFilter == filter {
+                            Image(systemName: "checkmark")
+                        }
+                    }
+                }
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Text("Challenges")
+                    .font(.system(.headline, design: .rounded))
+                    .foregroundStyle(Color.primary)
+                
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(colorScheme == .dark ? .white : .black)
+            }
+        }
     }
 
     // MARK: – Single Challenge Card

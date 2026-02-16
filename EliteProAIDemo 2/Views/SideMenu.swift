@@ -85,11 +85,19 @@ struct SideMenu: View {
                 }
             }
 
-            MenuRow(icon: "questionmark.circle", title: "Connector") {
+            MenuRow(icon: "calendar", title: "Schedule") {
                 store.selectedTab = .home
                 store.closeMenu()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    store.showConnector = true
+                    store.showSchedule = true
+                }
+            }
+
+            MenuRow(icon: "bell", title: "Notifications") {
+                store.selectedTab = .home
+                store.closeMenu()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    store.showNotifications = true
                 }
             }
 
