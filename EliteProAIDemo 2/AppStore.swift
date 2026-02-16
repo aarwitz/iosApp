@@ -31,6 +31,8 @@ final class AppStore: ObservableObject {
     @Published var rewardItems: [RewardItem]
     @Published var friends: [FriendProfile]
     @Published var discoverableFriends: [FriendProfile]
+    @Published var amenities: [Amenity]
+    @Published var amenityInvitations: [AmenityInvitation]
 
     private let filename = "elitepro_demo_store.json"
 
@@ -209,6 +211,7 @@ final class AppStore: ObservableObject {
         
         // Demo friends (already connected)
         self.friends = [
+            // Friends with stories (fully fleshed out)
             FriendProfile(
                 name: "Nina Alvarez", age: 29,
                 buildingName: "Echelon Seaport", buildingOwner: "Barkan Management",
@@ -233,14 +236,6 @@ final class AppStore: ObservableObject {
                 ]
             ),
             FriendProfile(
-                name: "Jake Rosenberg", age: 27,
-                buildingName: "Echelon Seaport", buildingOwner: "Barkan Management",
-                bio: "Pickle ball enthusiast. Gym 6 days/week. Let's play!",
-                interests: ["Pickle Ball", "Strength Training", "Basketball"],
-                mutualFriends: 3, workoutsThisWeek: 4, favoriteActivity: "Pickle Ball Club",
-                avatarInitials: "JR", isFriend: true, hasStory: false
-            ),
-            FriendProfile(
                 name: "Mei Lin", age: 26,
                 buildingName: "Watermark Seaport", buildingOwner: "Greystar",
                 bio: "Plant-based athlete. Teaching Sunday yoga in the park.",
@@ -253,14 +248,103 @@ final class AppStore: ObservableObject {
                 ]
             ),
             FriendProfile(
-                name: "Dan Kim", age: 33,
+                name: "Alex Rivera", age: 28,
+                buildingName: "One Seaport", buildingOwner: "WS Development",
+                bio: "CrossFit athlete & nutrition coach. Love helping people hit their goals.",
+                interests: ["CrossFit", "Nutrition", "Weightlifting"],
+                mutualFriends: 8, workoutsThisWeek: 7, favoriteActivity: "CrossFit Central",
+                avatarInitials: "AR", isFriend: true, hasStory: true,
+                storyItems: [
+                    StoryItem(imagePlaceholder: "dumbbell.fill", caption: "Hit a 225lb clean today! 💪", timestamp: Date().addingTimeInterval(-60*180), gradientColors: [.red, .orange]),
+                    StoryItem(imagePlaceholder: "carrot.fill", caption: "Meal prep Sunday vibes 🥗", timestamp: Date().addingTimeInterval(-60*300), gradientColors: [.green, .yellow])
+                ]
+            ),
+            FriendProfile(
+                name: "Jenna Watson", age: 30,
                 buildingName: "Echelon Seaport", buildingOwner: "Barkan Management",
-                bio: "Rooftop gym regular. Ask me about powerlifting programs.",
-                interests: ["Powerlifting", "CrossFit", "Recovery"],
-                mutualFriends: 5, workoutsThisWeek: 5, favoriteActivity: "Beginner Lifting",
-                avatarInitials: "DK", isFriend: true, hasStory: false
-            )
-        ]
+                bio: "Marathon runner & yoga instructor. Balance is everything.",
+                interests: ["Running", "Yoga", "Meditation"],
+                mutualFriends: 5, workoutsThisWeek: 6, favoriteActivity: "Morning Runners",
+                avatarInitials: "JW", isFriend: true, hasStory: true,
+                storyItems: [
+                    StoryItem(imagePlaceholder: "heart.fill", caption: "Recovery day = best day", timestamp: Date().addingTimeInterval(-60*60), gradientColors: [.pink, .red])
+                ]
+            ),
+            FriendProfile(
+                name: "Marcus Johnson", age: 32,
+                buildingName: "Via Seaport", buildingOwner: "The Fallon Company",
+                bio: "Former college football player. Now into bodybuilding and powerlifting.",
+                interests: ["Powerlifting", "Bodybuilding", "Sports"],
+                mutualFriends: 7, workoutsThisWeek: 5, favoriteActivity: "Beginner Lifting",
+                avatarInitials: "MJ", isFriend: true, hasStory: true,
+                storyItems: [
+                    StoryItem(imagePlaceholder: "flame.fill", caption: "Leg day destroyed me 🔥", timestamp: Date().addingTimeInterval(-60*240), gradientColors: [.orange, .red]),
+                    StoryItem(imagePlaceholder: "fork.knife", caption: "Post-workout feast!", timestamp: Date().addingTimeInterval(-60*260), gradientColors: [.brown, .orange])
+                ]
+            ),
+            FriendProfile(
+                name: "Sofia Martinez", age: 25,
+                buildingName: "Watermark Seaport", buildingOwner: "Greystar",
+                bio: "Dance fitness instructor. Bringing the energy to every class!",
+                interests: ["Dance", "HIIT", "Group Fitness"],
+                mutualFriends: 4, workoutsThisWeek: 8, favoriteActivity: "Group Classes",
+                avatarInitials: "SM", isFriend: true, hasStory: true,
+                storyItems: [
+                    StoryItem(imagePlaceholder: "music.note", caption: "New playlist for tomorrow's class 🎵", timestamp: Date().addingTimeInterval(-60*150), gradientColors: [.purple, .blue])
+                ]
+            ),
+            FriendProfile(
+                name: "Ryan Park", age: 29,
+                buildingName: "One Seaport", buildingOwner: "WS Development",
+                bio: "Triathlete training for Ironman. Swim, bike, run, repeat.",
+                interests: ["Triathlon", "Swimming", "Cycling", "Running"],
+                mutualFriends: 6, workoutsThisWeek: 9, favoriteActivity: "Morning Runners",
+                avatarInitials: "RP", isFriend: true, hasStory: true,
+                storyItems: [
+                    StoryItem(imagePlaceholder: "figure.outdoor.cycle", caption: "50 mile bike ride ✅", timestamp: Date().addingTimeInterval(-60*100), gradientColors: [.blue, .cyan]),
+                    StoryItem(imagePlaceholder: "figure.pool.swim", caption: "Open water swim in the harbor!", timestamp: Date().addingTimeInterval(-60*360), gradientColors: [.blue, .teal])
+                ]
+            ),
+            FriendProfile(
+                name: "Olivia Brown", age: 27,
+                buildingName: "Echelon Seaport", buildingOwner: "Barkan Management",
+                bio: "Certified personal trainer. Love helping beginners find their confidence.",
+                interests: ["Personal Training", "Strength", "Motivation"],
+                mutualFriends: 9, workoutsThisWeek: 6, favoriteActivity: "Beginner Lifting",
+                avatarInitials: "OB", isFriend: true, hasStory: true,
+                storyItems: [
+                    StoryItem(imagePlaceholder: "star.fill", caption: "Client hit their first pull-up today!", timestamp: Date().addingTimeInterval(-60*80), gradientColors: [.yellow, .orange])
+                ]
+            ),
+            FriendProfile(
+                name: "David Chen", age: 33,
+                buildingName: "Via Seaport", buildingOwner: "The Fallon Company",
+                bio: "Rock climber & calisthenics enthusiast. Bodyweight training is underrated.",
+                interests: ["Rock Climbing", "Calisthenics", "Parkour"],
+                mutualFriends: 3, workoutsThisWeek: 5, favoriteActivity: "Outdoor Activities",
+                avatarInitials: "DC", isFriend: true, hasStory: true,
+                storyItems: [
+                    StoryItem(imagePlaceholder: "figure.climbing", caption: "Sent a V7 project today! 🧗", timestamp: Date().addingTimeInterval(-60*220), gradientColors: [.gray, .blue])
+                ]
+            ),
+            
+            // Friends without stories (simpler profiles)
+            FriendProfile(name: "Jake Rosenberg", age: 27, buildingName: "Echelon Seaport", buildingOwner: "Barkan Management", bio: "Pickle ball enthusiast", interests: ["Pickle Ball", "Strength Training"], mutualFriends: 3, workoutsThisWeek: 4, favoriteActivity: "Pickle Ball Club", avatarInitials: "JR", isFriend: true, hasStory: false),
+            FriendProfile(name: "Dan Kim", age: 33, buildingName: "Echelon Seaport", buildingOwner: "Barkan Management", bio: "Rooftop gym regular", interests: ["Powerlifting", "CrossFit"], mutualFriends: 5, workoutsThisWeek: 5, favoriteActivity: "Beginner Lifting", avatarInitials: "DK", isFriend: true, hasStory: false),
+            FriendProfile(name: "Jessica Lee", age: 26, buildingName: "Watermark Seaport", buildingOwner: "Greystar", bio: "Morning runner", interests: ["Running"], mutualFriends: 2, workoutsThisWeek: 3, favoriteActivity: "Morning Runners", avatarInitials: "JL", isFriend: true, hasStory: false),
+            FriendProfile(name: "Tom Anderson", age: 31, buildingName: "One Seaport", buildingOwner: "WS Development", bio: "Gym enthusiast", interests: ["Lifting"], mutualFriends: 4, workoutsThisWeek: 4, favoriteActivity: "Beginner Lifting", avatarInitials: "TA", isFriend: true, hasStory: false),
+            FriendProfile(name: "Lisa Patel", age: 28, buildingName: "Via Seaport", buildingOwner: "The Fallon Company", bio: "Yoga practitioner", interests: ["Yoga"], mutualFriends: 3, workoutsThisWeek: 2, favoriteActivity: "Yoga Flow", avatarInitials: "LP", isFriend: true, hasStory: false),
+            FriendProfile(name: "Chris Walker", age: 29, buildingName: "Echelon Seaport", buildingOwner: "Barkan Management", bio: "Basketball player", interests: ["Basketball"], mutualFriends: 6, workoutsThisWeek: 3, favoriteActivity: "Sports", avatarInitials: "CW", isFriend: true, hasStory: false),
+            FriendProfile(name: "Amy Zhou", age: 24, buildingName: "Watermark Seaport", buildingOwner: "Greystar", bio: "Fitness newbie", interests: ["Cardio"], mutualFriends: 1, workoutsThisWeek: 2, favoriteActivity: "Group Classes", avatarInitials: "AZ", isFriend: true, hasStory: false),
+            FriendProfile(name: "Brian Murphy", age: 35, buildingName: "One Seaport", buildingOwner: "WS Development", bio: "Cycling enthusiast", interests: ["Cycling"], mutualFriends: 5, workoutsThisWeek: 4, favoriteActivity: "Outdoor Activities", avatarInitials: "BM", isFriend: true, hasStory: false),
+            FriendProfile(name: "Rachel Green", age: 27, buildingName: "Via Seaport", buildingOwner: "The Fallon Company", bio: "Pilates instructor", interests: ["Pilates"], mutualFriends: 4, workoutsThisWeek: 5, favoriteActivity: "Pilates", avatarInitials: "RG", isFriend: true, hasStory: false),
+            FriendProfile(name: "Kevin Tran", age: 30, buildingName: "Echelon Seaport", buildingOwner: "Barkan Management", bio: "CrossFit member", interests: ["CrossFit"], mutualFriends: 7, workoutsThisWeek: 6, favoriteActivity: "CrossFit Central", avatarInitials: "KT", isFriend: true, hasStory: false),
+            FriendProfile(name: "Sarah Mitchell", age: 26, buildingName: "Watermark Seaport", buildingOwner: "Greystar", bio: "Runner", interests: ["Running"], mutualFriends: 3, workoutsThisWeek: 5, favoriteActivity: "Back Bay Running", avatarInitials: "SM", isFriend: true, hasStory: false),
+            FriendProfile(name: "Mike Davis", age: 32, buildingName: "One Seaport", buildingOwner: "WS Development", bio: "Weightlifter", interests: ["Weightlifting"], mutualFriends: 4, workoutsThisWeek: 5, favoriteActivity: "Beginner Lifting", avatarInitials: "MD", isFriend: true, hasStory: false),
+            FriendProfile(name: "Jennifer Yang", age: 25, buildingName: "Via Seaport", buildingOwner: "The Fallon Company", bio: "Yoga teacher", interests: ["Yoga"], mutualFriends: 2, workoutsThisWeek: 4, favoriteActivity: "Yoga Flow", avatarInitials: "JY", isFriend: true, hasStory: false),
+            FriendProfile(name: "Alex Turner", age: 28, buildingName: "Echelon Seaport", buildingOwner: "Barkan Management", bio: "HIIT lover", interests: ["HIIT"], mutualFriends: 5, workoutsThisWeek: 6, favoriteActivity: "Group Classes", avatarInitials: "AT", isFriend: true, hasStory: false),
+            FriendProfile(name: "Lauren Scott", age: 29, buildingName: "Watermark Seaport", buildingOwner: "Greystar", bio: "Marathon trainer", interests: ["Running"], mutualFriends: 6, workoutsThisWeek: 7, favoriteActivity: "Back Bay Running", avatarInitials: "LS", isFriend: true, hasStory: false),
+        ] + Self.generateBulkFriends(count: 230)
         
         // Demo discoverable friends (for swipe-to-connect)
         self.discoverableFriends = [
@@ -631,6 +715,125 @@ final class AppStore: ObservableObject {
                 quantityLeft: nil
             )
         ]
+        
+        // Demo amenities
+        self.amenities = [
+            Amenity(
+                name: "Rooftop Fitness Center",
+                category: .fitness,
+                buildingName: "Echelon Seaport",
+                imagePlaceholder: "dumbbell.fill",
+                availableTimes: ["5:00 AM - 11:00 PM", "Daily"],
+                requiresReservation: false,
+                description: "Full gym with cardio equipment, free weights, and machines"
+            ),
+            Amenity(
+                name: "Personal Training Sessions",
+                category: .services,
+                buildingName: "Echelon Seaport",
+                imagePlaceholder: "person.fill",
+                availableTimes: ["6:00 AM - 9:00 PM", "By Appointment"],
+                requiresReservation: true,
+                description: "Certified trainers available for 1-on-1 sessions. Book your slot."
+            ),
+            Amenity(
+                name: "Yoga Studio",
+                category: .wellness,
+                buildingName: "Echelon Seaport",
+                imagePlaceholder: "figure.yoga",
+                availableTimes: ["6:00 AM - 10:00 PM", "Daily"],
+                requiresReservation: true,
+                description: "Peaceful studio space for yoga, meditation, and stretching"
+            ),
+            Amenity(
+                name: "Sauna & Steam Room",
+                category: .wellness,
+                buildingName: "Echelon Seaport",
+                imagePlaceholder: "flame.fill",
+                availableTimes: ["6:00 AM - 10:00 PM", "Daily"],
+                requiresReservation: false,
+                description: "Relax and recover in our spa-quality sauna and steam facilities"
+            ),
+            Amenity(
+                name: "Swimming Pool",
+                category: .fitness,
+                buildingName: "Echelon Seaport",
+                imagePlaceholder: "figure.pool.swim",
+                availableTimes: ["6:00 AM - 9:00 PM", "Daily"],
+                requiresReservation: false,
+                description: "25-meter lap pool with designated swim lanes"
+            ),
+            Amenity(
+                name: "Basketball Court",
+                category: .social,
+                buildingName: "Echelon Seaport",
+                imagePlaceholder: "basketball.fill",
+                availableTimes: ["7:00 AM - 10:00 PM", "Daily"],
+                requiresReservation: true,
+                description: "Half-court available for pickup games and practice"
+            ),
+            Amenity(
+                name: "Massage Therapy",
+                category: .wellness,
+                buildingName: "Echelon Seaport",
+                imagePlaceholder: "hands.sparkles.fill",
+                availableTimes: ["9:00 AM - 7:00 PM", "Mon-Sat"],
+                requiresReservation: true,
+                description: "Professional massage therapists available for recovery sessions"
+            ),
+            Amenity(
+                name: "Cycling Studio",
+                category: .fitness,
+                buildingName: "Echelon Seaport",
+                imagePlaceholder: "figure.indoor.cycle",
+                availableTimes: ["6:00 AM - 9:00 PM", "Daily"],
+                requiresReservation: true,
+                description: "Indoor cycling studio with Peloton bikes"
+            ),
+            Amenity(
+                name: "Nutrition Consultation",
+                category: .services,
+                buildingName: "Echelon Seaport",
+                imagePlaceholder: "carrot.fill",
+                availableTimes: ["8:00 AM - 6:00 PM", "Mon-Fri"],
+                requiresReservation: true,
+                description: "Meet with certified nutritionists for personalized meal planning"
+            )
+        ]
+        
+        // Demo amenity invitations
+        self.amenityInvitations = [
+            AmenityInvitation(
+                amenityName: "Basketball Court",
+                fromFriend: "Jake Rosenberg",
+                friendInitials: "JR",
+                time: Date().addingTimeInterval(60*60*3),  // 3 hours from now
+                duration: "1 hour",
+                reservationConfirmed: true,
+                message: "Hey! Got a court reservation for pickup hoops. You in? 🏀",
+                imagePlaceholder: "basketball.fill"
+            ),
+            AmenityInvitation(
+                amenityName: "Yoga Studio",
+                fromFriend: "Nina Alvarez",
+                friendInitials: "NA",
+                time: Date().addingTimeInterval(60*60*17),  // Tomorrow morning
+                duration: "1 hour",
+                reservationConfirmed: true,
+                message: "Morning flow session tomorrow! Join me? 🧘‍♀️",
+                imagePlaceholder: "figure.yoga"
+            ),
+            AmenityInvitation(
+                amenityName: "Personal Training Sessions",
+                fromFriend: "Marcus Johnson",
+                friendInitials: "MJ",
+                time: Date().addingTimeInterval(60*60*26),  // Tomorrow afternoon
+                duration: "45 min",
+                reservationConfirmed: true,
+                message: "Booked a trainer for leg day. Want to join the session?",
+                imagePlaceholder: "person.fill"
+            )
+        ]
     }
 
     func persist() {
@@ -728,6 +931,42 @@ final class AppStore: ObservableObject {
         
         persist()
         return true
+    }
+    
+    // Generate bulk simple friends
+    static func generateBulkFriends(count: Int) -> [FriendProfile] {
+        let firstNames = ["Alex", "Jordan", "Taylor", "Morgan", "Casey", "Riley", "Drew", "Cameron", "Avery", "Quinn", "Peyton", "Reese", "Parker", "Logan", "Skylar", "Dakota", "Hayden", "Charlie", "Emerson", "Rowan", "Sage", "River", "Phoenix", "Blake", "Jamie", "Jesse", "Kai", "Cameron", "Pat", "Sam"]
+        let lastNames = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin", "Lee", "Thompson", "White", "Harris", "Clark", "Lewis", "Robinson", "Walker", "Hall", "Allen", "Young"]
+        let buildings = ["Echelon Seaport", "Via Seaport", "Watermark Seaport", "One Seaport", "50 Liberty"]
+        let owners = ["Barkan Management", "The Fallon Company", "Greystar", "WS Development", "Hines"]
+        let activities = ["Running", "Yoga", "Lifting", "CrossFit", "Cycling", "Swimming", "HIIT", "Pilates", "Boxing", "Climbing"]
+        
+        var friends: [FriendProfile] = []
+        for i in 0..<count {
+            let firstName = firstNames[i % firstNames.count]
+            let lastName = lastNames[(i / firstNames.count) % lastNames.count]
+            let name = "\(firstName) \(lastName)"
+            let initials = "\(firstName.prefix(1))\(lastName.prefix(1))"
+            let building = buildings[i % buildings.count]
+            let owner = owners[i % owners.count]
+            let activity = activities[i % activities.count]
+            
+            friends.append(FriendProfile(
+                name: name,
+                age: 22 + (i % 18),
+                buildingName: building,
+                buildingOwner: owner,
+                bio: "Fitness enthusiast",
+                interests: [activity],
+                mutualFriends: i % 10,
+                workoutsThisWeek: i % 7,
+                favoriteActivity: activity,
+                avatarInitials: initials,
+                isFriend: true,
+                hasStory: false
+            ))
+        }
+        return friends
     }
 }
 

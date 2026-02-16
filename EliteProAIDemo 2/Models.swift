@@ -196,3 +196,35 @@ struct StoryItem: Identifiable {
     var gradientColors: [Color] = [.blue, .purple]
 }
 
+// MARK: – Amenities
+
+struct Amenity: Identifiable {
+    var id: UUID = UUID()
+    var name: String
+    var category: AmenityCategory
+    var buildingName: String
+    var imagePlaceholder: String   // SF Symbol
+    var availableTimes: [String]   // e.g. ["6:00 AM - 10:00 PM", "Mon-Sun"]
+    var requiresReservation: Bool
+    var description: String
+}
+
+enum AmenityCategory: String, CaseIterable {
+    case fitness = "Fitness"
+    case wellness = "Wellness"
+    case social = "Social"
+    case services = "Services"
+}
+
+struct AmenityInvitation: Identifiable {
+    var id: UUID = UUID()
+    var amenityName: String
+    var fromFriend: String
+    var friendInitials: String
+    var time: Date
+    var duration: String           // e.g. "1 hour"
+    var reservationConfirmed: Bool
+    var message: String
+    var imagePlaceholder: String   // SF Symbol
+}
+
