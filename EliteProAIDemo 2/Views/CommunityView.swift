@@ -51,7 +51,7 @@ struct CommunityView: View {
                         VStack(spacing: 6) {
                             Text(community.name)
                                 .font(.system(.subheadline, design: .rounded).weight(selectedCommunityIndex == idx ? .bold : .regular))
-                                .foregroundStyle(selectedCommunityIndex == idx ? Color.white : EPTheme.softText)
+                                .foregroundStyle(selectedCommunityIndex == idx ? Color.primary : EPTheme.softText)
                                 .lineLimit(1)
                                 .padding(.horizontal, 16)
 

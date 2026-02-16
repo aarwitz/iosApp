@@ -70,6 +70,7 @@ struct SideMenu: View {
             Divider().overlay(EPTheme.divider)
 
             MenuRow(icon: "person.crop.circle", title: "Profile") {
+                store.selectedTab = .home
                 store.closeMenu()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     store.showProfile = true
@@ -77,6 +78,7 @@ struct SideMenu: View {
             }
 
             MenuRow(icon: "gift", title: "Rewards") {
+                store.selectedTab = .home
                 store.closeMenu()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     store.showRewards = true
@@ -84,6 +86,7 @@ struct SideMenu: View {
             }
 
             MenuRow(icon: "questionmark.circle", title: "Connector") {
+                store.selectedTab = .home
                 store.closeMenu()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     store.showConnector = true
@@ -91,6 +94,7 @@ struct SideMenu: View {
             }
 
             MenuRow(icon: "bookmark", title: "Bookmarks") {
+                store.selectedTab = .home
                 store.closeMenu()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     store.showBookmarks = true
@@ -98,6 +102,7 @@ struct SideMenu: View {
             }
 
             MenuRow(icon: "gearshape", title: "Settings") {
+                store.selectedTab = .home
                 store.closeMenu()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     store.showSettings = true

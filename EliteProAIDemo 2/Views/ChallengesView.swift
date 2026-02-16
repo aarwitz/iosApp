@@ -38,7 +38,7 @@ struct ChallengesView: View {
                         } label: {
                             Text(cat.rawValue)
                                 .font(.system(.subheadline, design: .rounded).weight(selectedCategory == cat ? .bold : .regular))
-                                .foregroundStyle(selectedCategory == cat ? Color.white : EPTheme.softText)
+                                .foregroundStyle(selectedCategory == cat ? Color.primary : EPTheme.softText)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 10)
                                 .background(

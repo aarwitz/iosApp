@@ -10,6 +10,21 @@ struct RootView: View {
                 NavigationStack {
                     HomeFeedView()
                         .toolbar { menuToolbar }
+                        .navigationDestination(isPresented: $store.showProfile) {
+                            ProfileView()
+                        }
+                        .navigationDestination(isPresented: $store.showRewards) {
+                            RewardsView()
+                        }
+                        .navigationDestination(isPresented: $store.showSettings) {
+                            SettingsView()
+                        }
+                        .navigationDestination(isPresented: $store.showBookmarks) {
+                            BookmarksView()
+                        }
+                        .navigationDestination(isPresented: $store.showConnector) {
+                            ConnectorView()
+                        }
                 }
                 .tabItem { Label("Home", systemImage: "house") }
                 .tag(AppTab.home)
@@ -41,61 +56,6 @@ struct RootView: View {
                 SideMenuOverlay()
                     .transition(.opacity)
             }
-        }
-        .sheet(isPresented: $store.showProfile) {
-            NavigationStack {
-                ProfileView()
-                    .toolbar {
-                        ToolbarItem(placement: .topBarTrailing) {
-                            Button("Done") { store.showProfile = false }
-                        }
-                    }
-            }
-            .environmentObject(store)
-        }
-        .sheet(isPresented: $store.showRewards) {
-            NavigationStack {
-                RewardsView()
-                    .toolbar {
-                        ToolbarItem(placement: .topBarTrailing) {
-                            Button("Done") { store.showRewards = false }
-                        }
-                    }
-            }
-            .environmentObject(store)
-        }
-        .sheet(isPresented: $store.showSettings) {
-            NavigationStack {
-                SettingsView()
-                    .toolbar {
-                        ToolbarItem(placement: .topBarTrailing) {
-                            Button("Done") { store.showSettings = false }
-                        }
-                    }
-            }
-            .environmentObject(store)
-        }
-        .sheet(isPresented: $store.showBookmarks) {
-            NavigationStack {
-                BookmarksView()
-                    .toolbar {
-                        ToolbarItem(placement: .topBarTrailing) {
-                            Button("Done") { store.showBookmarks = false }
-                        }
-                    }
-            }
-            .environmentObject(store)
-        }
-        .sheet(isPresented: $store.showConnector) {
-            NavigationStack {
-                ConnectorView()
-                    .toolbar {
-                        ToolbarItem(placement: .topBarTrailing) {
-                            Button("Done") { store.showConnector = false }
-                        }
-                    }
-            }
-            .environmentObject(store)
         }
         .preferredColorScheme(darkModeEnabled ? .dark : .light)
     }

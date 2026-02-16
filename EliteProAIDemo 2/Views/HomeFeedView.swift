@@ -3,8 +3,9 @@ import SwiftUI
 struct HomeFeedView: View {
     @EnvironmentObject private var store: AppStore
     @State private var sortOption: FeedSort = .recent
-    @State private var selectedStatsTab: Int = 1
-
+    @State private var selectedStoryFriend: FriendProfile? = nil
+    @State private var currentStoryIndex: Int = 0
+    
     enum FeedSort: String, CaseIterable {
         case recent = "Recent"
         case popular = "Popular"
@@ -24,11 +25,8 @@ struct HomeFeedView: View {
         ScrollView {
             VStack(spacing: 16) {
 
-                // MARK: – Weekly Stats
-                statsSection
-
-                // MARK: – Quick Actions
-                quickActions
+                // MARK: – Friend Stories (Instagram-style)
+                friendStoriesSection
 
                 // MARK: – Feed Header + Sort
                 HStack {
@@ -68,108 +66,105 @@ struct HomeFeedView: View {
         }
         .navigationTitle("Home")
         .navigationBarTitleDisplayMode(.inline)
-    }
-
-    // MARK: – Weekly Stats Section
-
-    private var statsSection: some View {
-        TabView(selection: $selectedStatsTab) {
-            // Last Week (left side, index 0)
-            EPCard {
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Text("Last Week")
-                            .font(.system(.title3, design: .rounded).weight(.semibold))
-                        Spacer()
-                        Text("Feb 3 – 9")
-                            .font(.system(.caption, design: .rounded))
-                            .foregroundStyle(EPTheme.softText)
-                    }
-
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                        statBox(icon: "flame.fill", value: "\(store.lastWeekStats.workoutsCompleted)", label: "Workouts", color: .orange)
-                        statBox(icon: "heart.fill", value: "\(store.lastWeekStats.avgHeartRate) bpm", label: "Avg Heart Rate", color: .red)
-                        statBox(icon: "moon.zzz.fill", value: String(format: "%.1fh", store.lastWeekStats.sleepHours), label: "Avg Sleep", color: .indigo)
-                        statBox(icon: "person.3.fill", value: "\(store.lastWeekStats.activitiesJoined)", label: "Activities Joined", color: .teal)
-                    }
-                }
-            }
-            .tag(0)
-            
-            // This Week (right side, index 1 - default)
-            EPCard {
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Text("This Week")
-                            .font(.system(.title3, design: .rounded).weight(.semibold))
-                        Spacer()
-                        Text("Feb 10 – 16")
-                            .font(.system(.caption, design: .rounded))
-                            .foregroundStyle(EPTheme.softText)
-                    }
-
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                        statBox(icon: "flame.fill", value: "\(store.weeklyStats.workoutsCompleted)", label: "Workouts", color: .orange)
-                        statBox(icon: "heart.fill", value: "\(store.weeklyStats.avgHeartRate) bpm", label: "Avg Heart Rate", color: .red)
-                        statBox(icon: "moon.zzz.fill", value: String(format: "%.1fh", store.weeklyStats.sleepHours), label: "Avg Sleep", color: .indigo)
-                        statBox(icon: "person.3.fill", value: "\(store.weeklyStats.activitiesJoined)", label: "Activities Joined", color: .teal)
-                    }
-                }
-            }
-            .tag(1)
-
+        .fullScreenCover(item: $selectedStoryFriend) { friend in
+            StoryViewer(friend: friend, currentIndex: $currentStoryIndex, onDismiss: {
+                selectedStoryFriend = nil
+            })
         }
-        .tabViewStyle(.page(indexDisplayMode: .always))
-        .frame(height: 200)
     }
 
-    private func statBox(icon: String, value: String, label: String, color: Color) -> some View {
+    // MARK: – Friend Stories Section
+
+    private var friendStoriesSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 14) {
+                    // Prominent + button to find new friends
+                    NavigationLink {
+                        FindFriendsView()
+                    } label: {
+                        addFriendsButton
+                    }
+                    .buttonStyle(.plain)
+                    
+                    // Friends with stories first, then without
+                    let sortedFriends = store.friends.sorted { ($0.hasStory ? 0 : 1) < ($1.hasStory ? 0 : 1) }
+                    ForEach(sortedFriends) { friend in
+                        friendStoryBubble(friend)
+                    }
+                }
+                .padding(.horizontal, 4)
+            }
+        }
+    }
+
+    private var addFriendsButton: some View {
         VStack(spacing: 6) {
-            HStack(spacing: 6) {
-                Image(systemName: icon)
-                    .font(.system(size: 16))
-                    .foregroundStyle(color)
-                Text(value)
-                    .font(.system(.headline, design: .rounded).weight(.bold))
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [EPTheme.accent, EPTheme.accent.opacity(0.7)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 62, height: 62)
+                
+                Image(systemName: "plus")
+                    .font(.system(size: 28, weight: .semibold))
+                    .foregroundStyle(.white)
             }
-            Text(label)
-                .font(.system(.caption2, design: .rounded))
-                .foregroundStyle(EPTheme.softText)
-                .multilineTextAlignment(.center)
+
+            Text("Find Friends")
+                .font(.system(.caption2, design: .rounded).weight(.semibold))
+                .foregroundStyle(EPTheme.accent)
+                .lineLimit(1)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 12)
-        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(color.opacity(0.08)))
+        .frame(width: 70)
     }
 
-    // MARK: – Quick Actions
+    private func friendStoryBubble(_ friend: FriendProfile) -> some View {
+        Button {
+            if friend.hasStory {
+                currentStoryIndex = 0
+                selectedStoryFriend = friend
+            }
+        } label: {
+            VStack(spacing: 6) {
+                ZStack {
+                    if friend.hasStory {
+                        Circle()
+                            .stroke(
+                                LinearGradient(
+                                    colors: [.orange, .pink, .purple],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 2.5
+                            )
+                            .frame(width: 62, height: 62)
+                    } else {
+                        Circle()
+                            .stroke(EPTheme.cardStroke, lineWidth: 2)
+                            .frame(width: 62, height: 62)
+                    }
 
-    private var quickActions: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10) {
-                quickActionPill(icon: "plus.circle.fill", label: "Log Workout") {}
-                quickActionPill(icon: "fork.knife", label: "Nutrition") {}
-                quickActionPill(icon: "flag.fill", label: "Challenges") {
-                    store.selectedTab = .challenges
+                    Circle()
+                        .fill(EPTheme.accent.opacity(0.15))
+                        .frame(width: 54, height: 54)
+
+                    Text(friend.avatarInitials)
+                        .font(.system(.subheadline, design: .rounded).weight(.bold))
+                        .foregroundStyle(EPTheme.accent)
                 }
-                quickActionPill(icon: "person.2.fill", label: "Find Friends") {}
-            }
-        }
-    }
 
-    private func quickActionPill(icon: String, label: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack(spacing: 6) {
-                Image(systemName: icon)
-                    .font(.system(size: 14))
-                Text(label)
-                    .font(.system(.caption, design: .rounded).weight(.medium))
+                Text(friend.name.components(separatedBy: " ").first ?? "")
+                    .font(.system(.caption2, design: .rounded))
+                    .foregroundStyle(Color.primary)
+                    .lineLimit(1)
             }
-            .foregroundStyle(Color.primary.opacity(0.9))
-            .padding(.horizontal, 14)
-            .padding(.vertical, 9)
-            .background(Capsule().fill(EPTheme.card))
-            .overlay(Capsule().stroke(EPTheme.cardStroke, lineWidth: 1))
+            .frame(width: 70)
         }
         .buttonStyle(.plain)
     }

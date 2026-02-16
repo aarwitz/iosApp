@@ -29,6 +29,8 @@ final class AppStore: ObservableObject {
     @Published var activityPins: [ActivityPin]
     @Published var earningOpportunities: [EarningOpportunity]
     @Published var rewardItems: [RewardItem]
+    @Published var friends: [FriendProfile]
+    @Published var discoverableFriends: [FriendProfile]
 
     private let filename = "elitepro_demo_store.json"
 
@@ -58,7 +60,7 @@ final class AppStore: ObservableObject {
             self.feed = snap.feed
             self.chat = snap.chat
         } else {
-            self.profile = UserProfile(name: "Luis Mendonca", email: "luis@eliteinhomefitness.com", role: "Member")
+            self.profile = UserProfile(name: "Luis Mendonca", email: "luis@eliteinhomefitness.com", role: "Member", buildingName: "Echelon Seaport", buildingOwner: "Barkan Management")
             self.credits = HabitCredits(current: 72, goal: 100)
 
             self.trainers = [
@@ -203,6 +205,129 @@ final class AppStore: ObservableObject {
             ActivityPin(title: "Pickle Ball Open", communityName: "The Seaport", groupName: "Pickle Ball Club", coordinate: CLLocationCoordinate2D(latitude: 42.3490, longitude: -71.0420)),
             ActivityPin(title: "Beginner Deadlifts", communityName: "South End", groupName: "Beginner Lifting", coordinate: CLLocationCoordinate2D(latitude: 42.3395, longitude: -71.0750)),
             ActivityPin(title: "CrossFit WOD", communityName: "Cambridge Fitness", groupName: "CrossFit Central", coordinate: CLLocationCoordinate2D(latitude: 42.3650, longitude: -71.1035))
+        ]
+        
+        // Demo friends (already connected)
+        self.friends = [
+            FriendProfile(
+                name: "Nina Alvarez", age: 29,
+                buildingName: "Echelon Seaport", buildingOwner: "Barkan Management",
+                bio: "Yoga lover & early riser. Always down for a morning mobility session.",
+                interests: ["Yoga", "Mobility", "Meditation"],
+                mutualFriends: 4, workoutsThisWeek: 5, favoriteActivity: "Yoga Flow",
+                avatarInitials: "NA", isFriend: true, hasStory: true,
+                storyItems: [
+                    StoryItem(imagePlaceholder: "figure.yoga", caption: "Morning flow on the rooftop 🧘‍♀️", timestamp: Date().addingTimeInterval(-60*30), gradientColors: [.purple, .pink]),
+                    StoryItem(imagePlaceholder: "sunrise.fill", caption: "Caught the sunrise today!", timestamp: Date().addingTimeInterval(-60*90), gradientColors: [.orange, .yellow])
+                ]
+            ),
+            FriendProfile(
+                name: "Sam Torres", age: 31,
+                buildingName: "Via Seaport", buildingOwner: "The Fallon Company",
+                bio: "Running is my therapy. Training for Boston Marathon 2026.",
+                interests: ["Running", "HIIT", "Nutrition"],
+                mutualFriends: 6, workoutsThisWeek: 6, favoriteActivity: "Back Bay Running",
+                avatarInitials: "ST", isFriend: true, hasStory: true,
+                storyItems: [
+                    StoryItem(imagePlaceholder: "figure.run", caption: "10K PR this morning! 42:15 🏃", timestamp: Date().addingTimeInterval(-60*120), gradientColors: [.green, .teal])
+                ]
+            ),
+            FriendProfile(
+                name: "Jake Rosenberg", age: 27,
+                buildingName: "Echelon Seaport", buildingOwner: "Barkan Management",
+                bio: "Pickle ball enthusiast. Gym 6 days/week. Let's play!",
+                interests: ["Pickle Ball", "Strength Training", "Basketball"],
+                mutualFriends: 3, workoutsThisWeek: 4, favoriteActivity: "Pickle Ball Club",
+                avatarInitials: "JR", isFriend: true, hasStory: false
+            ),
+            FriendProfile(
+                name: "Mei Lin", age: 26,
+                buildingName: "Watermark Seaport", buildingOwner: "Greystar",
+                bio: "Plant-based athlete. Teaching Sunday yoga in the park.",
+                interests: ["Yoga", "Nutrition", "Hiking"],
+                mutualFriends: 2, workoutsThisWeek: 3, favoriteActivity: "Yoga Flow",
+                avatarInitials: "ML", isFriend: true, hasStory: true,
+                storyItems: [
+                    StoryItem(imagePlaceholder: "leaf.fill", caption: "New smoothie recipe — spinach mango 🥭", timestamp: Date().addingTimeInterval(-60*45), gradientColors: [.green, .mint]),
+                    StoryItem(imagePlaceholder: "figure.flexibility", caption: "Flexibility gains after 30 days!", timestamp: Date().addingTimeInterval(-60*200), gradientColors: [.indigo, .purple])
+                ]
+            ),
+            FriendProfile(
+                name: "Dan Kim", age: 33,
+                buildingName: "Echelon Seaport", buildingOwner: "Barkan Management",
+                bio: "Rooftop gym regular. Ask me about powerlifting programs.",
+                interests: ["Powerlifting", "CrossFit", "Recovery"],
+                mutualFriends: 5, workoutsThisWeek: 5, favoriteActivity: "Beginner Lifting",
+                avatarInitials: "DK", isFriend: true, hasStory: false
+            )
+        ]
+        
+        // Demo discoverable friends (for swipe-to-connect)
+        self.discoverableFriends = [
+            FriendProfile(
+                name: "Aisha Johnson", age: 28,
+                buildingName: "Echelon Seaport", buildingOwner: "Barkan Management",
+                bio: "New to Boston! Looking for running buddies and gym partners. Former D1 swimmer turned runner.",
+                interests: ["Running", "Swimming", "HIIT", "Meal Prep"],
+                mutualFriends: 3, workoutsThisWeek: 4, favoriteActivity: "Morning Runners",
+                avatarInitials: "AJ"
+            ),
+            FriendProfile(
+                name: "Marco Reyes", age: 34,
+                buildingName: "Via Seaport", buildingOwner: "The Fallon Company",
+                bio: "CrossFit Level 2 coach. Love outdoor workouts and competitive fitness. Always up for a challenge.",
+                interests: ["CrossFit", "Olympic Lifting", "Boot Camp"],
+                mutualFriends: 5, workoutsThisWeek: 6, favoriteActivity: "CrossFit Central",
+                avatarInitials: "MR"
+            ),
+            FriendProfile(
+                name: "Sophie Chen", age: 25,
+                buildingName: "Watermark Seaport", buildingOwner: "Greystar",
+                bio: "Pilates instructor by day, trail runner by weekend. Into clean eating and mindfulness.",
+                interests: ["Pilates", "Trail Running", "Meditation", "Nutrition"],
+                mutualFriends: 2, workoutsThisWeek: 5, favoriteActivity: "Yoga Flow",
+                avatarInitials: "SC"
+            ),
+            FriendProfile(
+                name: "Tyler Brooks", age: 30,
+                buildingName: "Echelon Seaport", buildingOwner: "Barkan Management",
+                bio: "Basketball league organizer. Building a pickup hoops group at Echelon. Who's in?",
+                interests: ["Basketball", "Strength Training", "Cardio"],
+                mutualFriends: 7, workoutsThisWeek: 3, favoriteActivity: "Seaport Tower — Residents",
+                avatarInitials: "TB"
+            ),
+            FriendProfile(
+                name: "Priya Sharma", age: 27,
+                buildingName: "One Seaport", buildingOwner: "WS Development",
+                bio: "Nutrition nerd & weekend hiker. Training for my first half-marathon. Love group energy!",
+                interests: ["Nutrition", "Hiking", "Running", "Yoga"],
+                mutualFriends: 4, workoutsThisWeek: 4, favoriteActivity: "Back Bay Running",
+                avatarInitials: "PS"
+            ),
+            FriendProfile(
+                name: "James O'Brien", age: 32,
+                buildingName: "Via Seaport", buildingOwner: "The Fallon Company",
+                bio: "Former rugby player. Now into functional fitness and mobility. Great spotter if you need one.",
+                interests: ["Functional Fitness", "Mobility", "Rugby", "Recovery"],
+                mutualFriends: 1, workoutsThisWeek: 5, favoriteActivity: "Beginner Lifting",
+                avatarInitials: "JO"
+            ),
+            FriendProfile(
+                name: "Lena Kowalski", age: 29,
+                buildingName: "Watermark Seaport", buildingOwner: "Greystar",
+                bio: "Dance fitness & barre enthusiast. Also run a meal prep group. Let's connect!",
+                interests: ["Dance Fitness", "Barre", "Meal Prep", "Pilates"],
+                mutualFriends: 3, workoutsThisWeek: 4, favoriteActivity: "Group Classes",
+                avatarInitials: "LK"
+            ),
+            FriendProfile(
+                name: "Devon Patel", age: 26,
+                buildingName: "Echelon Seaport", buildingOwner: "Barkan Management",
+                bio: "Tech bro who lifts. Tracking everything — macros, sleep, HRV. Data-driven fitness.",
+                interests: ["Strength Training", "Biohacking", "Nutrition", "Recovery"],
+                mutualFriends: 6, workoutsThisWeek: 5, favoriteActivity: "Beginner Lifting",
+                avatarInitials: "DP"
+            )
         ]
         
         // Demo earning opportunities

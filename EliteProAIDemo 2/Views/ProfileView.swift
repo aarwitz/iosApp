@@ -2,12 +2,15 @@ import SwiftUI
 
 struct ProfileView: View {
     @EnvironmentObject private var store: AppStore
+    @State private var showBarcodeSheet = false
+    @State private var selectedStoryFriend: FriendProfile? = nil
+    @State private var currentStoryIndex: Int = 0
 
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
 
-                // MARK: – Avatar + Name
+                // MARK: – Avatar + Name + Building
                 VStack(spacing: 12) {
                     ZStack {
                         Circle()
@@ -25,14 +28,48 @@ struct ProfileView: View {
                         .font(.system(.subheadline, design: .rounded))
                         .foregroundStyle(EPTheme.softText)
 
-                    Text(store.profile.role)
-                        .font(.system(.caption, design: .rounded).weight(.medium))
-                        .foregroundStyle(EPTheme.accent)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 4)
-                        .background(Capsule().fill(EPTheme.accent.opacity(0.15)))
+                    // Building info
+                    HStack(spacing: 6) {
+                        Image(systemName: "building.2.fill")
+                            .font(.system(size: 12))
+                            .foregroundStyle(EPTheme.accent)
+                        Text(store.profile.buildingName)
+                            .font(.system(.caption, design: .rounded).weight(.semibold))
+                        Text("•")
+                            .foregroundStyle(EPTheme.softText)
+                        Text(store.profile.buildingOwner)
+                            .font(.system(.caption, design: .rounded))
+                            .foregroundStyle(EPTheme.softText)
+                    }
+
+                    HStack(spacing: 12) {
+                        Text(store.profile.role)
+                            .font(.system(.caption, design: .rounded).weight(.medium))
+                            .foregroundStyle(EPTheme.accent)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 4)
+                            .background(Capsule().fill(EPTheme.accent.opacity(0.15)))
+
+                        Button {
+                            showBarcodeSheet = true
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: "qrcode")
+                                    .font(.system(size: 12))
+                                Text("My Code")
+                                    .font(.system(.caption, design: .rounded).weight(.medium))
+                            }
+                            .foregroundStyle(EPTheme.accent)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 4)
+                            .background(Capsule().fill(EPTheme.accent.opacity(0.15)))
+                        }
+                    }
                 }
                 .padding(.top, 8)
+
+                // MARK: – Friends & Stories
+                friendsStoriesSection
 
                 // MARK: – Credits
                 EPCard {
@@ -95,20 +132,8 @@ struct ProfileView: View {
                     }
                 }
 
-                // MARK: – Stats Snapshot
-                EPCard {
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("This Week")
-                            .font(.system(.headline, design: .rounded))
-
-                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                            statTile(icon: "flame.fill", label: "Workouts", value: "\(store.weeklyStats.workoutsCompleted)")
-                            statTile(icon: "heart.fill", label: "Avg HR", value: "\(store.weeklyStats.avgHeartRate) bpm")
-                            statTile(icon: "moon.fill", label: "Sleep", value: String(format: "%.1fh", store.weeklyStats.sleepHours))
-                            statTile(icon: "person.3.fill", label: "Activities", value: "\(store.weeklyStats.activitiesJoined)")
-                        }
-                    }
-                }
+                // MARK: – Weekly Stats (This Week / Last Week)
+                weeklyStatsSection
 
                 // MARK: – Rewards Redeemable
                 EPCard {
@@ -135,21 +160,438 @@ struct ProfileView: View {
         }
         .navigationTitle("Profile")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showBarcodeSheet) {
+            barcodeSheet
+        }
+        .fullScreenCover(item: $selectedStoryFriend) { friend in
+            StoryViewer(friend: friend, currentIndex: $currentStoryIndex, onDismiss: {
+                selectedStoryFriend = nil
+            })
+        }
     }
 
-    private func statTile(icon: String, label: String, value: String) -> some View {
-        VStack(spacing: 6) {
-            Image(systemName: icon)
-                .font(.system(size: 20))
-                .foregroundStyle(EPTheme.accent)
-            Text(value)
-                .font(.system(.headline, design: .rounded).weight(.bold))
-            Text(label)
-                .font(.system(.caption, design: .rounded))
+    // MARK: – Friends & Stories Section
+
+    private var friendsStoriesSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Friends")
+                    .font(.system(.headline, design: .rounded))
+                Spacer()
+                Text("\(store.friends.count)")
+                    .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                    .foregroundStyle(EPTheme.softText)
+            }
+            .padding(.horizontal, 4)
+
+            // Stories row (Instagram-style)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 14) {
+                    // Friends with stories first, then without
+                    let sortedFriends = store.friends.sorted { ($0.hasStory ? 0 : 1) < ($1.hasStory ? 0 : 1) }
+                    ForEach(sortedFriends) { friend in
+                        friendStoryBubble(friend)
+                    }
+                }
+                .padding(.horizontal, 4)
+            }
+
+            // Friends list
+            EPCard {
+                VStack(spacing: 0) {
+                    ForEach(Array(store.friends.enumerated()), id: \.element.id) { index, friend in
+                        friendRow(friend)
+                        if index < store.friends.count - 1 {
+                            Divider().overlay(EPTheme.divider)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private func friendStoryBubble(_ friend: FriendProfile) -> some View {
+        Button {
+            if friend.hasStory {
+                currentStoryIndex = 0
+                selectedStoryFriend = friend
+            }
+        } label: {
+            VStack(spacing: 6) {
+                ZStack {
+                    if friend.hasStory {
+                        Circle()
+                            .stroke(
+                                LinearGradient(
+                                    colors: [.orange, .pink, .purple],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 3
+                            )
+                            .frame(width: 62, height: 62)
+                    } else {
+                        Circle()
+                            .stroke(EPTheme.cardStroke, lineWidth: 2)
+                            .frame(width: 62, height: 62)
+                    }
+
+                    Circle()
+                        .fill(EPTheme.accent.opacity(0.15))
+                        .frame(width: 54, height: 54)
+
+                    Text(friend.avatarInitials)
+                        .font(.system(.subheadline, design: .rounded).weight(.bold))
+                        .foregroundStyle(EPTheme.accent)
+                }
+
+                Text(friend.name.components(separatedBy: " ").first ?? "")
+                    .font(.system(.caption2, design: .rounded))
+                    .foregroundStyle(Color.primary)
+                    .lineLimit(1)
+            }
+            .frame(width: 70)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func friendRow(_ friend: FriendProfile) -> some View {
+        HStack(spacing: 12) {
+            ZStack {
+                Circle()
+                    .fill(EPTheme.accent.opacity(0.15))
+                    .frame(width: 40, height: 40)
+                Text(friend.avatarInitials)
+                    .font(.system(.caption, design: .rounded).weight(.bold))
+                    .foregroundStyle(EPTheme.accent)
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(friend.name)
+                    .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                HStack(spacing: 4) {
+                    Image(systemName: "building.2")
+                        .font(.system(size: 10))
+                    Text(friend.buildingName)
+                        .font(.system(.caption2, design: .rounded))
+                }
+                .foregroundStyle(EPTheme.softText)
+            }
+
+            Spacer()
+
+            if friend.hasStory {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [.orange, .pink],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 8, height: 8)
+            }
+
+            Image(systemName: "chevron.right")
+                .font(.system(size: 11, weight: .semibold))
                 .foregroundStyle(EPTheme.softText)
         }
+        .padding(.vertical, 8)
+    }
+
+    // MARK: – Barcode Sheet
+
+    private var barcodeSheet: some View {
+        NavigationStack {
+            VStack(spacing: 24) {
+                Spacer()
+
+                Text("My Friend Code")
+                    .font(.system(.title3, design: .rounded).weight(.semibold))
+
+                ZStack {
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(Color.white)
+                        .frame(width: 220, height: 220)
+                        .shadow(color: .black.opacity(0.08), radius: 8)
+
+                    Image(systemName: "qrcode")
+                        .font(.system(size: 150))
+                        .foregroundStyle(.black)
+                }
+
+                Text(store.profile.name)
+                    .font(.system(.headline, design: .rounded))
+                Text("@\(store.profile.name.lowercased().replacingOccurrences(of: " ", with: "."))")
+                    .font(.system(.subheadline, design: .rounded))
+                    .foregroundStyle(EPTheme.softText)
+
+                VStack(spacing: 8) {
+                    Text("Scan a friend's code to connect instantly")
+                        .font(.system(.subheadline, design: .rounded))
+                        .foregroundStyle(EPTheme.softText)
+
+                    Button {} label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "camera.fill")
+                            Text("Scan Code")
+                        }
+                        .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 28)
+                        .padding(.vertical, 12)
+                        .background(Capsule().fill(EPTheme.accent))
+                    }
+                }
+
+                Spacer()
+            }
+            .padding(20)
+            .navigationTitle("Add Friend")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { showBarcodeSheet = false }
+                }
+            }
+        }
+    }
+
+    @State private var selectedStatsTab: Int = 1
+
+    private var weeklyStatsSection: some View {
+        TabView(selection: $selectedStatsTab) {
+            // Last Week
+            EPCard {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Text("Last Week")
+                            .font(.system(.title3, design: .rounded).weight(.semibold))
+                        Spacer()
+                        Text("Feb 3 – 9")
+                            .font(.system(.caption, design: .rounded))
+                            .foregroundStyle(EPTheme.softText)
+                    }
+
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                        profileStatBox(icon: "flame.fill", value: "\(store.lastWeekStats.workoutsCompleted)", label: "Workouts", color: .orange)
+                        profileStatBox(icon: "heart.fill", value: "\(store.lastWeekStats.avgHeartRate) bpm", label: "Avg Heart Rate", color: .red)
+                        profileStatBox(icon: "moon.zzz.fill", value: String(format: "%.1fh", store.lastWeekStats.sleepHours), label: "Avg Sleep", color: .indigo)
+                        profileStatBox(icon: "person.3.fill", value: "\(store.lastWeekStats.activitiesJoined)", label: "Activities Joined", color: .teal)
+                    }
+                }
+            }
+            .tag(0)
+
+            // This Week
+            EPCard {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Text("This Week")
+                            .font(.system(.title3, design: .rounded).weight(.semibold))
+                        Spacer()
+                        Text("Feb 10 – 16")
+                            .font(.system(.caption, design: .rounded))
+                            .foregroundStyle(EPTheme.softText)
+                    }
+
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                        profileStatBox(icon: "flame.fill", value: "\(store.weeklyStats.workoutsCompleted)", label: "Workouts", color: .orange)
+                        profileStatBox(icon: "heart.fill", value: "\(store.weeklyStats.avgHeartRate) bpm", label: "Avg Heart Rate", color: .red)
+                        profileStatBox(icon: "moon.zzz.fill", value: String(format: "%.1fh", store.weeklyStats.sleepHours), label: "Avg Sleep", color: .indigo)
+                        profileStatBox(icon: "person.3.fill", value: "\(store.weeklyStats.activitiesJoined)", label: "Activities Joined", color: .teal)
+                    }
+                }
+            }
+            .tag(1)
+        }
+        .tabViewStyle(.page(indexDisplayMode: .always))
+        .frame(height: 200)
+    }
+
+    private func profileStatBox(icon: String, value: String, label: String, color: Color) -> some View {
+        VStack(spacing: 6) {
+            HStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.system(size: 16))
+                    .foregroundStyle(color)
+                Text(value)
+                    .font(.system(.headline, design: .rounded).weight(.bold))
+            }
+            Text(label)
+                .font(.system(.caption2, design: .rounded))
+                .foregroundStyle(EPTheme.softText)
+                .multilineTextAlignment(.center)
+        }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 10)
-        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(EPTheme.card))
+        .padding(.vertical, 12)
+        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(color.opacity(0.08)))
+    }
+}
+
+// MARK: – Story Viewer (Instagram-style full-screen)
+
+struct StoryViewer: View {
+    let friend: FriendProfile
+    @Binding var currentIndex: Int
+    let onDismiss: () -> Void
+    @State private var progress: CGFloat = 0
+    @State private var timer: Timer? = nil
+
+    var body: some View {
+        ZStack {
+            // Background gradient
+            LinearGradient(
+                colors: currentStory?.gradientColors ?? [.black, .gray],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+
+            VStack {
+                // Progress bars
+                HStack(spacing: 4) {
+                    ForEach(0..<friend.storyItems.count, id: \.self) { index in
+                        GeometryReader { geo in
+                            RoundedRectangle(cornerRadius: 2)
+                                .fill(Color.white.opacity(0.3))
+                                .overlay(alignment: .leading) {
+                                    RoundedRectangle(cornerRadius: 2)
+                                        .fill(Color.white)
+                                        .frame(width: barWidth(for: index, totalWidth: geo.size.width))
+                                }
+                        }
+                        .frame(height: 3)
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+
+                // Header
+                HStack(spacing: 10) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.white.opacity(0.2))
+                            .frame(width: 36, height: 36)
+                        Text(friend.avatarInitials)
+                            .font(.system(.caption, design: .rounded).weight(.bold))
+                            .foregroundStyle(.white)
+                    }
+
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(friend.name)
+                            .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                            .foregroundStyle(.white)
+                        if let story = currentStory {
+                            Text(story.timestamp, style: .relative)
+                                .font(.system(.caption2, design: .rounded))
+                                .foregroundStyle(.white.opacity(0.7))
+                        }
+                    }
+
+                    Spacer()
+
+                    Button {
+                        stopTimer()
+                        onDismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .padding(8)
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+
+                Spacer()
+
+                // Story content
+                if let story = currentStory {
+                    VStack(spacing: 20) {
+                        Image(systemName: story.imagePlaceholder)
+                            .font(.system(size: 80))
+                            .foregroundStyle(.white.opacity(0.9))
+
+                        Text(story.caption)
+                            .font(.system(.title3, design: .rounded).weight(.semibold))
+                            .foregroundStyle(.white)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 40)
+                    }
+
+                    Spacer()
+                }
+            }
+
+            // Tap zones
+            HStack(spacing: 0) {
+                // Left tap (previous)
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        goToPrevious()
+                    }
+
+                // Right tap (next)
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        goToNext()
+                    }
+            }
+        }
+        .onAppear { startTimer() }
+        .onDisappear { stopTimer() }
+    }
+
+    private var currentStory: StoryItem? {
+        guard currentIndex < friend.storyItems.count else { return nil }
+        return friend.storyItems[currentIndex]
+    }
+
+    private func barWidth(for index: Int, totalWidth: CGFloat) -> CGFloat {
+        if index < currentIndex {
+            return totalWidth
+        } else if index == currentIndex {
+            return totalWidth * progress
+        } else {
+            return 0
+        }
+    }
+
+    private func startTimer() {
+        progress = 0
+        timer = Timer.scheduledTimer(withTimeInterval: 0.03, repeats: true) { _ in
+            withAnimation(.linear(duration: 0.03)) {
+                progress += 0.006  // ~5 seconds per story
+            }
+            if progress >= 1.0 {
+                goToNext()
+            }
+        }
+    }
+
+    private func stopTimer() {
+        timer?.invalidate()
+        timer = nil
+    }
+
+    private func goToNext() {
+        stopTimer()
+        if currentIndex < friend.storyItems.count - 1 {
+            currentIndex += 1
+            startTimer()
+        } else {
+            onDismiss()
+        }
+    }
+
+    private func goToPrevious() {
+        stopTimer()
+        if currentIndex > 0 {
+            currentIndex -= 1
+        }
+        startTimer()
     }
 }

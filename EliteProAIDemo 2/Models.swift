@@ -2,12 +2,15 @@
 
 import Foundation
 import CoreLocation
+import SwiftUI
 
 struct UserProfile: Codable, Identifiable {
     var id: UUID = UUID()
     var name: String
     var email: String
     var role: String
+    var buildingName: String = ""
+    var buildingOwner: String = ""
 }
 
 struct HabitCredits: Codable {
@@ -164,5 +167,32 @@ enum RewardCategory: String, CaseIterable {
     case food = "Food & Drink"
     case gear = "Gear & Merch"
     case premium = "Premium Access"
+}
+
+// MARK: – Friends & Stories
+
+struct FriendProfile: Identifiable {
+    var id: UUID = UUID()
+    var name: String
+    var age: Int
+    var buildingName: String       // e.g. "Echelon Seaport"
+    var buildingOwner: String      // e.g. "Barkan Management"
+    var bio: String
+    var interests: [String]
+    var mutualFriends: Int
+    var workoutsThisWeek: Int
+    var favoriteActivity: String
+    var avatarInitials: String     // first two letters for placeholder
+    var isFriend: Bool = false
+    var hasStory: Bool = false
+    var storyItems: [StoryItem] = []
+}
+
+struct StoryItem: Identifiable {
+    var id: UUID = UUID()
+    var imagePlaceholder: String   // SF Symbol
+    var caption: String
+    var timestamp: Date
+    var gradientColors: [Color] = [.blue, .purple]
 }
 
