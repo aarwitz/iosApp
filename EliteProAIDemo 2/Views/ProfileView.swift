@@ -3,6 +3,7 @@ import SwiftUI
 struct ProfileView: View {
     @EnvironmentObject private var store: AppStore
     @State private var showBarcodeSheet = false
+    @State private var showEditProfile = false
 
     var body: some View {
         ScrollView {
@@ -55,6 +56,21 @@ struct ProfileView: View {
                                 Image(systemName: "qrcode")
                                     .font(.system(size: 12))
                                 Text("My Code")
+                                    .font(.system(.caption, design: .rounded).weight(.medium))
+                            }
+                            .foregroundStyle(EPTheme.accent)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 4)
+                            .background(Capsule().fill(EPTheme.accent.opacity(0.15)))
+                        }
+
+                        Button {
+                            showEditProfile = true
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: "pencil")
+                                    .font(.system(size: 12))
+                                Text("Edit")
                                     .font(.system(.caption, design: .rounded).weight(.medium))
                             }
                             .foregroundStyle(EPTheme.accent)
@@ -194,6 +210,10 @@ struct ProfileView: View {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showBarcodeSheet) {
             barcodeSheet
+        }
+        .sheet(isPresented: $showEditProfile) {
+            EditProfileView()
+                .environmentObject(store)
         }
     }
 

@@ -17,6 +17,10 @@ final class AppStore: ObservableObject {
     @Published var showSchedule: Bool = false
     @Published var communityFilter: CommunityFilter = .usa
 
+    // Network state
+    @Published var isLoading: Bool = false
+    @Published var loadError: String?
+
     // Data
     @Published var profile: UserProfile
     @Published var credits: HabitCredits
@@ -926,6 +930,68 @@ final class AppStore: ObservableObject {
         }
         if self.profile.buildingOwner.isEmpty {
             self.profile.buildingOwner = "Barkan Management"
+        }
+    }
+
+    // MARK: – API Integration
+
+    /// Load feed + conversations from the backend, falling back to demo data on error.
+    @MainActor
+    func loadFromAPI() async {
+        isLoading = true
+        loadError = nil
+
+        // Sync profile from authenticated user
+        if let user = AuthService.shared.currentUser {
+            profile.name = user.name
+            profile.email = user.email
+            profile.role = user.role
+            profile.buildingName = user.buildingName ?? profile.buildingName
+            profile.buildingOwner = user.buildingOwner ?? profile.buildingOwner
+        }
+
+        let api = APIClient.shared
+
+        // Fetch feed
+        do {
+            let posts: [Post] = try await api.request(.get, path: "/feed")
+            if !posts.isEmpty { feed = posts }
+        } catch {
+            print("[AppStore] Feed fetch failed, keeping demo data: \(error.localizedDescription)")
+        }
+
+        // Fetch conversations
+        do {
+            let convos: [Conversation] = try await api.request(.get, path: "/conversations")
+            if !convos.isEmpty { conversations = convos }
+        } catch {
+            print("[AppStore] Conversations fetch failed, keeping demo data: \(error.localizedDescription)")
+        }
+
+        isLoading = false
+    }
+
+    /// Pull-to-refresh for the feed.
+    @MainActor
+    func refreshFeed() async {
+        let api = APIClient.shared
+        do {
+            let posts: [Post] = try await api.request(.get, path: "/feed")
+            if !posts.isEmpty { feed = posts }
+        } catch {
+            print("[AppStore] Feed refresh failed: \(error.localizedDescription)")
+        }
+    }
+
+    /// Pull-to-refresh for conversations.
+    @MainActor
+    func refreshConversations() async {
+        let api = APIClient.shared
+        do {
+            let convos: [Conversation] = try await api.request(.get, path: "/conversations")
+            if !convos.isEmpty { conversations = convos }
+        } catch {
+            print("[AppStore] Conversations refresh failed: \(error.localizedDescription)")
         }
     }
 

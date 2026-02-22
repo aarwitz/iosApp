@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:EliteProAIDemo}/Backend",
+            "name": "Debug App (Backend)",
+            "target": "App",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug App (Backend)"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:EliteProAIDemo}/Backend",
+            "name": "Release App (Backend)",
+            "target": "App",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release App (Backend)"
+        }
+    ]
+}

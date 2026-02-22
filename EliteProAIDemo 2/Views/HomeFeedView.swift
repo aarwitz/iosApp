@@ -75,6 +75,7 @@ struct HomeFeedView: View {
             }
             .padding(16)
         }
+        .refreshable { await store.refreshFeed() }
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

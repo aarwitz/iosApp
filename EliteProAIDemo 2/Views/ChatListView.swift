@@ -23,6 +23,7 @@ struct ChatListView: View {
             }
             .padding(.vertical, 8)
         }
+        .refreshable { await store.refreshConversations() }
         .navigationTitle("Messages")
         .navigationBarTitleDisplayMode(.large)
     }

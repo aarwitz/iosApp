@@ -1,0 +1,19 @@
+# Vapor
+.build/
+.swiftpm/
+Package.resolved
+DerivedData/
+
+# Environment
+.env
+
+# macOS
+.DS_Store
+*.xcodeproj/
+*.xcworkspace/
+
+# Xcode
+xcuserdata/
+
+# Docker
+docker-compose.override.yml

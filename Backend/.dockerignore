@@ -1,0 +1,10 @@
+.build/
+.swiftpm/
+DerivedData/
+.env
+.DS_Store
+xcuserdata/
+docker-compose.yml
+docker-compose.override.yml
+*.xcodeproj
+*.xcworkspace
