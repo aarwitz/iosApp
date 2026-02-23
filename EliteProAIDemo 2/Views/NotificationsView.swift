@@ -8,6 +8,29 @@ struct NotificationsView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
 
+                // MARK: – Friend Requests (pending)
+                if !store.friendRequests.isEmpty {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "person.crop.circle.badge.plus")
+                                .font(.system(size: 16))
+                                .foregroundStyle(.blue)
+                            Text("Friend Requests")
+                                .font(.system(.title3, design: .rounded).weight(.semibold))
+                            Spacer()
+                            Text("\(store.friendRequests.count)")
+                                .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                                .foregroundStyle(EPTheme.softText)
+                        }
+
+                        ForEach(store.friendRequests) { request in
+                            friendRequestCard(request)
+                        }
+                    }
+
+                    Divider().overlay(EPTheme.divider)
+                }
+
                 // MARK: – Amenity Invitations
                 if !store.amenityInvitations.isEmpty {
                     VStack(alignment: .leading, spacing: 12) {
@@ -23,32 +46,34 @@ struct NotificationsView: View {
                             invitationCard(invitation)
                         }
                     }
-                }
 
-                Divider().overlay(EPTheme.divider)
+                    Divider().overlay(EPTheme.divider)
+                }
 
                 // MARK: – Suggested Connections
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "person.badge.plus")
-                            .font(.system(size: 16))
-                            .foregroundStyle(.purple)
-                        Text("Suggested Connections")
-                            .font(.system(.title3, design: .rounded).weight(.semibold))
+                if !store.discoverableFriends.isEmpty {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "person.badge.plus")
+                                .font(.system(size: 16))
+                                .foregroundStyle(.purple)
+                            Text("Suggested Connections")
+                                .font(.system(.title3, design: .rounded).weight(.semibold))
+                        }
+
+                        Text("People you might want to meet")
+                            .font(.system(.subheadline, design: .rounded))
+                            .foregroundStyle(EPTheme.softText)
+
+                        ForEach(store.discoverableFriends.prefix(4)) { friend in
+                            suggestedConnectionCard(friend)
+                        }
                     }
 
-                    Text("People you might want to meet")
-                        .font(.system(.subheadline, design: .rounded))
-                        .foregroundStyle(EPTheme.softText)
-
-                    ForEach(store.discoverableFriends.prefix(4)) { friend in
-                        suggestedConnectionCard(friend)
-                    }
+                    Divider().overlay(EPTheme.divider)
                 }
 
-                Divider().overlay(EPTheme.divider)
-
-                // MARK: – Activity Updates
+                // MARK: – Activity / Notifications (API-backed)
                 VStack(alignment: .leading, spacing: 12) {
                     HStack(spacing: 8) {
                         Image(systemName: "bell.badge.fill")
@@ -58,51 +83,116 @@ struct NotificationsView: View {
                             .font(.system(.title3, design: .rounded).weight(.semibold))
                     }
 
-                    notificationRow(
-                        icon: "person.2.fill",
-                        iconColor: .green,
-                        title: "Nina accepted your invitation",
-                        subtitle: "Yoga Studio • Tomorrow at 7 AM",
-                        time: "2h ago"
-                    )
-
-                    notificationRow(
-                        icon: "trophy.fill",
-                        iconColor: .yellow,
-                        title: "You earned 5 credits!",
-                        subtitle: "Completed: Walk 1,000 Steps Today",
-                        time: "4h ago"
-                    )
-
-                    notificationRow(
-                        icon: "person.crop.circle.badge.checkmark",
-                        iconColor: .blue,
-                        title: "New friend request from Tyler",
-                        subtitle: "3 mutual friends • Echelon Seaport",
-                        time: "6h ago"
-                    )
-
-                    notificationRow(
-                        icon: "megaphone.fill",
-                        iconColor: .orange,
-                        title: "Seaport 5K Fun Run — this Saturday",
-                        subtitle: "48 people joined so far",
-                        time: "1d ago"
-                    )
-
-                    notificationRow(
-                        icon: "star.fill",
-                        iconColor: .purple,
-                        title: "Coach Jason posted a new tip",
-                        subtitle: "Check the Seaport community feed",
-                        time: "1d ago"
-                    )
+                    if store.notifications.isEmpty {
+                        HStack {
+                            Spacer()
+                            VStack(spacing: 8) {
+                                Image(systemName: "bell.slash")
+                                    .font(.system(size: 32))
+                                    .foregroundStyle(EPTheme.softText.opacity(0.4))
+                                Text("No activity yet")
+                                    .font(.system(.subheadline, design: .rounded))
+                                    .foregroundStyle(EPTheme.softText)
+                            }
+                            .padding(.vertical, 24)
+                            Spacer()
+                        }
+                    } else {
+                        ForEach(store.notifications) { notif in
+                            notificationRow(notif)
+                        }
+                    }
                 }
             }
             .padding(16)
         }
         .navigationTitle("Notifications")
         .navigationBarTitleDisplayMode(.inline)
+        .task {
+            await store.loadNotifications()
+            await store.loadFriendRequests()
+        }
+        .refreshable {
+            await store.loadNotifications()
+            await store.loadFriendRequests()
+        }
+    }
+
+    // MARK: – Friend Request Card
+
+    @ViewBuilder
+    private func friendRequestCard(_ request: FriendRequestResponse) -> some View {
+        EPCard {
+            VStack(spacing: 12) {
+                HStack(spacing: 12) {
+                    // Avatar
+                    ZStack {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: gradientForName(request.fromName),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 50, height: 50)
+                        Text(initials(for: request.fromName))
+                            .font(.system(.headline, design: .rounded).weight(.bold))
+                            .foregroundStyle(.white)
+                    }
+
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(request.fromName)
+                            .font(.system(.body, design: .rounded).weight(.semibold))
+                        if let building = request.fromBuildingName, !building.isEmpty {
+                            HStack(spacing: 4) {
+                                Image(systemName: "building.2.fill")
+                                    .font(.system(size: 10))
+                                Text(building)
+                                    .font(.system(.caption, design: .rounded))
+                            }
+                            .foregroundStyle(EPTheme.softText)
+                        }
+                        Text(timeAgo(from: request.createdAt))
+                            .font(.system(.caption2, design: .rounded))
+                            .foregroundStyle(EPTheme.softText)
+                    }
+
+                    Spacer()
+                }
+
+                // Accept / Decline buttons
+                HStack(spacing: 10) {
+                    Button {
+                        Task { await store.acceptFriendRequest(request) }
+                    } label: {
+                        Text("Confirm")
+                            .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                            .foregroundStyle(.black.opacity(0.85))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 10)
+                            .background(EPTheme.accent)
+                            .cornerRadius(10)
+                    }
+
+                    Button {
+                        Task { await store.declineFriendRequest(request) }
+                    } label: {
+                        Text("Delete")
+                            .font(.system(.subheadline, design: .rounded).weight(.medium))
+                            .foregroundStyle(EPTheme.softText)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 10)
+                            .background(EPTheme.card)
+                            .cornerRadius(10)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(EPTheme.cardStroke, lineWidth: 1)
+                            )
+                    }
+                }
+            }
+        }
     }
 
     // MARK: – Invitation Card
@@ -269,10 +359,12 @@ struct NotificationsView: View {
         }
     }
 
-    // MARK: – Notification Row
+    // MARK: – Notification Row (API-backed)
 
     @ViewBuilder
-    private func notificationRow(icon: String, iconColor: Color, title: String, subtitle: String, time: String) -> some View {
+    private func notificationRow(_ notif: AppNotificationResponse) -> some View {
+        let (icon, iconColor) = iconForNotificationType(notif.type)
+
         HStack(alignment: .top, spacing: 12) {
             ZStack {
                 Circle()
@@ -284,20 +376,40 @@ struct NotificationsView: View {
             }
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(title)
-                    .font(.system(.subheadline, design: .rounded).weight(.medium))
-                Text(subtitle)
-                    .font(.system(.caption, design: .rounded))
-                    .foregroundStyle(EPTheme.softText)
+                Text(notif.title)
+                    .font(.system(.subheadline, design: .rounded).weight(notif.isRead ? .regular : .medium))
+                if let body = notif.body, !body.isEmpty {
+                    Text(body)
+                        .font(.system(.caption, design: .rounded))
+                        .foregroundStyle(EPTheme.softText)
+                }
             }
 
             Spacer()
 
-            Text(time)
+            Text(timeAgo(from: notif.createdAt))
                 .font(.system(.caption2, design: .rounded))
                 .foregroundStyle(EPTheme.softText)
+
+            if !notif.isRead {
+                Circle()
+                    .fill(EPTheme.accent)
+                    .frame(width: 8, height: 8)
+            }
         }
         .padding(.vertical, 6)
+        .opacity(notif.isRead ? 0.7 : 1.0)
+    }
+
+    private func iconForNotificationType(_ type: String) -> (String, Color) {
+        switch type {
+        case "friend_request":
+            return ("person.crop.circle.badge.plus", .blue)
+        case "friend_accepted":
+            return ("person.crop.circle.badge.checkmark", .green)
+        default:
+            return ("bell.fill", .orange)
+        }
     }
 
     private func gradientForFriend(_ friend: FriendProfile) -> [Color] {
@@ -308,5 +420,32 @@ struct NotificationsView: View {
         ]
         let index = abs(friend.name.hashValue) % gradients.count
         return gradients[index]
+    }
+
+    private func gradientForName(_ name: String) -> [Color] {
+        let gradients: [[Color]] = [
+            [.blue, .purple], [.teal, .blue], [.indigo, .pink],
+            [.green, .teal], [.purple, .indigo], [.orange, .pink],
+            [.cyan, .blue], [.mint, .green]
+        ]
+        let index = abs(name.hashValue) % gradients.count
+        return gradients[index]
+    }
+
+    private func initials(for name: String) -> String {
+        name.components(separatedBy: " ")
+            .prefix(2)
+            .compactMap { $0.first }
+            .map { String($0) }
+            .joined()
+            .uppercased()
+    }
+
+    private func timeAgo(from date: Date) -> String {
+        let seconds = Date().timeIntervalSince(date)
+        if seconds < 60 { return "now" }
+        else if seconds < 3600 { return "\(Int(seconds / 60))m" }
+        else if seconds < 86400 { return "\(Int(seconds / 3600))h" }
+        else { return "\(Int(seconds / 86400))d" }
     }
 }

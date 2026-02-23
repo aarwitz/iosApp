@@ -40,6 +40,8 @@ final class AppStore: ObservableObject {
     @Published var discoverableFriends: [FriendProfile]
     @Published var amenities: [Amenity]
     @Published var amenityInvitations: [AmenityInvitation]
+    @Published var notifications: [AppNotificationResponse] = []
+    @Published var friendRequests: [FriendRequestResponse] = []
 
     private let filename = "elitepro_demo_store.json"
 
@@ -676,6 +678,22 @@ final class AppStore: ObservableObject {
             print("[AppStore] Discoverable users fetch failed: \(error.localizedDescription)")
         }
 
+        // Fetch notifications
+        do {
+            let notifs: [AppNotificationResponse] = try await api.request(.get, path: "/notifications")
+            notifications = notifs
+        } catch {
+            print("[AppStore] Notifications fetch failed: \(error.localizedDescription)")
+        }
+
+        // Fetch pending friend requests
+        do {
+            let reqs: [FriendRequestResponse] = try await api.request(.get, path: "/friends/requests")
+            friendRequests = reqs
+        } catch {
+            print("[AppStore] Friend requests fetch failed: \(error.localizedDescription)")
+        }
+
         isLoading = false
     }
 
@@ -705,7 +723,7 @@ final class AppStore: ObservableObject {
 
     // MARK: – Friends (API-backed)
 
-    /// Load current friends from the server.
+    /// Load current accepted friends from the server.
     @MainActor
     func loadFriends() async {
         do {
@@ -732,8 +750,8 @@ final class AppStore: ObservableObject {
         }
     }
 
-    /// Add a friend by their user UUID (scanned from QR code or entered manually).
-    /// Returns the new FriendProfile on success.
+    /// Send a friend request by scanning a QR code or entering a user UUID.
+    /// The friend shows up on the other person's side as a pending request.
     @MainActor
     @discardableResult
     func addFriendByCode(_ code: String) async throws -> FriendProfile {
@@ -746,13 +764,103 @@ final class AppStore: ObservableObject {
             body: AddFriendBody(friendCode: code)
         )
         let newFriend = response.toFriendProfile()
-        // Add to friends list if not already there
-        if !friends.contains(where: { $0.userID == newFriend.userID }) {
-            friends.append(newFriend)
-        }
         // Remove from discoverable list
         discoverableFriends.removeAll { $0.userID == newFriend.userID }
         return newFriend
+    }
+
+    // MARK: – Friend Requests (API-backed)
+
+    /// Load pending incoming friend requests.
+    @MainActor
+    func loadFriendRequests() async {
+        do {
+            let requests: [FriendRequestResponse] = try await APIClient.shared.request(.get, path: "/friends/requests")
+            friendRequests = requests
+        } catch {
+            print("[AppStore] Load friend requests failed: \(error.localizedDescription)")
+        }
+    }
+
+    /// Accept a pending friend request.
+    @MainActor
+    func acceptFriendRequest(_ request: FriendRequestResponse) async {
+        do {
+            let accepted: FriendResponse = try await APIClient.shared.request(
+                .post,
+                path: "/friends/\(request.friendshipId)/accept"
+            )
+            // Move from requests to friends
+            friendRequests.removeAll { $0.friendshipId == request.friendshipId }
+            let newFriend = accepted.toFriendProfile()
+            if !friends.contains(where: { $0.userID == newFriend.userID }) {
+                friends.append(newFriend)
+            }
+            // Refresh notifications
+            await loadNotifications()
+        } catch {
+            print("[AppStore] Accept friend request failed: \(error.localizedDescription)")
+        }
+    }
+
+    /// Decline a pending friend request.
+    @MainActor
+    func declineFriendRequest(_ request: FriendRequestResponse) async {
+        do {
+            try await APIClient.shared.requestVoid(.post, path: "/friends/\(request.friendshipId)/decline")
+            friendRequests.removeAll { $0.friendshipId == request.friendshipId }
+            // Refresh notifications
+            await loadNotifications()
+        } catch {
+            print("[AppStore] Decline friend request failed: \(error.localizedDescription)")
+        }
+    }
+
+    /// Remove (unfriend) an accepted friend.
+    @MainActor
+    func removeFriend(_ friendUserId: UUID) async {
+        do {
+            try await APIClient.shared.requestVoid(.delete, path: "/friends/\(friendUserId)")
+            friends.removeAll { $0.userID == friendUserId }
+        } catch {
+            print("[AppStore] Remove friend failed: \(error.localizedDescription)")
+        }
+    }
+
+    /// Check if a user is currently a friend.
+    func isFriend(userId: UUID) -> Bool {
+        friends.contains { $0.userID == userId }
+    }
+
+    // MARK: – Notifications (API-backed)
+
+    /// Load all notifications from the server.
+    @MainActor
+    func loadNotifications() async {
+        do {
+            let response: [AppNotificationResponse] = try await APIClient.shared.request(.get, path: "/notifications")
+            notifications = response
+        } catch {
+            print("[AppStore] Load notifications failed: \(error.localizedDescription)")
+        }
+    }
+
+    /// Number of unread notifications (for badge display).
+    var unreadNotificationCount: Int {
+        notifications.filter { !$0.isRead }.count + friendRequests.count
+    }
+
+    /// Mark all notifications as read.
+    @MainActor
+    func markAllNotificationsRead() async {
+        do {
+            try await APIClient.shared.requestVoid(.post, path: "/notifications/read-all")
+            for i in notifications.indices {
+                notifications[i].isRead = true
+            }
+        } catch {
+            print("[AppStore] Mark-all-read failed: \(error.localizedDescription)")
+        }
     }
 
     func persist() {
@@ -813,6 +921,58 @@ final class AppStore: ObservableObject {
     }
 
     // MARK: – Chat Message (API-backed)
+
+    /// Delete a conversation (per-user soft delete). Only removes it from this user's view.
+    @MainActor
+    func deleteConversation(_ conversationId: UUID) async {
+        // Optimistic local removal
+        conversations.removeAll { $0.id == conversationId }
+
+        do {
+            try await APIClient.shared.requestVoid(.delete, path: "/conversations/\(conversationId)")
+        } catch {
+            print("[AppStore] Delete conversation failed: \(error.localizedDescription)")
+            // Refresh to restore if backend failed
+            await refreshConversations()
+        }
+    }
+
+    /// Delete a single message (per-user soft delete). Only removes it from this user's view.
+    @MainActor
+    func deleteMessage(_ messageId: UUID, in conversationId: UUID) async {
+        // Optimistic local removal
+        if let idx = conversations.firstIndex(where: { $0.id == conversationId }) {
+            conversations[idx].messages.removeAll { $0.id == messageId }
+        }
+
+        do {
+            try await APIClient.shared.requestVoid(.delete, path: "/conversations/\(conversationId)/messages/\(messageId)")
+        } catch {
+            print("[AppStore] Delete message failed: \(error.localizedDescription)")
+            // Refresh to restore if backend failed
+            await refreshMessages(for: conversationId)
+        }
+    }
+
+    /// Fetch latest messages for a specific conversation from the server.
+    @MainActor
+    func refreshMessages(for conversationId: UUID) async {
+        do {
+            let msgs: [ChatMessage] = try await APIClient.shared.request(
+                .get,
+                path: "/conversations/\(conversationId)/messages"
+            )
+            if let index = conversations.firstIndex(where: { $0.id == conversationId }) {
+                conversations[index].messages = msgs
+                if let lastMsg = msgs.last {
+                    conversations[index].lastMessage = lastMsg.text
+                    conversations[index].lastMessageTime = lastMsg.timestamp
+                }
+            }
+        } catch {
+            print("[AppStore] Refresh messages failed: \(error.localizedDescription)")
+        }
+    }
 
     @MainActor
     func addChatMessage(to conversationId: UUID, text: String) async {
@@ -928,6 +1088,8 @@ final class AppStore: ObservableObject {
         friends = [];
         discoverableFriends = [];
         chat = [];
+        notifications = [];
+        friendRequests = [];
         profile = UserProfile(name: "", email: "", role: "Member")
         credits = HabitCredits(current: 0, goal: 100)
         isLoading = false

@@ -18,7 +18,7 @@ final class ChatConversation: Model, @unchecked Sendable {
     @Field(key: "contact_name")
     var contactName: String
 
-    @Field(key: "contact_user_id")
+    @OptionalField(key: "contact_user_id")
     var contactUserID: UUID?
 
     @Field(key: "last_message")
@@ -29,6 +29,12 @@ final class ChatConversation: Model, @unchecked Sendable {
 
     @Field(key: "unread_count")
     var unreadCount: Int
+
+    @Field(key: "deleted_for_owner")
+    var deletedForOwner: Bool
+
+    @Field(key: "deleted_for_contact")
+    var deletedForContact: Bool
 
     @Children(for: \.$conversation)
     var messages: [ChatMsg]
@@ -54,6 +60,8 @@ final class ChatConversation: Model, @unchecked Sendable {
         self.lastMessage = lastMessage
         self.lastMessageTime = lastMessageTime
         self.unreadCount = unreadCount
+        self.deletedForOwner = false
+        self.deletedForContact = false
     }
 }
 

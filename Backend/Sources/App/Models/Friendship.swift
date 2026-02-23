@@ -36,9 +36,10 @@ final class Friendship: Model, @unchecked Sendable {
     }
 }
 
-// MARK: – Response DTO
+// MARK: – Response DTOs
 
 extension Friendship {
+    /// Used when listing accepted friends.
     struct FriendResponse: Content {
         let id: UUID        // friendship row ID
         let userId: UUID    // the friend's user ID (their "friend code")
@@ -47,5 +48,18 @@ extension Friendship {
         let buildingName: String?
         let buildingOwner: String?
         let avatarUrl: String?
+    }
+
+    /// Used when listing incoming pending friend requests.
+    struct FriendRequestResponse: Content {
+        let friendshipId: UUID
+        let fromUserId: UUID
+        let fromName: String
+        let fromEmail: String
+        let fromBuildingName: String?
+        let fromBuildingOwner: String?
+        let fromAvatarUrl: String?
+        let status: String
+        let createdAt: Date
     }
 }

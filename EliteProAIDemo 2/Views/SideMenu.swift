@@ -93,7 +93,7 @@ struct SideMenu: View {
                 }
             }
 
-            MenuRow(icon: "bell", title: "Notifications") {
+            MenuRow(icon: "bell", title: "Notifications", badge: store.unreadNotificationCount) {
                 store.selectedTab = .home
                 store.closeMenu()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -161,18 +161,35 @@ private struct MenuRow: View {
     @Environment(\.colorScheme) var colorScheme
     let icon: String
     let title: String
+    var badge: Int = 0
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             HStack(spacing: 12) {
-                Image(systemName: icon)
-                    .frame(width: 22)
-                    .foregroundStyle(EPTheme.primaryText(for: colorScheme).opacity(0.9))
+                ZStack(alignment: .topTrailing) {
+                    Image(systemName: icon)
+                        .frame(width: 22)
+                        .foregroundStyle(EPTheme.primaryText(for: colorScheme).opacity(0.9))
+                    if badge > 0 {
+                        Circle()
+                            .fill(Color.red)
+                            .frame(width: 10, height: 10)
+                            .offset(x: 4, y: -4)
+                    }
+                }
                 Text(title)
                     .foregroundStyle(EPTheme.primaryText(for: colorScheme))
                     .font(.system(.headline, design: .rounded))
                 Spacer()
+                if badge > 0 {
+                    Text("\(badge)")
+                        .font(.system(.caption2, design: .rounded).weight(.bold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Capsule().fill(Color.red))
+                }
             }
             .padding(.vertical, 10)
         }

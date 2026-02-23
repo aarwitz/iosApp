@@ -4,8 +4,7 @@ struct FriendsView: View {
     @EnvironmentObject private var store: AppStore
     @State private var selectedStoryFriend: FriendProfile? = nil
     @State private var currentStoryIndex: Int = 0
-    @State private var chatDestination: Conversation? = nil
-    @State private var navigateToChat = false
+
 
     var body: some View {
         ScrollView {
@@ -44,7 +43,12 @@ struct FriendsView: View {
                     EPCard {
                         VStack(spacing: 0) {
                             ForEach(Array(store.friends.enumerated()), id: \.element.id) { index, friend in
-                                friendRow(friend)
+                                NavigationLink {
+                                    FriendProfileView(friend: friend)
+                                } label: {
+                                    friendRow(friend)
+                                }
+                                .buttonStyle(.plain)
                                 if index < store.friends.count - 1 {
                                     Divider().overlay(EPTheme.divider)
                                 }
@@ -62,12 +66,7 @@ struct FriendsView: View {
                 selectedStoryFriend = nil
             })
         }
-        .background(
-            NavigationLink(
-                destination: chatDestination.map { ChatDetailView(conversation: $0) },
-                isActive: $navigateToChat
-            ) { EmptyView() }
-        )
+
     }
     
     // MARK: – Story Bubble
@@ -133,6 +132,7 @@ struct FriendsView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(friend.name)
                     .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                    .foregroundStyle(Color.primary)
                 HStack(spacing: 4) {
                     Image(systemName: "building.2")
                         .font(.system(size: 10))
@@ -155,24 +155,6 @@ struct FriendsView: View {
                     )
                     .frame(width: 8, height: 8)
             }
-
-            // Message button
-            Button {
-                Task {
-                    let convo = await store.getOrCreateConversation(with: friend)
-                    await MainActor.run {
-                        chatDestination = convo
-                        navigateToChat = true
-                    }
-                }
-            } label: {
-                Image(systemName: "bubble.left.fill")
-                    .font(.system(size: 15))
-                    .foregroundStyle(EPTheme.accent)
-                    .padding(8)
-                    .background(Circle().fill(EPTheme.accent.opacity(0.12)))
-            }
-            .buttonStyle(.plain)
 
             Image(systemName: "chevron.right")
                 .font(.system(size: 11, weight: .semibold))
