@@ -37,7 +37,8 @@ struct ConversationsController: RouteCollection {
 
     struct CreateConversationRequest: Content {
         let contactName: String
-        let initialMessage: String
+        let contactUserId: UUID?      // optional: link to a real user
+        let initialMessage: String?   // optional: send a first message
     }
 
     func create(req: Request) async throws -> ChatConversation.Response {
@@ -47,25 +48,37 @@ struct ConversationsController: RouteCollection {
         }
 
         let input = try req.content.decode(CreateConversationRequest.self)
+        let msgText = input.initialMessage ?? ""
+
+        // If contactUserId provided, look up their name automatically
+        var resolvedContactName = input.contactName
+        if let contactId = input.contactUserId,
+           resolvedContactName.isEmpty,
+           let contactUser = try await User.find(contactId, on: req.db) {
+            resolvedContactName = contactUser.name
+        }
 
         let conversation = ChatConversation(
             userID: userId,
-            contactName: input.contactName,
-            lastMessage: input.initialMessage,
+            contactName: resolvedContactName,
+            contactUserID: input.contactUserId,
+            lastMessage: msgText,
             lastMessageTime: Date(),
             unreadCount: 0
         )
         try await conversation.save(on: req.db)
 
-        // Create the first message
-        let message = ChatMsg(
-            conversationID: try conversation.requireID(),
-            senderName: "You",
-            senderUserID: userId,
-            text: input.initialMessage,
-            isFromUser: true
-        )
-        try await message.save(on: req.db)
+        // Only create the first message if one was provided
+        if !msgText.isEmpty {
+            let message = ChatMsg(
+                conversationID: try conversation.requireID(),
+                senderName: "You",
+                senderUserID: userId,
+                text: msgText,
+                isFromUser: true
+            )
+            try await message.save(on: req.db)
+        }
 
         // Reload with messages
         guard let full = try await ChatConversation.query(on: req.db)

@@ -63,6 +63,7 @@ extension ChatConversation {
     struct Response: Content {
         let id: UUID
         let contactName: String
+        let contactUserId: UUID?
         let lastMessage: String
         let lastMessageTime: Date
         let unreadCount: Int
@@ -83,6 +84,7 @@ extension ChatConversation {
         return Response(
             id: try requireID(),
             contactName: contactName,
+            contactUserId: contactUserID,
             lastMessage: lastMessage,
             lastMessageTime: lastMessageTime,
             unreadCount: unreadCount,

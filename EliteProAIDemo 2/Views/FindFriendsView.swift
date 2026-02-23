@@ -6,7 +6,10 @@ struct FindFriendsView: View {
     @State private var dragOffset: CGSize = .zero
     @State private var swipeDirection: SwipeDirection? = nil
     @State private var showBarcodeSheet = false
+    @State private var showScanner = false
     @State private var selectedFriend: FriendProfile? = nil
+    @State private var alertMessage: String? = nil
+    @State private var showAlert = false
 
     enum SwipeDirection {
         case left, right
@@ -178,8 +181,44 @@ struct FindFriendsView: View {
         }
         .navigationTitle("Find Friends")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showBarcodeSheet = true
+                } label: {
+                    Image(systemName: "qrcode.viewfinder")
+                        .font(.system(size: 18, weight: .medium))
+                }
+                .accessibilityLabel("Scan Friend Code")
+            }
+        }
+        .task {
+            // Load discoverable users when the view appears
+            await store.loadDiscoverableUsers()
+            currentIndex = 0
+        }
         .sheet(isPresented: $showBarcodeSheet) {
             barcodeSheet
+        }
+        .sheet(isPresented: $showScanner) {
+            QRScannerView(
+                onScan: { code in
+                    showScanner = false
+                    Task {
+                        do {
+                            let newFriend = try await store.addFriendByCode(code)
+                            alertMessage = "You and \(newFriend.name) are now connected!"
+                        } catch {
+                            alertMessage = "Could not add friend: \(error.localizedDescription)"
+                        }
+                        showAlert = true
+                    }
+                },
+                onCancel: { showScanner = false }
+            )
+        }
+        .alert(alertMessage ?? "", isPresented: $showAlert) {
+            Button("OK", role: .cancel) {}
         }
         .sheet(item: $selectedFriend) { friend in
             NavigationStack {
@@ -326,10 +365,22 @@ struct FindFriendsView: View {
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
             if direction == .right && currentIndex < store.discoverableFriends.count {
-                // Add to friends
-                var newFriend = store.discoverableFriends[currentIndex]
-                newFriend.isFriend = true
-                store.friends.append(newFriend)
+                let friend = store.discoverableFriends[currentIndex]
+                // Add via API if we have their userID
+                if let friendUserId = friend.userID {
+                    Task {
+                        do {
+                            try await store.addFriendByCode(friendUserId.uuidString)
+                        } catch {
+                            print("[FindFriends] Could not add friend: \(error.localizedDescription)")
+                        }
+                    }
+                } else {
+                    // Fallback: add locally only
+                    var newFriend = store.discoverableFriends[currentIndex]
+                    newFriend.isFriend = true
+                    store.friends.append(newFriend)
+                }
             }
             currentIndex += 1
             dragOffset = .zero
@@ -362,16 +413,20 @@ struct FindFriendsView: View {
                 Text("My Friend Code")
                     .font(.system(.title3, design: .rounded).weight(.semibold))
 
-                // QR-style barcode placeholder
+                // Real QR code generated from the user's backend ID
                 ZStack {
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
                         .fill(Color.white)
-                        .frame(width: 220, height: 220)
+                        .frame(width: 240, height: 240)
                         .shadow(color: .black.opacity(0.08), radius: 8)
 
-                    Image(systemName: "qrcode")
-                        .font(.system(size: 150))
-                        .foregroundStyle(.black)
+                    if let userId = KeychainManager.shared.get(key: .userId), !userId.isEmpty {
+                        QRCodeView(content: userId, size: 200)
+                    } else {
+                        Image(systemName: "qrcode")
+                            .font(.system(size: 150))
+                            .foregroundStyle(.black)
+                    }
                 }
 
                 Text(store.profile.name)
@@ -381,19 +436,23 @@ struct FindFriendsView: View {
                     .foregroundStyle(EPTheme.softText)
 
                 VStack(spacing: 8) {
-                    Text("Scan a friend's code to connect instantly")
+                    Text("Share your code or scan a friend's to connect instantly")
                         .font(.system(.subheadline, design: .rounded))
                         .foregroundStyle(EPTheme.softText)
+                        .multilineTextAlignment(.center)
 
                     Button {
-                        // Placeholder for camera scanner
+                        showBarcodeSheet = false
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            showScanner = true
+                        }
                     } label: {
                         HStack(spacing: 8) {
                             Image(systemName: "camera.fill")
                             Text("Scan Code")
                         }
                         .font(.system(.subheadline, design: .rounded).weight(.semibold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.black.opacity(0.85))
                         .padding(.horizontal, 28)
                         .padding(.vertical, 12)
                         .background(Capsule().fill(EPTheme.accent))
@@ -418,7 +477,11 @@ struct FindFriendsView: View {
 
 struct FriendDetailView: View {
     let friend: FriendProfile
+    @EnvironmentObject private var store: AppStore
     @Environment(\.dismiss) private var dismiss
+    @State private var isConnecting = false
+    @State private var showChat = false
+    @State private var chatConversation: Conversation? = nil
 
     var body: some View {
         ScrollView {
@@ -450,84 +513,150 @@ struct FriendDetailView: View {
                         .font(.system(.title2, design: .rounded).weight(.bold))
                         .padding(.top, 36)
 
-                    Text("\(friend.age) years old")
-                        .font(.system(.subheadline, design: .rounded))
-                        .foregroundStyle(EPTheme.softText)
+                    if friend.age > 0 {
+                        Text("\(friend.age) years old")
+                            .font(.system(.subheadline, design: .rounded))
+                            .foregroundStyle(EPTheme.softText)
+                    }
 
-                    HStack(spacing: 6) {
-                        Image(systemName: "building.2.fill")
-                            .font(.system(size: 12))
-                            .foregroundStyle(EPTheme.accent)
-                        Text(friend.buildingName)
-                            .font(.system(.subheadline, design: .rounded).weight(.medium))
-                        Text("•")
-                            .foregroundStyle(EPTheme.softText)
-                        Text(friend.buildingOwner)
-                            .font(.system(.caption, design: .rounded))
-                            .foregroundStyle(EPTheme.softText)
+                    if !friend.buildingName.isEmpty {
+                        HStack(spacing: 6) {
+                            Image(systemName: "building.2.fill")
+                                .font(.system(size: 12))
+                                .foregroundStyle(EPTheme.accent)
+                            Text(friend.buildingName)
+                                .font(.system(.subheadline, design: .rounded).weight(.medium))
+                            if !friend.buildingOwner.isEmpty {
+                                Text("•")
+                                    .foregroundStyle(EPTheme.softText)
+                                Text(friend.buildingOwner)
+                                    .font(.system(.caption, design: .rounded))
+                                    .foregroundStyle(EPTheme.softText)
+                            }
+                        }
                     }
                 }
 
                 // Bio
-                EPCard {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("About")
-                            .font(.system(.headline, design: .rounded))
-                        Text(friend.bio)
-                            .font(.system(.body, design: .rounded))
-                            .foregroundStyle(Color.primary.opacity(0.85))
+                if !friend.bio.isEmpty {
+                    EPCard {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("About")
+                                .font(.system(.headline, design: .rounded))
+                            Text(friend.bio)
+                                .font(.system(.body, design: .rounded))
+                                .foregroundStyle(Color.primary.opacity(0.85))
+                        }
                     }
                 }
 
                 // Interests
-                EPCard {
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Interests")
-                            .font(.system(.headline, design: .rounded))
-                        FlowLayout(spacing: 8) {
-                            ForEach(friend.interests, id: \.self) { interest in
-                                Text(interest)
-                                    .font(.system(.subheadline, design: .rounded).weight(.medium))
-                                    .foregroundStyle(EPTheme.accent)
-                                    .padding(.horizontal, 14)
-                                    .padding(.vertical, 7)
-                                    .background(Capsule().fill(EPTheme.accent.opacity(0.12)))
+                if !friend.interests.isEmpty {
+                    EPCard {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Interests")
+                                .font(.system(.headline, design: .rounded))
+                            FlowLayout(spacing: 8) {
+                                ForEach(friend.interests, id: \.self) { interest in
+                                    Text(interest)
+                                        .font(.system(.subheadline, design: .rounded).weight(.medium))
+                                        .foregroundStyle(EPTheme.accent)
+                                        .padding(.horizontal, 14)
+                                        .padding(.vertical, 7)
+                                        .background(Capsule().fill(EPTheme.accent.opacity(0.12)))
+                                }
                             }
                         }
                     }
                 }
 
                 // Stats
-                EPCard {
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Activity")
-                            .font(.system(.headline, design: .rounded))
-                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                            detailStat(icon: "flame.fill", value: "\(friend.workoutsThisWeek)", label: "Workouts this week", color: .orange)
-                            detailStat(icon: "person.2.fill", value: "\(friend.mutualFriends)", label: "Mutual friends", color: .purple)
-                            detailStat(icon: "star.fill", value: friend.favoriteActivity, label: "Favorite activity", color: .yellow)
-                            detailStat(icon: "building.2.fill", value: friend.buildingName.components(separatedBy: " ").first ?? "", label: "Building", color: .blue)
+                if friend.workoutsThisWeek > 0 || friend.mutualFriends > 0 {
+                    EPCard {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Activity")
+                                .font(.system(.headline, design: .rounded))
+                            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                                detailStat(icon: "flame.fill", value: "\(friend.workoutsThisWeek)", label: "Workouts this week", color: .orange)
+                                detailStat(icon: "person.2.fill", value: "\(friend.mutualFriends)", label: "Mutual friends", color: .purple)
+                                if !friend.favoriteActivity.isEmpty {
+                                    detailStat(icon: "star.fill", value: friend.favoriteActivity, label: "Favorite activity", color: .yellow)
+                                }
+                                if !friend.buildingName.isEmpty {
+                                    detailStat(icon: "building.2.fill", value: friend.buildingName.components(separatedBy: " ").first ?? "", label: "Building", color: .blue)
+                                }
+                            }
                         }
                     }
                 }
 
-                // Action
-                if !friend.isFriend {
-                    Button {
-                        // Connect action
-                    } label: {
-                        HStack(spacing: 8) {
-                            Image(systemName: "hand.wave.fill")
-                            Text("Connect")
+                // Actions
+                VStack(spacing: 12) {
+                    if friend.isFriend {
+                        // Message button for existing friends
+                        Button {
+                            isConnecting = true
+                            Task {
+                                let convo = await store.getOrCreateConversation(with: friend)
+                                await MainActor.run {
+                                    isConnecting = false
+                                    chatConversation = convo
+                                    showChat = true
+                                }
+                            }
+                        } label: {
+                            HStack(spacing: 8) {
+                                if isConnecting {
+                                    ProgressView().frame(width: 20, height: 20)
+                                } else {
+                                    Image(systemName: "bubble.left.fill")
+                                }
+                                Text("Message")
+                            }
+                            .font(.system(.headline, design: .rounded))
+                            .foregroundStyle(.black.opacity(0.85))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .fill(EPTheme.accent)
+                            )
                         }
-                        .font(.system(.headline, design: .rounded))
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .fill(EPTheme.accent)
-                        )
+                        .disabled(isConnecting)
+                    } else {
+                        Button {
+                            guard let userId = friend.userID else { return }
+                            isConnecting = true
+                            Task {
+                                do {
+                                    try await store.addFriendByCode(userId.uuidString)
+                                } catch {
+                                    print("[FriendDetail] Could not add friend: \(error.localizedDescription)")
+                                }
+                                await MainActor.run {
+                                    isConnecting = false
+                                    dismiss()
+                                }
+                            }
+                        } label: {
+                            HStack(spacing: 8) {
+                                if isConnecting {
+                                    ProgressView().frame(width: 20, height: 20)
+                                } else {
+                                    Image(systemName: "hand.wave.fill")
+                                }
+                                Text("Connect")
+                            }
+                            .font(.system(.headline, design: .rounded))
+                            .foregroundStyle(.black.opacity(0.85))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .fill(EPTheme.accent)
+                            )
+                        }
+                        .disabled(isConnecting || friend.userID == nil)
                     }
                 }
             }
@@ -541,6 +670,12 @@ struct FriendDetailView: View {
                 Button("Done") { dismiss() }
             }
         }
+        .background(
+            NavigationLink(
+                destination: chatConversation.map { ChatDetailView(conversation: $0) },
+                isActive: $showChat
+            ) { EmptyView() }
+        )
     }
 
     private func detailStat(icon: String, value: String, label: String, color: Color) -> some View {

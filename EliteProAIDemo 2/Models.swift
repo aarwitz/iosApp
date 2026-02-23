@@ -83,6 +83,7 @@ struct ChatMessage: Codable, Identifiable {
 struct Conversation: Codable, Identifiable {
     var id: UUID = UUID()
     var contactName: String
+    var contactUserId: UUID?   // linked backend user (nil for conversations not linked to a friend)
     var lastMessage: String
     var lastMessageTime: Date
     var unreadCount: Int
@@ -194,8 +195,69 @@ enum RewardCategory: String, CaseIterable {
 
 // MARK: – Friends & Stories
 
+/// API response model for a friendship (from GET /friends)
+struct FriendResponse: Codable, Identifiable {
+    var id: UUID        // friendship row ID
+    var userId: UUID    // the friend’s user ID (their “friend code”)
+    var name: String
+    var email: String
+    var buildingName: String?
+    var buildingOwner: String?
+    var avatarUrl: String?
+
+    func toFriendProfile() -> FriendProfile {
+        let parts = name.components(separatedBy: " ")
+        let initials = parts.prefix(2).compactMap { $0.first }.map { String($0) }.joined().uppercased()
+        return FriendProfile(
+            userID: userId,
+            name: name,
+            age: 0,
+            buildingName: buildingName ?? "",
+            buildingOwner: buildingOwner ?? "",
+            bio: email,
+            interests: [],
+            mutualFriends: 0,
+            workoutsThisWeek: 0,
+            favoriteActivity: "",
+            avatarInitials: initials,
+            isFriend: true
+        )
+    }
+}
+
+/// API response model for user search results (from GET /users/search)
+struct UserPublic: Codable, Identifiable {
+    var id: UUID
+    var name: String
+    var email: String
+    var role: String
+    var buildingName: String?
+    var buildingOwner: String?
+    var avatarUrl: String?
+
+    func toFriendProfile() -> FriendProfile {
+        let parts = name.components(separatedBy: " ")
+        let initials = parts.prefix(2).compactMap { $0.first }.map { String($0) }.joined().uppercased()
+        return FriendProfile(
+            userID: id,
+            name: name,
+            age: 0,
+            buildingName: buildingName ?? "",
+            buildingOwner: buildingOwner ?? "",
+            bio: "",
+            interests: [],
+            mutualFriends: 0,
+            workoutsThisWeek: 0,
+            favoriteActivity: "",
+            avatarInitials: initials,
+            isFriend: false
+        )
+    }
+}
+
 struct FriendProfile: Identifiable {
     var id: UUID = UUID()
+    var userID: UUID?             // backend user ID (“friend code” for QR scanning)
     var name: String
     var age: Int
     var buildingName: String       // e.g. "Echelon Seaport"

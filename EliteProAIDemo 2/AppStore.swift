@@ -91,69 +91,8 @@ final class AppStore: ObservableObject {
             ]
         }
 
-        // Demo conversations
-        self.conversations = [
-            Conversation(
-                contactName: "Coach Jason",
-                lastMessage: "Let me know when you're ready to review it.",
-                lastMessageTime: Date().addingTimeInterval(-60*25),
-                unreadCount: 2,
-                messages: [
-                    ChatMessage(from: "Coach Jason", text: "Hey Luis! How's recovery feeling after last week's sessions?", timestamp: Date().addingTimeInterval(-60*30), isMe: false),
-                    ChatMessage(from: "Coach Jason", text: "I put together a new plan for this week.", timestamp: Date().addingTimeInterval(-60*28), isMe: false),
-                    ChatMessage(from: "Coach Jason", text: "Let me know when you're ready to review it.", timestamp: Date().addingTimeInterval(-60*25), isMe: false)
-                ]
-            ),
-            Conversation(
-                contactName: "Andre Silva",
-                lastMessage: "Thanks for the squat tips yesterday!",
-                lastMessageTime: Date().addingTimeInterval(-60*120),
-                unreadCount: 0,
-                messages: [
-                    ChatMessage(from: "Andre Silva", text: "Hey! Quick question about depth on squats", timestamp: Date().addingTimeInterval(-60*240), isMe: false),
-                    ChatMessage(from: "You", text: "Go parallel or just below, controlled descent", timestamp: Date().addingTimeInterval(-60*235), isMe: true),
-                    ChatMessage(from: "Andre Silva", text: "Perfect, that's what I needed", timestamp: Date().addingTimeInterval(-60*230), isMe: false),
-                    ChatMessage(from: "You", text: "Send me a form check video if you want", timestamp: Date().addingTimeInterval(-60*225), isMe: true),
-                    ChatMessage(from: "Andre Silva", text: "Thanks for the squat tips yesterday!", timestamp: Date().addingTimeInterval(-60*120), isMe: false)
-                ]
-            ),
-            Conversation(
-                contactName: "Nina",
-                lastMessage: "See you at 7am tomorrow!",
-                lastMessageTime: Date().addingTimeInterval(-60*180),
-                unreadCount: 0,
-                messages: [
-                    ChatMessage(from: "Nina", text: "Still on for mobility tomorrow morning?", timestamp: Date().addingTimeInterval(-60*200), isMe: false),
-                    ChatMessage(from: "You", text: "Yes! 7am at the tower gym?", timestamp: Date().addingTimeInterval(-60*195), isMe: true),
-                    ChatMessage(from: "Nina", text: "Perfect 🙌", timestamp: Date().addingTimeInterval(-60*190), isMe: false),
-                    ChatMessage(from: "Nina", text: "See you at 7am tomorrow!", timestamp: Date().addingTimeInterval(-60*180), isMe: false)
-                ]
-            ),
-            Conversation(
-                contactName: "Priya Nair",
-                lastMessage: "I'll send over the meal plan tonight",
-                lastMessageTime: Date().addingTimeInterval(-60*60*5),
-                unreadCount: 1,
-                messages: [
-                    ChatMessage(from: "Priya Nair", text: "How did the nutrition tracking go this week?", timestamp: Date().addingTimeInterval(-60*60*24), isMe: false),
-                    ChatMessage(from: "You", text: "Pretty good, hit protein goals 5/7 days", timestamp: Date().addingTimeInterval(-60*60*23), isMe: true),
-                    ChatMessage(from: "Priya Nair", text: "That's solid progress! Let's adjust your plan", timestamp: Date().addingTimeInterval(-60*60*22), isMe: false),
-                    ChatMessage(from: "Priya Nair", text: "I'll send over the meal plan tonight", timestamp: Date().addingTimeInterval(-60*60*5), isMe: false)
-                ]
-            ),
-            Conversation(
-                contactName: "Sam (Back Bay Running)",
-                lastMessage: "Count me in for Saturday's 5k!",
-                lastMessageTime: Date().addingTimeInterval(-60*60*2),
-                unreadCount: 0,
-                messages: [
-                    ChatMessage(from: "Sam (Back Bay Running)", text: "Group run this Saturday - you coming?", timestamp: Date().addingTimeInterval(-60*60*4), isMe: false),
-                    ChatMessage(from: "You", text: "What's the pace?", timestamp: Date().addingTimeInterval(-60*60*3.5), isMe: true),
-                    ChatMessage(from: "Sam (Back Bay Running)", text: "Easy 5k, about 9-10 min/mile", timestamp: Date().addingTimeInterval(-60*60*3), isMe: false),
-                    ChatMessage(from: "You", text: "Count me in for Saturday's 5k!", timestamp: Date().addingTimeInterval(-60*60*2), isMe: true)
-                ]
-            )
-        ]
+        // Conversations loaded from API
+        self.conversations = []
 
         // Demo communities (not persisted)
         self.communities = [
@@ -206,259 +145,11 @@ final class AppStore: ObservableObject {
             ActivityPin(title: "CrossFit WOD", communityName: "Cambridge Fitness", groupName: "CrossFit Central", coordinate: CLLocationCoordinate2D(latitude: 42.3650, longitude: -71.1035))
         ]
         
-        // Demo friends (already connected)
-        self.friends = [
-            // Friends with stories (fully fleshed out)
-            FriendProfile(
-                name: "Nina Alvarez", age: 29,
-                buildingName: "Echelon Seaport", buildingOwner: "Barkan Management",
-                bio: "Yoga lover & early riser. Always down for a morning mobility session.",
-                interests: ["Yoga", "Mobility", "Meditation"],
-                mutualFriends: 4, workoutsThisWeek: 5, favoriteActivity: "Yoga Flow",
-                avatarInitials: "NA", isFriend: true, hasStory: true,
-                storyItems: [
-                    StoryItem(imagePlaceholder: "figure.yoga", caption: "Morning flow on the rooftop 🧘‍♀️", timestamp: Date().addingTimeInterval(-60*30), gradientColors: [.purple, .pink]),
-                    StoryItem(imagePlaceholder: "sunrise.fill", caption: "Caught the sunrise today!", timestamp: Date().addingTimeInterval(-60*90), gradientColors: [.orange, .yellow])
-                ]
-            ),
-            FriendProfile(
-                name: "Sam Torres", age: 31,
-                buildingName: "Via Seaport", buildingOwner: "The Fallon Company",
-                bio: "Running is my therapy. Training for Boston Marathon 2026.",
-                interests: ["Running", "HIIT", "Nutrition"],
-                mutualFriends: 6, workoutsThisWeek: 6, favoriteActivity: "Back Bay Running",
-                avatarInitials: "ST", isFriend: true, hasStory: true,
-                storyItems: [
-                    StoryItem(imagePlaceholder: "figure.run", caption: "10K PR this morning! 42:15 🏃", timestamp: Date().addingTimeInterval(-60*120), gradientColors: [.green, .teal])
-                ]
-            ),
-            FriendProfile(
-                name: "Mei Lin", age: 26,
-                buildingName: "Watermark Seaport", buildingOwner: "Greystar",
-                bio: "Plant-based athlete. Teaching Sunday yoga in the park.",
-                interests: ["Yoga", "Nutrition", "Hiking"],
-                mutualFriends: 2, workoutsThisWeek: 3, favoriteActivity: "Yoga Flow",
-                avatarInitials: "ML", isFriend: true, hasStory: true,
-                storyItems: [
-                    StoryItem(imagePlaceholder: "leaf.fill", caption: "New smoothie recipe — spinach mango 🥭", timestamp: Date().addingTimeInterval(-60*45), gradientColors: [.green, .mint]),
-                    StoryItem(imagePlaceholder: "figure.flexibility", caption: "Flexibility gains after 30 days!", timestamp: Date().addingTimeInterval(-60*200), gradientColors: [.indigo, .purple])
-                ]
-            ),
-            FriendProfile(
-                name: "Alex Rivera", age: 28,
-                buildingName: "One Seaport", buildingOwner: "WS Development",
-                bio: "CrossFit athlete & nutrition coach. Love helping people hit their goals.",
-                interests: ["CrossFit", "Nutrition", "Weightlifting"],
-                mutualFriends: 8, workoutsThisWeek: 7, favoriteActivity: "CrossFit Central",
-                avatarInitials: "AR", isFriend: true, hasStory: true,
-                storyItems: [
-                    StoryItem(imagePlaceholder: "dumbbell.fill", caption: "Hit a 225lb clean today! 💪", timestamp: Date().addingTimeInterval(-60*180), gradientColors: [.red, .orange]),
-                    StoryItem(imagePlaceholder: "carrot.fill", caption: "Meal prep Sunday vibes 🥗", timestamp: Date().addingTimeInterval(-60*300), gradientColors: [.green, .yellow])
-                ]
-            ),
-            FriendProfile(
-                name: "Jenna Watson", age: 30,
-                buildingName: "Echelon Seaport", buildingOwner: "Barkan Management",
-                bio: "Marathon runner & yoga instructor. Balance is everything.",
-                interests: ["Running", "Yoga", "Meditation"],
-                mutualFriends: 5, workoutsThisWeek: 6, favoriteActivity: "Morning Runners",
-                avatarInitials: "JW", isFriend: true, hasStory: true,
-                storyItems: [
-                    StoryItem(imagePlaceholder: "heart.fill", caption: "Recovery day = best day", timestamp: Date().addingTimeInterval(-60*60), gradientColors: [.pink, .red])
-                ]
-            ),
-            FriendProfile(
-                name: "Marcus Johnson", age: 32,
-                buildingName: "Via Seaport", buildingOwner: "The Fallon Company",
-                bio: "Former college football player. Now into bodybuilding and powerlifting.",
-                interests: ["Powerlifting", "Bodybuilding", "Sports"],
-                mutualFriends: 7, workoutsThisWeek: 5, favoriteActivity: "Beginner Lifting",
-                avatarInitials: "MJ", isFriend: true, hasStory: true,
-                storyItems: [
-                    StoryItem(imagePlaceholder: "flame.fill", caption: "Leg day destroyed me 🔥", timestamp: Date().addingTimeInterval(-60*240), gradientColors: [.orange, .red]),
-                    StoryItem(imagePlaceholder: "fork.knife", caption: "Post-workout feast!", timestamp: Date().addingTimeInterval(-60*260), gradientColors: [.brown, .orange])
-                ]
-            ),
-            FriendProfile(
-                name: "Sofia Martinez", age: 25,
-                buildingName: "Watermark Seaport", buildingOwner: "Greystar",
-                bio: "Dance fitness instructor. Bringing the energy to every class!",
-                interests: ["Dance", "HIIT", "Group Fitness"],
-                mutualFriends: 4, workoutsThisWeek: 8, favoriteActivity: "Group Classes",
-                avatarInitials: "SM", isFriend: true, hasStory: true,
-                storyItems: [
-                    StoryItem(imagePlaceholder: "music.note", caption: "New playlist for tomorrow's class 🎵", timestamp: Date().addingTimeInterval(-60*150), gradientColors: [.purple, .blue])
-                ]
-            ),
-            FriendProfile(
-                name: "Ryan Park", age: 29,
-                buildingName: "One Seaport", buildingOwner: "WS Development",
-                bio: "Triathlete training for Ironman. Swim, bike, run, repeat.",
-                interests: ["Triathlon", "Swimming", "Cycling", "Running"],
-                mutualFriends: 6, workoutsThisWeek: 9, favoriteActivity: "Morning Runners",
-                avatarInitials: "RP", isFriend: true, hasStory: true,
-                storyItems: [
-                    StoryItem(imagePlaceholder: "figure.outdoor.cycle", caption: "50 mile bike ride ✅", timestamp: Date().addingTimeInterval(-60*100), gradientColors: [.blue, .cyan]),
-                    StoryItem(imagePlaceholder: "figure.pool.swim", caption: "Open water swim in the harbor!", timestamp: Date().addingTimeInterval(-60*360), gradientColors: [.blue, .teal])
-                ]
-            ),
-            FriendProfile(
-                name: "Olivia Brown", age: 27,
-                buildingName: "Echelon Seaport", buildingOwner: "Barkan Management",
-                bio: "Certified personal trainer. Love helping beginners find their confidence.",
-                interests: ["Personal Training", "Strength", "Motivation"],
-                mutualFriends: 9, workoutsThisWeek: 6, favoriteActivity: "Beginner Lifting",
-                avatarInitials: "OB", isFriend: true, hasStory: true,
-                storyItems: [
-                    StoryItem(imagePlaceholder: "star.fill", caption: "Client hit their first pull-up today!", timestamp: Date().addingTimeInterval(-60*80), gradientColors: [.yellow, .orange])
-                ]
-            ),
-            FriendProfile(
-                name: "David Chen", age: 33,
-                buildingName: "Via Seaport", buildingOwner: "The Fallon Company",
-                bio: "Rock climber & calisthenics enthusiast. Bodyweight training is underrated.",
-                interests: ["Rock Climbing", "Calisthenics", "Parkour"],
-                mutualFriends: 3, workoutsThisWeek: 5, favoriteActivity: "Outdoor Activities",
-                avatarInitials: "DC", isFriend: true, hasStory: true,
-                storyItems: [
-                    StoryItem(imagePlaceholder: "figure.climbing", caption: "Sent a V7 project today! 🧗", timestamp: Date().addingTimeInterval(-60*220), gradientColors: [.gray, .blue])
-                ]
-            ),
-            
-            // Friends without stories (simpler profiles)
-            FriendProfile(name: "Jake Rosenberg", age: 27, buildingName: "Echelon Seaport", buildingOwner: "Barkan Management", bio: "Pickle ball enthusiast", interests: ["Pickle Ball", "Strength Training"], mutualFriends: 3, workoutsThisWeek: 4, favoriteActivity: "Pickle Ball Club", avatarInitials: "JR", isFriend: true, hasStory: false),
-            FriendProfile(name: "Dan Kim", age: 33, buildingName: "Echelon Seaport", buildingOwner: "Barkan Management", bio: "Rooftop gym regular", interests: ["Powerlifting", "CrossFit"], mutualFriends: 5, workoutsThisWeek: 5, favoriteActivity: "Beginner Lifting", avatarInitials: "DK", isFriend: true, hasStory: false),
-            FriendProfile(name: "Jessica Lee", age: 26, buildingName: "Watermark Seaport", buildingOwner: "Greystar", bio: "Morning runner", interests: ["Running"], mutualFriends: 2, workoutsThisWeek: 3, favoriteActivity: "Morning Runners", avatarInitials: "JL", isFriend: true, hasStory: false),
-            FriendProfile(name: "Tom Anderson", age: 31, buildingName: "One Seaport", buildingOwner: "WS Development", bio: "Gym enthusiast", interests: ["Lifting"], mutualFriends: 4, workoutsThisWeek: 4, favoriteActivity: "Beginner Lifting", avatarInitials: "TA", isFriend: true, hasStory: false),
-            FriendProfile(name: "Lisa Patel", age: 28, buildingName: "Via Seaport", buildingOwner: "The Fallon Company", bio: "Yoga practitioner", interests: ["Yoga"], mutualFriends: 3, workoutsThisWeek: 2, favoriteActivity: "Yoga Flow", avatarInitials: "LP", isFriend: true, hasStory: false),
-            FriendProfile(name: "Chris Walker", age: 29, buildingName: "Echelon Seaport", buildingOwner: "Barkan Management", bio: "Basketball player", interests: ["Basketball"], mutualFriends: 6, workoutsThisWeek: 3, favoriteActivity: "Sports", avatarInitials: "CW", isFriend: true, hasStory: false),
-            FriendProfile(name: "Amy Zhou", age: 24, buildingName: "Watermark Seaport", buildingOwner: "Greystar", bio: "Fitness newbie", interests: ["Cardio"], mutualFriends: 1, workoutsThisWeek: 2, favoriteActivity: "Group Classes", avatarInitials: "AZ", isFriend: true, hasStory: false),
-            FriendProfile(name: "Brian Murphy", age: 35, buildingName: "One Seaport", buildingOwner: "WS Development", bio: "Cycling enthusiast", interests: ["Cycling"], mutualFriends: 5, workoutsThisWeek: 4, favoriteActivity: "Outdoor Activities", avatarInitials: "BM", isFriend: true, hasStory: false),
-            FriendProfile(name: "Rachel Green", age: 27, buildingName: "Via Seaport", buildingOwner: "The Fallon Company", bio: "Pilates instructor", interests: ["Pilates"], mutualFriends: 4, workoutsThisWeek: 5, favoriteActivity: "Pilates", avatarInitials: "RG", isFriend: true, hasStory: false),
-            FriendProfile(name: "Kevin Tran", age: 30, buildingName: "Echelon Seaport", buildingOwner: "Barkan Management", bio: "CrossFit member", interests: ["CrossFit"], mutualFriends: 7, workoutsThisWeek: 6, favoriteActivity: "CrossFit Central", avatarInitials: "KT", isFriend: true, hasStory: false),
-            FriendProfile(name: "Sarah Mitchell", age: 26, buildingName: "Watermark Seaport", buildingOwner: "Greystar", bio: "Runner", interests: ["Running"], mutualFriends: 3, workoutsThisWeek: 5, favoriteActivity: "Back Bay Running", avatarInitials: "SM", isFriend: true, hasStory: false),
-            FriendProfile(name: "Mike Davis", age: 32, buildingName: "One Seaport", buildingOwner: "WS Development", bio: "Weightlifter", interests: ["Weightlifting"], mutualFriends: 4, workoutsThisWeek: 5, favoriteActivity: "Beginner Lifting", avatarInitials: "MD", isFriend: true, hasStory: false),
-            FriendProfile(name: "Jennifer Yang", age: 25, buildingName: "Via Seaport", buildingOwner: "The Fallon Company", bio: "Yoga teacher", interests: ["Yoga"], mutualFriends: 2, workoutsThisWeek: 4, favoriteActivity: "Yoga Flow", avatarInitials: "JY", isFriend: true, hasStory: false),
-            FriendProfile(name: "Alex Turner", age: 28, buildingName: "Echelon Seaport", buildingOwner: "Barkan Management", bio: "HIIT lover", interests: ["HIIT"], mutualFriends: 5, workoutsThisWeek: 6, favoriteActivity: "Group Classes", avatarInitials: "AT", isFriend: true, hasStory: false),
-            FriendProfile(name: "Lauren Scott", age: 29, buildingName: "Watermark Seaport", buildingOwner: "Greystar", bio: "Marathon trainer", interests: ["Running"], mutualFriends: 6, workoutsThisWeek: 7, favoriteActivity: "Back Bay Running", avatarInitials: "LS", isFriend: true, hasStory: false),
-        ] + Self.generateBulkFriends(count: 230)
+        // Friends loaded from API
+        self.friends = []
         
-        // Demo discoverable friends (for swipe-to-connect)
-        self.discoverableFriends = [
-            // Echelon building
-            FriendProfile(
-                name: "Aisha Johnson", age: 28,
-                buildingName: "Echelon Seaport", buildingOwner: "Barkan Management",
-                bio: "New to Boston! Looking for running buddies and gym partners. Former D1 swimmer turned runner.",
-                interests: ["Running", "Swimming", "HIIT", "Meal Prep"],
-                mutualFriends: 3, workoutsThisWeek: 4, favoriteActivity: "Morning Runners",
-                avatarInitials: "AJ"
-            ),
-            FriendProfile(
-                name: "Tyler Brooks", age: 30,
-                buildingName: "Echelon Seaport", buildingOwner: "Barkan Management",
-                bio: "Basketball league organizer. Building a pickup hoops group at Echelon. Who's in?",
-                interests: ["Basketball", "Strength Training", "Cardio"],
-                mutualFriends: 7, workoutsThisWeek: 3, favoriteActivity: "Seaport Tower — Residents",
-                avatarInitials: "TB"
-            ),
-            FriendProfile(
-                name: "Devon Patel", age: 26,
-                buildingName: "Echelon Seaport", buildingOwner: "Barkan Management",
-                bio: "Tech bro who lifts. Tracking everything — macros, sleep, HRV. Data-driven fitness.",
-                interests: ["Strength Training", "Biohacking", "Nutrition", "Recovery"],
-                mutualFriends: 6, workoutsThisWeek: 5, favoriteActivity: "Beginner Lifting",
-                avatarInitials: "DP"
-            ),
-            
-            // Other Seaport buildings
-            FriendProfile(
-                name: "Marco Reyes", age: 34,
-                buildingName: "Via Seaport", buildingOwner: "The Fallon Company",
-                bio: "CrossFit Level 2 coach. Love outdoor workouts and competitive fitness. Always up for a challenge.",
-                interests: ["CrossFit", "Olympic Lifting", "Boot Camp"],
-                mutualFriends: 5, workoutsThisWeek: 6, favoriteActivity: "CrossFit Central",
-                avatarInitials: "MR"
-            ),
-            FriendProfile(
-                name: "Sophie Chen", age: 25,
-                buildingName: "Watermark Seaport", buildingOwner: "Greystar",
-                bio: "Pilates instructor by day, trail runner by weekend. Into clean eating and mindfulness.",
-                interests: ["Pilates", "Trail Running", "Meditation", "Nutrition"],
-                mutualFriends: 2, workoutsThisWeek: 5, favoriteActivity: "Yoga Flow",
-                avatarInitials: "SC"
-            ),
-            FriendProfile(
-                name: "Priya Sharma", age: 27,
-                buildingName: "One Seaport", buildingOwner: "WS Development",
-                bio: "Nutrition nerd & weekend hiker. Training for my first half-marathon. Love group energy!",
-                interests: ["Nutrition", "Hiking", "Running", "Yoga"],
-                mutualFriends: 4, workoutsThisWeek: 4, favoriteActivity: "Back Bay Running",
-                avatarInitials: "PS"
-            ),
-            FriendProfile(
-                name: "James O'Brien", age: 32,
-                buildingName: "Via Seaport", buildingOwner: "The Fallon Company",
-                bio: "Former rugby player. Now into functional fitness and mobility. Great spotter if you need one.",
-                interests: ["Functional Fitness", "Mobility", "Rugby", "Recovery"],
-                mutualFriends: 1, workoutsThisWeek: 5, favoriteActivity: "Beginner Lifting",
-                avatarInitials: "JO"
-            ),
-            FriendProfile(
-                name: "Lena Kowalski", age: 29,
-                buildingName: "Watermark Seaport", buildingOwner: "Greystar",
-                bio: "Dance fitness & barre enthusiast. Also run a meal prep group. Let's connect!",
-                interests: ["Dance Fitness", "Barre", "Meal Prep", "Pilates"],
-                mutualFriends: 3, workoutsThisWeek: 4, favoriteActivity: "Group Classes",
-                avatarInitials: "LK"
-            ),
-            
-            // Back Bay buildings
-            FriendProfile(
-                name: "Emma Martinez", age: 29,
-                buildingName: "The Clarendon", buildingOwner: "Trinity Place Holdings",
-                bio: "Marathon runner and yoga instructor. Teaching evening classes in Back Bay!",
-                interests: ["Running", "Yoga", "Meditation"],
-                mutualFriends: 2, workoutsThisWeek: 7, favoriteActivity: "Back Bay Running",
-                avatarInitials: "EM"
-            ),
-            FriendProfile(
-                name: "Jake Williams", age: 31,
-                buildingName: "The Viridian", buildingOwner: "Hamilton Company",
-                bio: "Powerlifter competing in local meets. Always down to share lifting tips!",
-                interests: ["Powerlifting", "Strength Training", "Nutrition"],
-                mutualFriends: 1, workoutsThisWeek: 5, favoriteActivity: "Beginner Lifting",
-                avatarInitials: "JW"
-            ),
-            
-            // South End buildings
-            FriendProfile(
-                name: "Maya Rodriguez", age: 27,
-                buildingName: "Troy Boston", buildingOwner: "Samuels & Associates",
-                bio: "Yoga teacher and plant-based nutrition coach. Let's get healthy together!",
-                interests: ["Yoga", "Nutrition", "Meal Prep", "Meditation"],
-                mutualFriends: 4, workoutsThisWeek: 4, favoriteActivity: "Yoga Flow",
-                avatarInitials: "MR"
-            ),
-            
-            // Cambridge buildings  
-            FriendProfile(
-                name: "Alex Kim", age: 28,
-                buildingName: "The Lofts at Kendall Square", buildingOwner: "Boston Properties",
-                bio: "CrossFit athlete training for competitions. Love the grind!",
-                interests: ["CrossFit", "Olympic Lifting", "HIIT"],
-                mutualFriends: 3, workoutsThisWeek: 6, favoriteActivity: "CrossFit Central",
-                avatarInitials: "AK"
-            ),
-            FriendProfile(
-                name: "Rachel Green", age: 26,
-                buildingName: "Avalon at Assembly Row", buildingOwner: "AvalonBay Communities",
-                bio: "Rock climber and outdoor enthusiast. Weekend adventures in the White Mountains!",
-                interests: ["Rock Climbing", "Hiking", "Yoga", "Trail Running"],
-                mutualFriends: 2, workoutsThisWeek: 5, favoriteActivity: "Outdoor Activities",
-                avatarInitials: "RG"
-            )
-        ]
+        // Discoverable users loaded from API
+        self.discoverableFriends = []
         
         // Demo earning opportunities
         self.earningOpportunities = [
@@ -969,6 +660,22 @@ final class AppStore: ObservableObject {
             print("[AppStore] Conversations fetch failed: \(error.localizedDescription)")
         }
 
+        // Fetch friends from server
+        do {
+            let response: [FriendResponse] = try await api.request(.get, path: "/friends")
+            friends = response.map { $0.toFriendProfile() }
+        } catch {
+            print("[AppStore] Friends fetch failed: \(error.localizedDescription)")
+        }
+
+        // Fetch discoverable users
+        do {
+            let users: [UserPublic] = try await api.request(.get, path: "/users/search")
+            discoverableFriends = users.map { $0.toFriendProfile() }
+        } catch {
+            print("[AppStore] Discoverable users fetch failed: \(error.localizedDescription)")
+        }
+
         isLoading = false
     }
 
@@ -994,6 +701,58 @@ final class AppStore: ObservableObject {
         } catch {
             print("[AppStore] Conversations refresh failed: \(error.localizedDescription)")
         }
+    }
+
+    // MARK: – Friends (API-backed)
+
+    /// Load current friends from the server.
+    @MainActor
+    func loadFriends() async {
+        do {
+            let response: [FriendResponse] = try await APIClient.shared.request(.get, path: "/friends")
+            friends = response.map { $0.toFriendProfile() }
+        } catch {
+            print("[AppStore] Load friends failed: \(error.localizedDescription)")
+        }
+    }
+
+    /// Search for discoverable users (not yet friends).
+    @MainActor
+    func loadDiscoverableUsers(query: String = "") async {
+        var path = "/users/search"
+        if !query.isEmpty {
+            let encoded = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
+            path += "?q=\(encoded)"
+        }
+        do {
+            let users: [UserPublic] = try await APIClient.shared.request(.get, path: path)
+            discoverableFriends = users.map { $0.toFriendProfile() }
+        } catch {
+            print("[AppStore] Load discoverable users failed: \(error.localizedDescription)")
+        }
+    }
+
+    /// Add a friend by their user UUID (scanned from QR code or entered manually).
+    /// Returns the new FriendProfile on success.
+    @MainActor
+    @discardableResult
+    func addFriendByCode(_ code: String) async throws -> FriendProfile {
+        struct AddFriendBody: Encodable {
+            let friendCode: String
+        }
+        let response: FriendResponse = try await APIClient.shared.request(
+            .post,
+            path: "/friends",
+            body: AddFriendBody(friendCode: code)
+        )
+        let newFriend = response.toFriendProfile()
+        // Add to friends list if not already there
+        if !friends.contains(where: { $0.userID == newFriend.userID }) {
+            friends.append(newFriend)
+        }
+        // Remove from discoverable list
+        discoverableFriends.removeAll { $0.userID == newFriend.userID }
+        return newFriend
     }
 
     func persist() {
@@ -1086,6 +845,45 @@ final class AppStore: ObservableObject {
 
     // MARK: – Create Conversation (API-backed)
 
+    /// Find an existing conversation with a friend, or create a new empty one.
+    @MainActor
+    func getOrCreateConversation(with friend: FriendProfile) async -> Conversation {
+        // Check if conversation already exists for this contact
+        if let existing = conversations.first(where: { convo in
+            convo.contactUserId == friend.userID || convo.contactName == friend.name
+        }) {
+            return existing
+        }
+
+        struct CreateConversationBody: Encodable {
+            let contactName: String
+            let contactUserId: UUID?
+        }
+
+        do {
+            let convo: Conversation = try await APIClient.shared.request(
+                .post,
+                path: "/conversations",
+                body: CreateConversationBody(contactName: friend.name, contactUserId: friend.userID)
+            )
+            conversations.insert(convo, at: 0)
+            return convo
+        } catch {
+            // Local fallback
+            let newConversation = Conversation(
+                contactName: friend.name,
+                contactUserId: friend.userID,
+                lastMessage: "",
+                lastMessageTime: Date(),
+                unreadCount: 0,
+                messages: []
+            )
+            conversations.insert(newConversation, at: 0)
+            print("[AppStore] Create conversation API failed: \(error.localizedDescription)")
+            return newConversation
+        }
+    }
+
     @MainActor
     func findOrCreateConversation(with contactName: String, initialMessage: String) async {
         if let existing = conversations.first(where: { $0.contactName == contactName }) {
@@ -1126,8 +924,10 @@ final class AppStore: ObservableObject {
     @MainActor
     func resetForNewSession() {
         feed = []
-        conversations = []
-        chat = []
+        conversations = [];
+        friends = [];
+        discoverableFriends = [];
+        chat = [];
         profile = UserProfile(name: "", email: "", role: "Member")
         credits = HabitCredits(current: 0, goal: 100)
         isLoading = false

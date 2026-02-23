@@ -11,6 +11,7 @@ struct UsersController: RouteCollection {
         routes.get("me", use: getMe)
         routes.patch("me", use: updateMe)
         routes.delete("me", use: deleteMe)
+        routes.get("search", use: searchUsers)
     }
 
     // MARK: – Get current user
@@ -72,6 +73,45 @@ struct UsersController: RouteCollection {
 
         try await user.delete(on: req.db)
         return .noContent
+    }
+
+    // MARK: – Search users (for friend discovery)
+
+    func searchUsers(req: Request) async throws -> [User.Public] {
+        let payload = try req.auth.require(UserJWTPayload.self)
+        guard let userId = UUID(uuidString: payload.sub.value) else {
+            throw Abort(.unauthorized)
+        }
+
+        let q = try? req.query.get(String.self, at: "q")
+
+        // Collect current friend IDs (both directions) to exclude them
+        let outgoingFriendIds = try await Friendship.query(on: req.db)
+            .filter(\.$user.$id == userId)
+            .all(\.$friend.$id)
+        let incomingFriendIds = try await Friendship.query(on: req.db)
+            .filter(\.$friend.$id == userId)
+            .all(\.$user.$id)
+        let friendIds = Set(outgoingFriendIds + incomingFriendIds)
+
+        var usersQuery = User.query(on: req.db)
+            .filter(\.$id != userId)
+
+        if let q, !q.isEmpty {
+            usersQuery = usersQuery.group(.or) { g in
+                g.filter(\.$name ~~ q)
+                g.filter(\.$email ~~ q)
+            }
+        }
+
+        let users = try await usersQuery.limit(30).all()
+
+        return try users
+            .filter { user in
+                guard let uid = user.id else { return false }
+                return !friendIds.contains(uid)
+            }
+            .map { try $0.asPublic() }
     }
 
     // MARK: – Helper

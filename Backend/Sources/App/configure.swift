@@ -92,6 +92,7 @@ func configure(_ app: Application) async throws {
     app.migrations.add(CreateFeedPost())
     app.migrations.add(CreateChatConversation())
     app.migrations.add(CreateChatMessage())
+    app.migrations.add(CreateFriendship())
     try await app.autoMigrate()
 
     // MARK: – Routes

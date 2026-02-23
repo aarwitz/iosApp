@@ -27,6 +27,7 @@
 		AF10B18F2F4152A10092A578 /* EliteProAIDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EliteProAIDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF213EA52F4A6D5E002CCDBF /* EliteProAIDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EliteProAIDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF213EBA2F4A6D6D002CCDBF /* EliteProAIDemoTestsUI.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EliteProAIDemoTestsUI.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AF213EC92F4CCE61002CCDBF /* EliteProAIDemo-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "EliteProAIDemo-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -75,6 +76,7 @@
 		AF10B1862F4152A10092A578 = {
 			isa = PBXGroup;
 			children = (
+				AF213EC92F4CCE61002CCDBF /* EliteProAIDemo-Info.plist */,
 				AF10B1B22F4154410092A578 /* EliteProAIDemo 2 */,
 				AF213EA62F4A6D5E002CCDBF /* EliteProAIDemoTests */,
 				AF213EBB2F4A6D6D002CCDBF /* EliteProAIDemoTestsUI */,
@@ -399,7 +401,9 @@
 				DEVELOPMENT_TEAM = L8S9YW5W2P;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "EliteProAIDemo-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Elite In-Home Fitness";
+				INFOPLIST_KEY_NSCameraUsageDescription = "EliteProAI needs camera access to scan friend codes.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -434,7 +438,9 @@
 				DEVELOPMENT_TEAM = L8S9YW5W2P;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "EliteProAIDemo-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Elite In-Home Fitness";
+				INFOPLIST_KEY_NSCameraUsageDescription = "EliteProAI needs camera access to scan friend codes.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

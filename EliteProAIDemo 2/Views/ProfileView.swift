@@ -4,6 +4,9 @@ struct ProfileView: View {
     @EnvironmentObject private var store: AppStore
     @State private var showBarcodeSheet = false
     @State private var showEditProfile = false
+    @State private var showScanner = false
+    @State private var alertMessage: String? = nil
+    @State private var showAlert = false
 
     var body: some View {
         ScrollView {
@@ -215,6 +218,26 @@ struct ProfileView: View {
             EditProfileView()
                 .environmentObject(store)
         }
+        .sheet(isPresented: $showScanner) {
+            QRScannerView(
+                onScan: { code in
+                    showScanner = false
+                    Task {
+                        do {
+                            let newFriend = try await store.addFriendByCode(code)
+                            alertMessage = "You and \(newFriend.name) are now connected!"
+                        } catch {
+                            alertMessage = "Could not add friend: \(error.localizedDescription)"
+                        }
+                        showAlert = true
+                    }
+                },
+                onCancel: { showScanner = false }
+            )
+        }
+        .alert(alertMessage ?? "", isPresented: $showAlert) {
+            Button("OK", role: .cancel) {}
+        }
     }
 
     @ViewBuilder
@@ -273,12 +296,16 @@ struct ProfileView: View {
                 ZStack {
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
                         .fill(Color.white)
-                        .frame(width: 220, height: 220)
+                        .frame(width: 240, height: 240)
                         .shadow(color: .black.opacity(0.08), radius: 8)
 
-                    Image(systemName: "qrcode")
-                        .font(.system(size: 150))
-                        .foregroundStyle(.black)
+                    if let userId = KeychainManager.shared.get(key: .userId), !userId.isEmpty {
+                        QRCodeView(content: userId, size: 200)
+                    } else {
+                        Image(systemName: "qrcode")
+                            .font(.system(size: 150))
+                            .foregroundStyle(.black)
+                    }
                 }
 
                 Text(store.profile.name)
@@ -288,17 +315,23 @@ struct ProfileView: View {
                     .foregroundStyle(EPTheme.softText)
 
                 VStack(spacing: 8) {
-                    Text("Scan a friend's code to connect instantly")
+                    Text("Share your code or scan a friend's to connect instantly")
                         .font(.system(.subheadline, design: .rounded))
                         .foregroundStyle(EPTheme.softText)
+                        .multilineTextAlignment(.center)
 
-                    Button {} label: {
+                    Button {
+                        showBarcodeSheet = false
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            showScanner = true
+                        }
+                    } label: {
                         HStack(spacing: 8) {
                             Image(systemName: "camera.fill")
                             Text("Scan Code")
                         }
                         .font(.system(.subheadline, design: .rounded).weight(.semibold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.black.opacity(0.85))
                         .padding(.horizontal, 28)
                         .padding(.vertical, 12)
                         .background(Capsule().fill(EPTheme.accent))

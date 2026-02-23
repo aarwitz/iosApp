@@ -2,30 +2,82 @@ import SwiftUI
 
 struct ChatListView: View {
     @EnvironmentObject private var store: AppStore
+    @State private var showNewConversation: Bool = false
+    @State private var navigationTarget: Conversation?
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                ForEach(store.conversations) { conversation in
-                    NavigationLink {
-                        ChatDetailView(conversation: conversation)
-                    } label: {
-                        conversationRow(conversation)
+        ZStack {
+            if store.conversations.isEmpty {
+                emptyState
+            } else {
+                ScrollView {
+                    VStack(spacing: 0) {
+                        ForEach(store.conversations) { conversation in
+                            NavigationLink {
+                                ChatDetailView(conversation: conversation)
+                            } label: {
+                                conversationRow(conversation)
+                            }
+                            .buttonStyle(.plain)
+
+                            if conversation.id != store.conversations.last?.id {
+                                Divider()
+                                    .overlay(EPTheme.divider)
+                                    .padding(.leading, 70)
+                            }
+                        }
                     }
-                    .buttonStyle(.plain)
-                    
-                    if conversation.id != store.conversations.last?.id {
-                        Divider()
-                            .overlay(EPTheme.divider)
-                            .padding(.leading, 70)
-                    }
+                    .padding(.vertical, 8)
                 }
+                .refreshable { await store.refreshConversations() }
             }
-            .padding(.vertical, 8)
         }
-        .refreshable { await store.refreshConversations() }
         .navigationTitle("Messages")
         .navigationBarTitleDisplayMode(.large)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showNewConversation = true
+                } label: {
+                    Image(systemName: "square.and.pencil")
+                        .font(.system(size: 17, weight: .semibold))
+                }
+                .accessibilityLabel("New Message")
+            }
+        }
+        .sheet(isPresented: $showNewConversation) {
+            NewConversationView { conversation in
+                navigationTarget = conversation
+            }
+            .environmentObject(store)
+        }
+        // Navigate to the new/existing conversation after sheet dismisses
+        .background(
+            NavigationLink(
+                destination: navigationTarget.map { ChatDetailView(conversation: $0) },
+                isActive: Binding(
+                    get: { navigationTarget != nil },
+                    set: { if !$0 { navigationTarget = nil } }
+                )
+            ) { EmptyView() }
+        )
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: 20) {
+            Spacer()
+            Image(systemName: "bubble.left.and.bubble.right")
+                .font(.system(size: 56))
+                .foregroundStyle(EPTheme.softText.opacity(0.4))
+            Text("No Conversations Yet")
+                .font(.system(.title3, design: .rounded).weight(.semibold))
+            Text("Tap the compose button to start a new conversation with a friend.")
+                .font(.system(.subheadline, design: .rounded))
+                .foregroundStyle(EPTheme.softText)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 40)
+            Spacer()
+        }
     }
     
     @ViewBuilder

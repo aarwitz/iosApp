@@ -23,5 +23,6 @@ func routes(_ app: Application) throws {
     try protected.grouped("users").register(collection: UsersController())
     try protected.grouped("feed").register(collection: FeedController())
     try protected.grouped("conversations").register(collection: ConversationsController())
+    try protected.grouped("friends").register(collection: FriendsController())
     try protected.register(collection: SeedController())
 }

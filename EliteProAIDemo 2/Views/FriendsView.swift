@@ -4,6 +4,8 @@ struct FriendsView: View {
     @EnvironmentObject private var store: AppStore
     @State private var selectedStoryFriend: FriendProfile? = nil
     @State private var currentStoryIndex: Int = 0
+    @State private var chatDestination: Conversation? = nil
+    @State private var navigateToChat = false
 
     var body: some View {
         ScrollView {
@@ -60,6 +62,12 @@ struct FriendsView: View {
                 selectedStoryFriend = nil
             })
         }
+        .background(
+            NavigationLink(
+                destination: chatDestination.map { ChatDetailView(conversation: $0) },
+                isActive: $navigateToChat
+            ) { EmptyView() }
+        )
     }
     
     // MARK: – Story Bubble
@@ -147,6 +155,24 @@ struct FriendsView: View {
                     )
                     .frame(width: 8, height: 8)
             }
+
+            // Message button
+            Button {
+                Task {
+                    let convo = await store.getOrCreateConversation(with: friend)
+                    await MainActor.run {
+                        chatDestination = convo
+                        navigateToChat = true
+                    }
+                }
+            } label: {
+                Image(systemName: "bubble.left.fill")
+                    .font(.system(size: 15))
+                    .foregroundStyle(EPTheme.accent)
+                    .padding(8)
+                    .background(Circle().fill(EPTheme.accent.opacity(0.12)))
+            }
+            .buttonStyle(.plain)
 
             Image(systemName: "chevron.right")
                 .font(.system(size: 11, weight: .semibold))
