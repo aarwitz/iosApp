@@ -334,22 +334,23 @@ struct SignUpView: View {
             Button {
                 performSignUp()
             } label: {
-                Group {
-                    if isLoading {
-                        ProgressView().tint(.white)
-                    } else {
-                        Text("Create Account")
-                            .font(.system(.headline, design: .rounded).weight(.semibold))
-                    }
+                if isLoading {
+                    ProgressView()
+                        .tint(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                } else {
+                    Text("Create Account")
+                        .font(.system(.headline, design: .rounded).weight(.semibold))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
                 }
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .background(
-                    RoundedRectangle(cornerRadius: 14)
-                        .fill(agreedToTerms ? EPTheme.accent : EPTheme.accent.opacity(0.4))
-                )
             }
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(agreedToTerms ? EPTheme.accent : EPTheme.accent.opacity(0.4))
+            )
             .disabled(!agreedToTerms || isLoading)
         }
     }

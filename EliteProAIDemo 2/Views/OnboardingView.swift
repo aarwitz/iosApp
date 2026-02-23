@@ -57,7 +57,7 @@ struct OnboardingView: View {
             .padding(.horizontal, 32)
             .padding(.bottom, 48)
         }
-        .background(Color(UIColor.systemBackground))
+        .background(Color(.systemBackground))
     }
 
     private func onboardingPage(_ page: (icon: String, title: String, subtitle: String)) -> some View {

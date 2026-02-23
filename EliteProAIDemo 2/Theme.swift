@@ -4,29 +4,34 @@ enum EPTheme {
     static let accent = Color(red: 1.0, green: 0.45, blue: 0.10)   // orange-ish
     
     // Adaptive colors — automatically respond to light/dark mode
-    static let card = Color(UIColor { traits in
+    // Create UIColors once to avoid recreating closures on every access
+    private static let _cardUIColor = UIColor { traits in
         traits.userInterfaceStyle == .dark
             ? UIColor(red: 0.12, green: 0.12, blue: 0.14, alpha: 1)
             : UIColor(red: 0.95, green: 0.95, blue: 0.97, alpha: 1)
-    })
+    }
+    static let card = Color(_cardUIColor)
     
-    static let cardStroke = Color(UIColor { traits in
+    private static let _cardStrokeUIColor = UIColor { traits in
         traits.userInterfaceStyle == .dark
             ? UIColor.white.withAlphaComponent(0.12)
             : UIColor.black.withAlphaComponent(0.08)
-    })
+    }
+    static let cardStroke = Color(_cardStrokeUIColor)
     
-    static let softText = Color(UIColor { traits in
+    private static let _softTextUIColor = UIColor { traits in
         traits.userInterfaceStyle == .dark
             ? UIColor.white.withAlphaComponent(0.72)
             : UIColor.black.withAlphaComponent(0.55)
-    })
+    }
+    static let softText = Color(_softTextUIColor)
     
-    static let divider = Color(UIColor { traits in
+    private static let _dividerUIColor = UIColor { traits in
         traits.userInterfaceStyle == .dark
             ? UIColor.white.withAlphaComponent(0.10)
             : UIColor.black.withAlphaComponent(0.12)
-    })
+    }
+    static let divider = Color(_dividerUIColor)
     
     static let primaryText = Color.primary
     

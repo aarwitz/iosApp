@@ -69,6 +69,7 @@ struct GroupDetailView: View {
     @EnvironmentObject private var store: AppStore
     let group: Group
     @State private var draft: String = ""
+    @State private var isPosting: Bool = false
 
     var posts: [Post] {
         store.feed.filter { $0.groupName == group.name }.sorted { $0.timestamp > $1.timestamp }
@@ -100,11 +101,23 @@ struct GroupDetailView: View {
                         Button {
                             let t = draft.trimmingCharacters(in: .whitespacesAndNewlines)
                             guard !t.isEmpty else { return }
-                            store.addPost(groupName: group.name, text: t)
-                            store.earnCredits(1)
-                            draft = ""
-                        } label: { Text("Post (Demo)") }
+                            isPosting = true
+                            Task {
+                                await store.addPost(groupName: group.name, text: t)
+                                store.earnCredits(1)
+                                draft = ""
+                                isPosting = false
+                            }
+                        } label: {
+                            if isPosting {
+                                ProgressView()
+                                    .frame(maxWidth: .infinity)
+                            } else {
+                                Text("Post")
+                            }
+                        }
                         .buttonStyle(EPButtonStyle())
+                        .disabled(isPosting)
                     }
                 }
 

@@ -41,14 +41,14 @@ final class AppStoreTests: XCTestCase {
 
     // MARK: – Conversations
 
-    func testAddChatMessageUpdatesConversation() {
+    func testAddChatMessageUpdatesConversation() async {
         guard let convo = store.conversations.first else {
             XCTFail("Expected at least one conversation")
             return
         }
 
         let initialCount = convo.messages.count
-        store.addChatMessage(to: convo.id, text: "Test message")
+        await store.addChatMessage(to: convo.id, text: "Test message")
 
         let updated = store.conversations.first(where: { $0.id == convo.id })!
         XCTAssertEqual(updated.messages.count, initialCount + 1)
@@ -56,39 +56,39 @@ final class AppStoreTests: XCTestCase {
         XCTAssertTrue(updated.messages.last!.isMe)
     }
 
-    func testAddChatMessageMovesToTop() {
+    func testAddChatMessageMovesToTop() async {
         guard store.conversations.count >= 2 else {
             XCTFail("Need at least 2 conversations")
             return
         }
 
         let lastConvo = store.conversations.last!
-        store.addChatMessage(to: lastConvo.id, text: "Moving to top")
+        await store.addChatMessage(to: lastConvo.id, text: "Moving to top")
 
         XCTAssertEqual(store.conversations.first?.id, lastConvo.id)
     }
 
-    func testFindOrCreateConversationCreatesNew() {
+    func testFindOrCreateConversationCreatesNew() async {
         let initialCount = store.conversations.count
-        store.findOrCreateConversation(with: "New Person", initialMessage: "Hello!")
+        await store.findOrCreateConversation(with: "New Person", initialMessage: "Hello!")
 
         XCTAssertEqual(store.conversations.count, initialCount + 1)
         XCTAssertEqual(store.conversations.first?.contactName, "New Person")
     }
 
-    func testFindOrCreateConversationUsesExisting() {
+    func testFindOrCreateConversationUsesExisting() async {
         let name = store.conversations.first!.contactName
         let initialCount = store.conversations.count
-        store.findOrCreateConversation(with: name, initialMessage: "Follow up")
+        await store.findOrCreateConversation(with: name, initialMessage: "Follow up")
 
         XCTAssertEqual(store.conversations.count, initialCount, "Should not create duplicate")
     }
 
     // MARK: – Posts
 
-    func testAddPostInsertsAtFront() {
+    func testAddPostInsertsAtFront() async {
         let initialCount = store.feed.count
-        store.addPost(groupName: "Test Group", text: "Hello world")
+        await store.addPost(groupName: "Test Group", text: "Hello world")
 
         XCTAssertEqual(store.feed.count, initialCount + 1)
         XCTAssertEqual(store.feed.first?.text, "Hello world")

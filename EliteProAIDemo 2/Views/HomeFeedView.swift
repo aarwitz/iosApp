@@ -6,6 +6,7 @@ struct HomeFeedView: View {
     @State private var sortOption: FeedSort = .recent
     @State private var selectedStoryFriend: FriendProfile? = nil
     @State private var currentStoryIndex: Int = 0
+    @State private var showCompose: Bool = false
     
     enum FeedSort: String, CaseIterable {
         case recent = "Recent"
@@ -69,8 +70,33 @@ struct HomeFeedView: View {
                 }
 
                 // MARK: – Feed Posts
-                ForEach(sortedFeed) { post in
-                    feedPostCard(post)
+                if store.isLoading && sortedFeed.isEmpty {
+                    VStack(spacing: 12) {
+                        ProgressView()
+                        Text("Loading feed…")
+                            .font(.system(.subheadline, design: .rounded))
+                            .foregroundStyle(EPTheme.softText)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 40)
+                } else if sortedFeed.isEmpty {
+                    VStack(spacing: 10) {
+                        Image(systemName: "text.bubble")
+                            .font(.system(size: 36))
+                            .foregroundStyle(EPTheme.softText.opacity(0.5))
+                        Text("No posts yet")
+                            .font(.system(.headline, design: .rounded))
+                        Text("Tap the compose button to create the first post!")
+                            .font(.system(.subheadline, design: .rounded))
+                            .foregroundStyle(EPTheme.softText)
+                            .multilineTextAlignment(.center)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 40)
+                } else {
+                    ForEach(sortedFeed) { post in
+                        feedPostCard(post)
+                    }
                 }
             }
             .padding(16)
@@ -79,6 +105,14 @@ struct HomeFeedView: View {
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    showCompose = true
+                } label: {
+                    Image(systemName: "square.and.pencil")
+                        .font(.system(size: 17, weight: .semibold))
+                }
+            }
             ToolbarItem(placement: .principal) {
                 communityFilterHeader
             }
@@ -106,6 +140,10 @@ struct HomeFeedView: View {
             StoryViewer(friend: friend, currentIndex: $currentStoryIndex, onDismiss: {
                 selectedStoryFriend = nil
             })
+        }
+        .sheet(isPresented: $showCompose) {
+            ComposePostView()
+                .environmentObject(store)
         }
     }
     
@@ -344,5 +382,95 @@ struct HomeFeedView: View {
             .foregroundStyle(EPTheme.softText)
         }
         .buttonStyle(.plain)
+    }
+}
+
+// MARK: – Compose Post Sheet
+
+struct ComposePostView: View {
+    @EnvironmentObject private var store: AppStore
+    @Environment(\.dismiss) private var dismiss
+    @State private var postText: String = ""
+    @State private var selectedCommunity: String = ""
+    @State private var selectedGroup: String = ""
+    @State private var isPosting: Bool = false
+
+    private var availableGroups: [Group] {
+        if selectedCommunity.isEmpty {
+            return store.communities.flatMap { $0.groups }
+        }
+        return store.communities.first(where: { $0.name == selectedCommunity })?.groups ?? []
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Community") {
+                    Picker("Community", selection: $selectedCommunity) {
+                        Text("All Communities").tag("")
+                        ForEach(store.communities, id: \.name) { community in
+                            Text(community.name).tag(community.name)
+                        }
+                    }
+                    .onChange(of: selectedCommunity) { _ in
+                        // Reset group when community changes
+                        if !availableGroups.contains(where: { $0.name == selectedGroup }) {
+                            selectedGroup = availableGroups.first?.name ?? ""
+                        }
+                    }
+                }
+
+                Section("Group") {
+                    Picker("Group", selection: $selectedGroup) {
+                        Text("Select a group…").tag("")
+                        ForEach(availableGroups) { group in
+                            Text(group.name).tag(group.name)
+                        }
+                    }
+                }
+
+                Section("What's on your mind?") {
+                    TextField("Write your post…", text: $postText, axis: .vertical)
+                        .lineLimit(3...10)
+                }
+            }
+            .navigationTitle("New Post")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button {
+                        isPosting = true
+                        Task {
+                            await store.addPost(
+                                groupName: selectedGroup,
+                                text: postText.trimmingCharacters(in: .whitespacesAndNewlines),
+                                communityName: selectedCommunity
+                            )
+                            store.earnCredits(1)
+                            isPosting = false
+                            dismiss()
+                        }
+                    } label: {
+                        if isPosting {
+                            ProgressView()
+                        } else {
+                            Text("Post")
+                                .fontWeight(.semibold)
+                        }
+                    }
+                    .disabled(postText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || selectedGroup.isEmpty || isPosting)
+                }
+            }
+            .onAppear {
+                // Default to the first community and its first group
+                if let first = store.communities.first {
+                    selectedCommunity = first.name
+                    selectedGroup = first.groups.first?.name ?? ""
+                }
+            }
+        }
     }
 }

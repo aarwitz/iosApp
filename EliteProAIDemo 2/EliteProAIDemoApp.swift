@@ -9,30 +9,39 @@ struct EliteProAIDemoApp: App {
 
     var body: some Scene {
         WindowGroup {
-            Group {
-                if !hasSeenOnboarding {
-                    OnboardingView(showOnboarding: Binding(
-                        get: { !hasSeenOnboarding },
-                        set: { if !$0 { hasSeenOnboarding = true } }
-                    ))
-                } else {
-                    switch auth.authState {
-                    case .unknown:
-                        // Splash / loading while checking stored session
-                        launchScreen
-                            .task { await auth.bootstrap() }
-
-                    case .unauthenticated:
-                        LoginView()
-
-                    case .authenticated:
-                        RootView()
-                            .environmentObject(store)
-                            .task { await store.loadFromAPI() }
+            mainView
+                .preferredColorScheme(darkModeEnabled ? .dark : .light)
+                .onChange(of: auth.authState) { newState in
+                    if newState == .unauthenticated {
+                        store.resetForNewSession()
+                        hasSeenOnboarding = false
                     }
                 }
+        }
+    }
+    
+    @ViewBuilder
+    private var mainView: some View {
+        if !hasSeenOnboarding {
+            OnboardingView(showOnboarding: Binding(
+                get: { !hasSeenOnboarding },
+                set: { if !$0 { hasSeenOnboarding = true } }
+            ))
+        } else {
+            switch auth.authState {
+            case .unknown:
+                // Splash / loading while checking stored session
+                launchScreen
+                    .task { await auth.bootstrap() }
+
+            case .unauthenticated:
+                LoginView()
+
+            case .authenticated:
+                RootView()
+                    .environmentObject(store)
+                    .task { await store.loadFromAPI() }
             }
-            .preferredColorScheme(darkModeEnabled ? .dark : .light)
         }
     }
 

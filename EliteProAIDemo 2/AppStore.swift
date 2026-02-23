@@ -935,7 +935,7 @@ final class AppStore: ObservableObject {
 
     // MARK: – API Integration
 
-    /// Load feed + conversations from the backend, falling back to demo data on error.
+    /// Load feed + conversations from the backend.
     @MainActor
     func loadFromAPI() async {
         isLoading = true
@@ -952,20 +952,21 @@ final class AppStore: ObservableObject {
 
         let api = APIClient.shared
 
-        // Fetch feed
+        // Fetch feed — always replace with server data
         do {
             let posts: [Post] = try await api.request(.get, path: "/feed")
-            if !posts.isEmpty { feed = posts }
+            feed = posts
         } catch {
-            print("[AppStore] Feed fetch failed, keeping demo data: \(error.localizedDescription)")
+            print("[AppStore] Feed fetch failed: \(error.localizedDescription)")
+            loadError = error.localizedDescription
         }
 
-        // Fetch conversations
+        // Fetch conversations — always replace with server data
         do {
             let convos: [Conversation] = try await api.request(.get, path: "/conversations")
-            if !convos.isEmpty { conversations = convos }
+            conversations = convos
         } catch {
-            print("[AppStore] Conversations fetch failed, keeping demo data: \(error.localizedDescription)")
+            print("[AppStore] Conversations fetch failed: \(error.localizedDescription)")
         }
 
         isLoading = false
@@ -977,7 +978,7 @@ final class AppStore: ObservableObject {
         let api = APIClient.shared
         do {
             let posts: [Post] = try await api.request(.get, path: "/feed")
-            if !posts.isEmpty { feed = posts }
+            feed = posts
         } catch {
             print("[AppStore] Feed refresh failed: \(error.localizedDescription)")
         }
@@ -989,7 +990,7 @@ final class AppStore: ObservableObject {
         let api = APIClient.shared
         do {
             let convos: [Conversation] = try await api.request(.get, path: "/conversations")
-            if !convos.isEmpty { conversations = convos }
+            conversations = convos
         } catch {
             print("[AppStore] Conversations refresh failed: \(error.localizedDescription)")
         }
@@ -1014,41 +1015,124 @@ final class AppStore: ObservableObject {
         }
     }
 
-    func addPost(groupName: String, text: String, communityName: String = "") {
-        let p = Post(groupName: groupName, communityName: communityName, author: profile.name, text: text, timestamp: Date())
-        feed.insert(p, at: 0)
+    // MARK: – Community / Group Helper
+
+    /// Look up the community name that contains a given group.
+    func communityForGroup(_ groupName: String) -> String {
+        for community in communities {
+            if community.groups.contains(where: { $0.name == groupName }) {
+                return community.name
+            }
+        }
+        return ""
+    }
+
+    // MARK: – Post Creation (API-backed)
+
+    @MainActor
+    func addPost(groupName: String, text: String, communityName: String = "") async {
+        let community = communityName.isEmpty ? communityForGroup(groupName) : communityName
+
+        struct CreatePostBody: Encodable {
+            let groupName: String
+            let communityName: String
+            let text: String
+        }
+
+        let body = CreatePostBody(groupName: groupName, communityName: community, text: text)
+
+        do {
+            let serverPost: Post = try await APIClient.shared.request(.post, path: "/feed", body: body)
+            feed.insert(serverPost, at: 0)
+        } catch {
+            // Fallback to local-only post so the UI still responds
+            let p = Post(groupName: groupName, communityName: community, author: profile.name, text: text, timestamp: Date())
+            feed.insert(p, at: 0)
+            print("[AppStore] Post API failed, created locally: \(error.localizedDescription)")
+        }
         persist()
     }
 
-    func addChatMessage(to conversationId: UUID, text: String) {
+    // MARK: – Chat Message (API-backed)
+
+    @MainActor
+    func addChatMessage(to conversationId: UUID, text: String) async {
         guard let index = conversations.firstIndex(where: { $0.id == conversationId }) else { return }
+
+        // Optimistic local insert for instant feedback
         let m = ChatMessage(from: "You", text: text, timestamp: Date(), isMe: true)
         conversations[index].messages.append(m)
         conversations[index].lastMessage = text
         conversations[index].lastMessageTime = Date()
-        // Move conversation to top
         let updated = conversations.remove(at: index)
         conversations.insert(updated, at: 0)
         persist()
-    }
-    
-    func findOrCreateConversation(with contactName: String, initialMessage: String) {
-        // Check if conversation already exists
-        if let existing = conversations.first(where: { $0.contactName == contactName }) {
-            addChatMessage(to: existing.id, text: initialMessage)
-        } else {
-            // Create new conversation
-            let message = ChatMessage(from: "You", text: initialMessage, timestamp: Date(), isMe: true)
-            let newConversation = Conversation(
-                contactName: contactName,
-                lastMessage: initialMessage,
-                lastMessageTime: Date(),
-                unreadCount: 0,
-                messages: [message]
+
+        // Sync to backend
+        struct SendMessageBody: Encodable {
+            let text: String
+        }
+
+        do {
+            let _: ChatMessage = try await APIClient.shared.request(
+                .post,
+                path: "/conversations/\(conversationId)/messages",
+                body: SendMessageBody(text: text)
             )
-            conversations.insert(newConversation, at: 0)
+        } catch {
+            print("[AppStore] Message API sync failed: \(error.localizedDescription)")
+        }
+    }
+
+    // MARK: – Create Conversation (API-backed)
+
+    @MainActor
+    func findOrCreateConversation(with contactName: String, initialMessage: String) async {
+        if let existing = conversations.first(where: { $0.contactName == contactName }) {
+            await addChatMessage(to: existing.id, text: initialMessage)
+        } else {
+            struct CreateConversationBody: Encodable {
+                let contactName: String
+                let initialMessage: String
+            }
+
+            do {
+                let convo: Conversation = try await APIClient.shared.request(
+                    .post,
+                    path: "/conversations",
+                    body: CreateConversationBody(contactName: contactName, initialMessage: initialMessage)
+                )
+                conversations.insert(convo, at: 0)
+            } catch {
+                // Local fallback
+                let message = ChatMessage(from: "You", text: initialMessage, timestamp: Date(), isMe: true)
+                let newConversation = Conversation(
+                    contactName: contactName,
+                    lastMessage: initialMessage,
+                    lastMessageTime: Date(),
+                    unreadCount: 0,
+                    messages: [message]
+                )
+                conversations.insert(newConversation, at: 0)
+                print("[AppStore] Create conversation API failed: \(error.localizedDescription)")
+            }
             persist()
         }
+    }
+
+    // MARK: – Session Reset
+
+    /// Clear user-specific data when logging out so the next session starts clean.
+    @MainActor
+    func resetForNewSession() {
+        feed = []
+        conversations = []
+        chat = []
+        profile = UserProfile(name: "", email: "", role: "Member")
+        credits = HabitCredits(current: 0, goal: 100)
+        isLoading = false
+        loadError = nil
+        persist()  // overwrite file so next launch doesn't restore stale data
     }
 
     func earnCredits(_ delta: Int) {

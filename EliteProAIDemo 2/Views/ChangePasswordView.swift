@@ -79,22 +79,23 @@ struct ChangePasswordView: View {
                 Button {
                     changePassword()
                 } label: {
-                    Group {
-                        if isLoading {
-                            ProgressView().tint(.white)
-                        } else {
-                            Text("Update Password")
-                                .font(.system(.headline, design: .rounded).weight(.semibold))
-                        }
+                    if isLoading {
+                        ProgressView()
+                            .tint(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                    } else {
+                        Text("Update Password")
+                            .font(.system(.headline, design: .rounded).weight(.semibold))
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
                     }
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(
-                        RoundedRectangle(cornerRadius: 14)
-                            .fill(formValid ? EPTheme.accent : EPTheme.accent.opacity(0.4))
-                    )
                 }
+                .background(
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(formValid ? EPTheme.accent : EPTheme.accent.opacity(0.4))
+                )
                 .disabled(!formValid || isLoading)
             }
             .padding(.horizontal, 24)

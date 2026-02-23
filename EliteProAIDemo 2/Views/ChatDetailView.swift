@@ -3,6 +3,7 @@ import SwiftUI
 struct ChatDetailView: View {
     @EnvironmentObject private var store: AppStore
     @State private var draft: String = ""
+    @State private var isSending: Bool = false
     let conversation: Conversation
     
     private var messages: [ChatMessage] {
@@ -64,15 +65,27 @@ struct ChatDetailView: View {
                 Button {
                     let trimmed = draft.trimmingCharacters(in: .whitespacesAndNewlines)
                     guard !trimmed.isEmpty else { return }
-                    store.addChatMessage(to: conversation.id, text: trimmed)
+                    let msgText = trimmed
                     draft = ""
+                    isSending = true
+                    Task {
+                        await store.addChatMessage(to: conversation.id, text: msgText)
+                        isSending = false
+                    }
                 } label: {
-                    Image(systemName: "paperplane.fill")
-                        .foregroundStyle(Color.black.opacity(0.85))
-                        .padding(12)
-                        .background(Circle().fill(EPTheme.accent))
+                    if isSending {
+                        ProgressView()
+                            .frame(width: 20, height: 20)
+                            .padding(8)
+                    } else {
+                        Image(systemName: "paperplane.fill")
+                            .foregroundStyle(Color.black.opacity(0.85))
+                            .padding(12)
+                            .background(Circle().fill(EPTheme.accent))
+                    }
                 }
                 .accessibilityLabel("Send")
+                .disabled(isSending)
             }
             .padding(12)
         }

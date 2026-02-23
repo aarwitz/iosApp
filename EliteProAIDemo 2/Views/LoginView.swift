@@ -17,135 +17,133 @@ struct LoginView: View {
     @State private var forgotSent = false
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 28) {
-                    // Logo / Header
-                    VStack(spacing: 12) {
-                        ZStack {
-                            Circle()
-                                .fill(EPTheme.accent.opacity(0.12))
-                                .frame(width: 100, height: 100)
-                            Image(systemName: "bolt.heart.fill")
-                                .font(.system(size: 44))
-                                .foregroundStyle(EPTheme.accent)
-                        }
-
-                        Text("Elite Pro AI")
-                            .font(.system(.largeTitle, design: .rounded).weight(.bold))
-                        Text("Sign in to continue")
-                            .font(.system(.subheadline, design: .rounded))
-                            .foregroundStyle(EPTheme.softText)
-                    }
-                    .padding(.top, 40)
-
-                    // Form fields
-                    VStack(spacing: 16) {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Email")
-                                .font(.system(.caption, design: .rounded).weight(.medium))
-                                .foregroundStyle(EPTheme.softText)
-                            TextField("you@example.com", text: $email)
-                                .textContentType(.emailAddress)
-                                .keyboardType(.emailAddress)
-                                .autocapitalization(.none)
-                                .disableAutocorrection(true)
-                                .padding(14)
-                                .background(RoundedRectangle(cornerRadius: 12).fill(EPTheme.card))
-                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(EPTheme.cardStroke, lineWidth: 1))
-                        }
-
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Password")
-                                .font(.system(.caption, design: .rounded).weight(.medium))
-                                .foregroundStyle(EPTheme.softText)
-                            SecureField("••••••••", text: $password)
-                                .textContentType(.password)
-                                .padding(14)
-                                .background(RoundedRectangle(cornerRadius: 12).fill(EPTheme.card))
-                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(EPTheme.cardStroke, lineWidth: 1))
-                        }
-
-                        HStack {
-                            Spacer()
-                            Button("Forgot password?") {
-                                forgotEmail = email
-                                showForgotPassword = true
-                            }
-                            .font(.system(.caption, design: .rounded))
+        ScrollView {
+            VStack(spacing: 28) {
+                // Logo / Header
+                VStack(spacing: 12) {
+                    ZStack {
+                        Circle()
+                            .fill(EPTheme.accent.opacity(0.12))
+                            .frame(width: 100, height: 100)
+                        Image(systemName: "bolt.heart.fill")
+                            .font(.system(size: 44))
                             .foregroundStyle(EPTheme.accent)
-                        }
                     }
 
-                    // Error
-                    if let error = auth.errorMessage {
-                        Text(error)
-                            .font(.system(.caption, design: .rounded))
-                            .foregroundStyle(.red)
-                            .multilineTextAlignment(.center)
+                    Text("Elite Pro AI")
+                        .font(.system(.largeTitle, design: .rounded).weight(.bold))
+                    Text("Sign in to continue")
+                        .font(.system(.subheadline, design: .rounded))
+                        .foregroundStyle(EPTheme.softText)
+                }
+                .padding(.top, 40)
+
+                // Form fields
+                VStack(spacing: 16) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Email")
+                            .font(.system(.caption, design: .rounded).weight(.medium))
+                            .foregroundStyle(EPTheme.softText)
+                        TextField("you@example.com", text: $email)
+                            .textContentType(.emailAddress)
+                            .keyboardType(.emailAddress)
+                            .autocapitalization(.none)
+                            .disableAutocorrection(true)
+                            .padding(14)
+                            .background(RoundedRectangle(cornerRadius: 12).fill(EPTheme.card))
+                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(EPTheme.cardStroke, lineWidth: 1))
                     }
 
-                    // Login button
-                    Button {
-                        performLogin()
-                    } label: {
-                        Group {
-                            if isLoading {
-                                ProgressView()
-                                    .tint(.white)
-                            } else {
-                                Text("Sign In")
-                                    .font(.system(.headline, design: .rounded).weight(.semibold))
-                            }
-                        }
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .fill(formValid ? EPTheme.accent : EPTheme.accent.opacity(0.4))
-                        )
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Password")
+                            .font(.system(.caption, design: .rounded).weight(.medium))
+                            .foregroundStyle(EPTheme.softText)
+                        SecureField("••••••••", text: $password)
+                            .textContentType(.password)
+                            .padding(14)
+                            .background(RoundedRectangle(cornerRadius: 12).fill(EPTheme.card))
+                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(EPTheme.cardStroke, lineWidth: 1))
                     }
-                    .disabled(!formValid || isLoading)
 
-                    // Divider
                     HStack {
-                        Rectangle().frame(height: 1).foregroundStyle(EPTheme.divider)
-                        Text("or")
-                            .font(.system(.caption, design: .rounded))
-                            .foregroundStyle(EPTheme.softText)
-                        Rectangle().frame(height: 1).foregroundStyle(EPTheme.divider)
-                    }
-
-                    // Social login placeholders
-                    VStack(spacing: 12) {
-                        socialButton(icon: "apple.logo", label: "Continue with Apple", bg: Color.primary, fg: Color(UIColor.systemBackground))
-                        socialButton(icon: "g.circle.fill", label: "Continue with Google", bg: EPTheme.card, fg: .primary)
-                    }
-
-                    // Sign up link
-                    HStack(spacing: 4) {
-                        Text("Don't have an account?")
-                            .font(.system(.subheadline, design: .rounded))
-                            .foregroundStyle(EPTheme.softText)
-                        Button("Sign Up") {
-                            showSignUp = true
+                        Spacer()
+                        Button("Forgot password?") {
+                            forgotEmail = email
+                            showForgotPassword = true
                         }
-                        .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                        .font(.system(.caption, design: .rounded))
                         .foregroundStyle(EPTheme.accent)
                     }
-                    .padding(.top, 4)
                 }
-                .padding(.horizontal, 28)
-                .padding(.bottom, 32)
+
+                // Error
+                if let error = auth.errorMessage {
+                    Text(error)
+                        .font(.system(.caption, design: .rounded))
+                        .foregroundStyle(.red)
+                        .multilineTextAlignment(.center)
+                }
+
+                // Login button
+                Button {
+                    performLogin()
+                } label: {
+                    if isLoading {
+                        ProgressView()
+                            .tint(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                    } else {
+                        Text("Sign In")
+                            .font(.system(.headline, design: .rounded).weight(.semibold))
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                    }
+                }
+                .background(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(formValid ? EPTheme.accent : EPTheme.accent.opacity(0.4))
+                )
+                .disabled(!formValid || isLoading)
+
+                // Divider
+                HStack {
+                    Rectangle().frame(height: 1).foregroundStyle(EPTheme.divider)
+                    Text("or")
+                        .font(.system(.caption, design: .rounded))
+                        .foregroundStyle(EPTheme.softText)
+                    Rectangle().frame(height: 1).foregroundStyle(EPTheme.divider)
+                }
+
+                // Social login placeholders
+                VStack(spacing: 12) {
+                    socialButton(icon: "apple.logo", label: "Continue with Apple", bg: Color.primary, fg: Color(white: 1.0))
+                    socialButton(icon: "g.circle.fill", label: "Continue with Google", bg: EPTheme.card, fg: .primary)
+                }
+
+                // Sign up link
+                HStack(spacing: 4) {
+                    Text("Don't have an account?")
+                        .font(.system(.subheadline, design: .rounded))
+                        .foregroundStyle(EPTheme.softText)
+                    Button("Sign Up") {
+                        showSignUp = true
+                    }
+                    .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                    .foregroundStyle(EPTheme.accent)
+                }
+                .padding(.top, 4)
             }
-            .navigationBarHidden(true)
-            .sheet(isPresented: $showForgotPassword) {
-                forgotPasswordSheet
-            }
-            .fullScreenCover(isPresented: $showSignUp) {
-                SignUpView()
-            }
+            .padding(.horizontal, 28)
+            .padding(.bottom, 32)
+        }
+        .scrollDismissesKeyboard(.interactively)
+        .sheet(isPresented: $showForgotPassword) {
+            forgotPasswordSheet
+        }
+        .fullScreenCover(isPresented: $showSignUp) {
+            SignUpView()
         }
     }
 
