@@ -192,7 +192,7 @@ struct ConnectorView: View {
                     Task {
                         do {
                             let newFriend = try await store.addFriendByCode(code)
-                            alertMessage = "You and \(newFriend.name) are now connected!"
+                            alertMessage = "Friend request sent to \(newFriend.name)!"
                         } catch {
                             alertMessage = "Could not add friend: \(error.localizedDescription)"
                         }

@@ -193,6 +193,34 @@ enum RewardCategory: String, CaseIterable {
     case premium = "Premium Access"
 }
 
+// MARK: – Notifications (API-backed)
+
+/// A notification from the server (friend requests, acceptances, general).
+struct AppNotificationResponse: Codable, Identifiable {
+    var id: UUID
+    var type: String          // "friend_request", "friend_accepted", "general"
+    var title: String
+    var body: String?
+    var referenceId: UUID?    // e.g. friendship ID for friend_request
+    var fromUserId: UUID?
+    var isRead: Bool
+    var createdAt: Date
+}
+
+/// A pending incoming friend request (from GET /friends/requests).
+struct FriendRequestResponse: Codable, Identifiable {
+    var id: UUID { friendshipId }
+    var friendshipId: UUID
+    var fromUserId: UUID
+    var fromName: String
+    var fromEmail: String
+    var fromBuildingName: String?
+    var fromBuildingOwner: String?
+    var fromAvatarUrl: String?
+    var status: String
+    var createdAt: Date
+}
+
 // MARK: – Friends & Stories
 
 /// API response model for a friendship (from GET /friends)
