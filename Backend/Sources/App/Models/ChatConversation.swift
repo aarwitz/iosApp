@@ -18,7 +18,7 @@ final class ChatConversation: Model, @unchecked Sendable {
     @Field(key: "contact_name")
     var contactName: String
 
-    @Field(key: "contact_user_id")
+    @OptionalField(key: "contact_user_id")
     var contactUserID: UUID?
 
     @Field(key: "last_message")
