@@ -4,32 +4,34 @@ struct ChatListView: View {
     @EnvironmentObject private var store: AppStore
     @State private var showNewConversation: Bool = false
     @State private var navigationTarget: Conversation?
+    @State private var conversationToDelete: Conversation? = nil
 
     var body: some View {
         ZStack {
             if store.conversations.isEmpty {
                 emptyState
             } else {
-                ScrollView {
-                    VStack(spacing: 0) {
-                        ForEach(store.conversations) { conversation in
-                            NavigationLink {
-                                ChatDetailView(conversation: conversation)
+                List {
+                    ForEach(store.conversations) { conversation in
+                        NavigationLink {
+                            ChatDetailView(conversation: conversation)
+                        } label: {
+                            conversationRow(conversation)
+                        }
+                        .listRowInsets(EdgeInsets())
+                        .listRowSeparator(.hidden)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                conversationToDelete = conversation
                             } label: {
-                                conversationRow(conversation)
-                            }
-                            .buttonStyle(.plain)
-
-                            if conversation.id != store.conversations.last?.id {
-                                Divider()
-                                    .overlay(EPTheme.divider)
-                                    .padding(.leading, 70)
+                                Label("Delete", systemImage: "trash")
                             }
                         }
                     }
-                    .padding(.vertical, 8)
                 }
+                .listStyle(.plain)
                 .refreshable { await store.refreshConversations() }
+                .onAppear { Task { await store.refreshConversations() } }
             }
         }
         .navigationTitle("Messages")
@@ -61,6 +63,25 @@ struct ChatListView: View {
                 )
             ) { EmptyView() }
         )
+        .alert(
+            "Delete Conversation",
+            isPresented: Binding(
+                get: { conversationToDelete != nil },
+                set: { if !$0 { conversationToDelete = nil } }
+            )
+        ) {
+            Button("Delete", role: .destructive) {
+                if let convo = conversationToDelete {
+                    Task { await store.deleteConversation(convo.id) }
+                }
+                conversationToDelete = nil
+            }
+            Button("Cancel", role: .cancel) {
+                conversationToDelete = nil
+            }
+        } message: {
+            Text("This will remove the conversation from your view. The other person will still see it.")
+        }
     }
 
     private var emptyState: some View {
@@ -107,9 +128,10 @@ struct ChatListView: View {
                 }
                 
                 HStack {
-                    Text(conversation.lastMessage)
+                    Text(conversation.lastMessage.isEmpty ? "No messages yet" : conversation.lastMessage)
                         .font(.system(.subheadline, design: .rounded))
                         .foregroundStyle(EPTheme.softText)
+                        .italic(conversation.lastMessage.isEmpty)
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
                     

@@ -816,6 +816,22 @@ final class AppStore: ObservableObject {
         }
     }
 
+    /// Remove (unfriend) an accepted friend.
+    @MainActor
+    func removeFriend(_ friendUserId: UUID) async {
+        do {
+            try await APIClient.shared.requestVoid(.delete, path: "/friends/\(friendUserId)")
+            friends.removeAll { $0.userID == friendUserId }
+        } catch {
+            print("[AppStore] Remove friend failed: \(error.localizedDescription)")
+        }
+    }
+
+    /// Check if a user is currently a friend.
+    func isFriend(userId: UUID) -> Bool {
+        friends.contains { $0.userID == userId }
+    }
+
     // MARK: – Notifications (API-backed)
 
     /// Load all notifications from the server.
@@ -905,6 +921,58 @@ final class AppStore: ObservableObject {
     }
 
     // MARK: – Chat Message (API-backed)
+
+    /// Delete a conversation (per-user soft delete). Only removes it from this user's view.
+    @MainActor
+    func deleteConversation(_ conversationId: UUID) async {
+        // Optimistic local removal
+        conversations.removeAll { $0.id == conversationId }
+
+        do {
+            try await APIClient.shared.requestVoid(.delete, path: "/conversations/\(conversationId)")
+        } catch {
+            print("[AppStore] Delete conversation failed: \(error.localizedDescription)")
+            // Refresh to restore if backend failed
+            await refreshConversations()
+        }
+    }
+
+    /// Delete a single message (per-user soft delete). Only removes it from this user's view.
+    @MainActor
+    func deleteMessage(_ messageId: UUID, in conversationId: UUID) async {
+        // Optimistic local removal
+        if let idx = conversations.firstIndex(where: { $0.id == conversationId }) {
+            conversations[idx].messages.removeAll { $0.id == messageId }
+        }
+
+        do {
+            try await APIClient.shared.requestVoid(.delete, path: "/conversations/\(conversationId)/messages/\(messageId)")
+        } catch {
+            print("[AppStore] Delete message failed: \(error.localizedDescription)")
+            // Refresh to restore if backend failed
+            await refreshMessages(for: conversationId)
+        }
+    }
+
+    /// Fetch latest messages for a specific conversation from the server.
+    @MainActor
+    func refreshMessages(for conversationId: UUID) async {
+        do {
+            let msgs: [ChatMessage] = try await APIClient.shared.request(
+                .get,
+                path: "/conversations/\(conversationId)/messages"
+            )
+            if let index = conversations.firstIndex(where: { $0.id == conversationId }) {
+                conversations[index].messages = msgs
+                if let lastMsg = msgs.last {
+                    conversations[index].lastMessage = lastMsg.text
+                    conversations[index].lastMessageTime = lastMsg.timestamp
+                }
+            }
+        } catch {
+            print("[AppStore] Refresh messages failed: \(error.localizedDescription)")
+        }
+    }
 
     @MainActor
     func addChatMessage(to conversationId: UUID, text: String) async {
