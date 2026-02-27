@@ -5,13 +5,13 @@ struct EliteProAIDemoApp: App {
     @StateObject private var store = AppStore()
     @StateObject private var auth = AuthService.shared
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
-    @AppStorage("darkModeEnabled") private var darkModeEnabled: Bool = true
+    @AppStorage("appearanceMode") private var appearanceMode: String = "system"
 
     var body: some Scene {
         WindowGroup {
             mainView
-                .preferredColorScheme(darkModeEnabled ? .dark : .light)
-                .onChange(of: auth.authState) { newState in
+                .preferredColorScheme(resolvedColorScheme)
+                .onChange(of: auth.authState) { newState, oldState in
                     if newState == .unauthenticated {
                         store.resetForNewSession()
                         hasSeenOnboarding = false
@@ -55,6 +55,14 @@ struct EliteProAIDemoApp: App {
                 ProgressView()
                     .tint(EPTheme.accent)
             }
+        }
+    }
+
+    private var resolvedColorScheme: ColorScheme? {
+        switch appearanceMode {
+        case "light": return .light
+        case "dark": return .dark
+        default: return nil   // system default
         }
     }
 }

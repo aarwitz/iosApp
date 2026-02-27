@@ -32,4 +32,9 @@ enum Persistence {
             print("Save failed (\(filename)): \(error)")
         }
     }
+
+    static func delete(_ filename: String) {
+        let url = documentsURL(filename: filename)
+        try? FileManager.default.removeItem(at: url)
+    }
 }

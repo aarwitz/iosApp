@@ -670,12 +670,13 @@ struct FriendDetailView: View {
                 Button("Done") { dismiss() }
             }
         }
-        .background(
-            NavigationLink(
-                destination: chatConversation.map { ChatDetailView(conversation: $0) },
-                isActive: $showChat
-            ) { EmptyView() }
-        )
+        .navigationDestination(
+            isPresented: $showChat
+        ) {
+            if let convo = chatConversation {
+                ChatDetailView(conversation: convo)
+            }
+        }
     }
 
     private func detailStat(icon: String, value: String, label: String, color: Color) -> some View {

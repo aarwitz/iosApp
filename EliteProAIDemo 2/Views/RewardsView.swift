@@ -53,6 +53,25 @@ struct RewardsView: View {
         }
         .navigationTitle("Rewards")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                NavigationLink {
+                    ChatListView()
+                } label: {
+                    ZStack(alignment: .topTrailing) {
+                        Image(systemName: "bubble.left.and.bubble.right")
+                            .font(.system(size: 18, weight: .semibold))
+                        let unreadCount = store.conversations.reduce(0) { $0 + $1.unreadCount }
+                        if unreadCount > 0 {
+                            Circle()
+                                .fill(EPTheme.accent)
+                                .frame(width: 8, height: 8)
+                                .offset(x: 4, y: -4)
+                        }
+                    }
+                }
+            }
+        }
         .alert("Reward Redeemed!", isPresented: $showRedeemSuccess) {
             Button("Nice!", role: .cancel) { }
         } message: {

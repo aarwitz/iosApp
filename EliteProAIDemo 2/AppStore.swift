@@ -42,6 +42,10 @@ final class AppStore: ObservableObject {
     @Published var amenityInvitations: [AmenityInvitation]
     @Published var notifications: [AppNotificationResponse] = []
     @Published var friendRequests: [FriendRequestResponse] = []
+    @Published var staffMembers: [StaffMember] = []
+    @Published var mealSuggestions: [MealSuggestion] = []
+    @Published var quickRecipes: [QuickRecipe] = []
+    @Published var bookedSessions: [BookedSession] = []
 
     private let filename = "elitepro_demo_store.json"
 
@@ -75,8 +79,8 @@ final class AppStore: ObservableObject {
 
             self.trainers = [
                 Trainer(name: "Jason Chen", specialty: "Strength & Mobility", rating: 4.9, pricePerSession: 95),
+                Trainer(name: "Sarah Martinez", specialty: "Nutrition Coaching", rating: 4.8, pricePerSession: 70),
                 Trainer(name: "Andre Silva", specialty: "Hypertrophy", rating: 4.7, pricePerSession: 80),
-                Trainer(name: "Priya Nair", specialty: "Nutrition Coaching", rating: 4.8, pricePerSession: 70)
             ]
 
             self.groups = [
@@ -93,8 +97,28 @@ final class AppStore: ObservableObject {
             ]
         }
 
-        // Conversations loaded from API
-        self.conversations = []
+        // Seed two demo conversations so the app and unit tests work offline.
+        // These are replaced by API data once refreshConversations() completes on launch.
+        self.conversations = [
+            Conversation(
+                contactName: "Coach Jason",
+                lastMessage: "I put together a new plan for this week.",
+                lastMessageTime: Date().addingTimeInterval(-1800),
+                unreadCount: 1,
+                messages: [
+                    ChatMessage(from: "Coach Jason", text: "I put together a new plan for this week.", timestamp: Date().addingTimeInterval(-1800), isMe: false)
+                ]
+            ),
+            Conversation(
+                contactName: "Sam",
+                lastMessage: "See you at the 5K tomorrow!",
+                lastMessageTime: Date().addingTimeInterval(-7200),
+                unreadCount: 0,
+                messages: [
+                    ChatMessage(from: "Sam", text: "See you at the 5K tomorrow!", timestamp: Date().addingTimeInterval(-7200), isMe: false)
+                ]
+            )
+        ]
 
         // Demo communities (not persisted)
         self.communities = [
@@ -574,6 +598,108 @@ final class AppStore: ObservableObject {
             )
         ]
         
+        // MARK: – Staff Members (Coaches & Nutritionists with shifts)
+        let morningShift = StaffShift(label: "Morning", startHour: 6, endHour: 12, displayRange: "6 AM – 12 PM")
+        let afternoonShift = StaffShift(label: "Afternoon", startHour: 12, endHour: 18, displayRange: "12 PM – 6 PM")
+        let eveningShift = StaffShift(label: "Evening", startHour: 18, endHour: 22, displayRange: "6 PM – 10 PM")
+        
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+        
+        func slots(for shift: StaffShift) -> [Date] {
+            // Try today first. If all slots are in the past, use tomorrow so the booking UI always has choices.
+            let now = Date()
+            func slotsOnDay(_ day: Date) -> [Date] {
+                stride(from: shift.startHour, to: shift.endHour, by: 1).compactMap { hour in
+                    cal.date(bySettingHour: hour, minute: 0, second: 0, of: day)
+                }
+            }
+            let todaySlots = slotsOnDay(today).filter { $0 > now }
+            if !todaySlots.isEmpty { return todaySlots }
+            let tomorrow = cal.date(byAdding: .day, value: 1, to: today)!
+            return slotsOnDay(tomorrow)
+        }
+        
+        self.staffMembers = [
+            // Coaches
+            StaffMember(
+                name: "Jason Chen", role: .coach,
+                credentials: ["NASM-CPT", "BS Kinesiology", "TRX Certified"],
+                bio: "Strength & mobility specialist. 8 years experience helping residents move better and feel great.",
+                avatarPlaceholder: "figure.strengthtraining.traditional",
+                shift: morningShift,
+                availableSlots: slots(for: morningShift),
+                tipOfTheWeek: nil
+            ),
+            StaffMember(
+                name: "Andre Silva", role: .coach,
+                credentials: ["CSCS", "MS Exercise Science", "USA Weightlifting L2"],
+                bio: "Hypertrophy and performance coach. Former collegiate athlete passionate about helping you hit PRs.",
+                avatarPlaceholder: "dumbbell.fill",
+                shift: afternoonShift,
+                availableSlots: slots(for: afternoonShift),
+                tipOfTheWeek: nil
+            ),
+            StaffMember(
+                name: "Sarah Martinez", role: .coach,
+                credentials: ["ACE-CPT", "Precision Nutrition L1", "HIIT Specialist"],
+                bio: "High-energy HIIT & functional fitness coach. Let's build a workout you actually love.",
+                avatarPlaceholder: "bolt.heart.fill",
+                shift: eveningShift,
+                availableSlots: slots(for: eveningShift),
+                tipOfTheWeek: nil
+            ),
+            // Nutritionists
+            StaffMember(
+                name: "Priya Nair", role: .nutritionist,
+                credentials: ["RDN", "MS Clinical Nutrition", "CSSD"],
+                bio: "Registered dietitian specializing in sports nutrition and sustainable meal planning.",
+                avatarPlaceholder: "leaf.fill",
+                shift: morningShift,
+                availableSlots: slots(for: morningShift),
+                tipOfTheWeek: "Pair your post-workout protein with a handful of berries — the antioxidants speed recovery!"
+            ),
+            StaffMember(
+                name: "Marcus Lee", role: .nutritionist,
+                credentials: ["CNS", "BS Nutrition Science", "Gut Health Cert."],
+                bio: "Certified nutrition specialist focused on gut health and anti-inflammatory eating.",
+                avatarPlaceholder: "carrot.fill",
+                shift: afternoonShift,
+                availableSlots: slots(for: afternoonShift),
+                tipOfTheWeek: "Add fermented foods like kimchi or yogurt to one meal a day for better digestion."
+            ),
+            StaffMember(
+                name: "Elena Torres", role: .nutritionist,
+                credentials: ["RD", "Certified Diabetes Educator", "Plant-Based Cert."],
+                bio: "Plant-forward nutrition expert. Making healthy eating simple, affordable, and delicious.",
+                avatarPlaceholder: "fork.knife",
+                shift: eveningShift,
+                availableSlots: slots(for: eveningShift),
+                tipOfTheWeek: "Prep overnight oats on Sunday night — grab-and-go fuel for your Monday morning workout."
+            )
+        ]
+        
+        // MARK: – Meal Suggestions (Eat Smart Delivery)
+        self.mealSuggestions = [
+            MealSuggestion(name: "Chicken Protein Bowl", restaurant: "Cava", price: 12.49, tags: ["High Protein", "Gluten-Free"], imagePlaceholder: "takeoutbag.and.cup.and.straw.fill", previouslyOrdered: true, nutritionistRecommended: true, nutritionistName: "Priya Nair"),
+            MealSuggestion(name: "Vegetarian Power Bowl", restaurant: "Life Alive", price: 14.95, tags: ["Vegetarian", "Organic"], imagePlaceholder: "leaf.circle.fill", previouslyOrdered: false, nutritionistRecommended: true, nutritionistName: "Elena Torres"),
+            MealSuggestion(name: "Grilled Salmon Plate", restaurant: "Sweetgreen", price: 15.25, tags: ["Omega-3", "Low Sodium"], imagePlaceholder: "fish.fill", previouslyOrdered: true, nutritionistRecommended: false),
+            MealSuggestion(name: "Turkey & Avocado Wrap", restaurant: "Dig", price: 11.99, tags: ["High Protein", "Low Carb"], imagePlaceholder: "burrito.fill", previouslyOrdered: false, nutritionistRecommended: true, nutritionistName: "Marcus Lee"),
+            MealSuggestion(name: "Açaí Recovery Bowl", restaurant: "Pressed Juicery", price: 10.50, tags: ["Antioxidants", "Vegan"], imagePlaceholder: "cup.and.saucer.fill", previouslyOrdered: false, nutritionistRecommended: false),
+            MealSuggestion(name: "Mediterranean Grain Bowl", restaurant: "Cava", price: 13.25, tags: ["Vegetarian", "Low Sodium"], imagePlaceholder: "takeoutbag.and.cup.and.straw.fill", previouslyOrdered: false, nutritionistRecommended: true, nutritionistName: "Priya Nair")
+        ]
+        
+        // MARK: – Quick Recipes (15-Min Meals)
+        self.quickRecipes = [
+            QuickRecipe(title: "Protein Overnight Oats", prepTime: "5 min + overnight", calories: 420, protein: 32, tags: ["High Protein", "Meal Prep"], ingredients: ["Oats", "Protein powder", "Greek yogurt", "Banana", "Almond milk"], imagePlaceholder: "takeoutbag.and.cup.and.straw.fill"),
+            QuickRecipe(title: "Chicken Stir-Fry", prepTime: "12 min", calories: 380, protein: 35, tags: ["High Protein", "Low Carb"], ingredients: ["Chicken breast", "Broccoli", "Bell pepper", "Soy sauce", "Sesame oil"], imagePlaceholder: "frying.pan.fill"),
+            QuickRecipe(title: "Greek Yogurt Parfait", prepTime: "5 min", calories: 310, protein: 28, tags: ["Quick", "High Protein"], ingredients: ["Greek yogurt", "Granola", "Mixed berries", "Honey", "Chia seeds"], imagePlaceholder: "cup.and.saucer.fill"),
+            QuickRecipe(title: "Avocado Tuna Salad", prepTime: "10 min", calories: 350, protein: 30, tags: ["Low Carb", "Omega-3"], ingredients: ["Canned tuna", "Avocado", "Lemon", "Red onion", "Mixed greens"], imagePlaceholder: "leaf.fill"),
+            QuickRecipe(title: "Egg & Veggie Scramble", prepTime: "8 min", calories: 290, protein: 24, tags: ["Low Carb", "Quick"], ingredients: ["Eggs", "Spinach", "Tomatoes", "Feta", "Olive oil"], imagePlaceholder: "frying.pan")
+        ]
+        
+        self.bookedSessions = []
+        
         // Always use fresh demo feed data (not persisted) so community filters work correctly
         self.feed = [
             // Echelon building posts (most specific)
@@ -866,6 +992,46 @@ final class AppStore: ObservableObject {
     func persist() {
         let snap = Snapshot(profile: profile, credits: credits, trainers: trainers, groups: groups, feed: feed, chat: chat)
         Persistence.save(snap, to: filename)
+    }
+
+    // MARK: – Staff Helpers
+
+    /// The coach currently on shift right now.
+    var currentCoach: StaffMember? {
+        let hour = Calendar.current.component(.hour, from: Date())
+        return staffMembers.first { $0.role == .coach && $0.shift.startHour <= hour && hour < $0.shift.endHour }
+            ?? staffMembers.first { $0.role == .coach }
+    }
+
+    /// The nutritionist currently on shift right now.
+    var currentNutritionist: StaffMember? {
+        let hour = Calendar.current.component(.hour, from: Date())
+        return staffMembers.first { $0.role == .nutritionist && $0.shift.startHour <= hour && hour < $0.shift.endHour }
+            ?? staffMembers.first { $0.role == .nutritionist }
+    }
+
+    /// All coaches with shifts today.
+    var todaysCoaches: [StaffMember] {
+        staffMembers.filter { $0.role == .coach }
+    }
+
+    /// All nutritionists with shifts today.
+    var todaysNutritionists: [StaffMember] {
+        staffMembers.filter { $0.role == .nutritionist }
+    }
+
+    /// Book a session and add to schedule.
+    @MainActor
+    func bookSession(staff: StaffMember, date: Date, duration: Int = 60) {
+        let session = BookedSession(
+            staffName: staff.name,
+            staffRole: staff.role,
+            date: date,
+            durationMinutes: duration,
+            location: "Echelon Gym"
+        )
+        bookedSessions.append(session)
+        earnCredits(staff.role == .coach ? 10 : 5)
     }
 
     func toggleMenu() {
@@ -1176,5 +1342,5 @@ final class AppStore: ObservableObject {
 }
 
 enum AppTab: Hashable {
-    case home, connector, challenges, community, chat
+    case home, coaching, nutrition, community, rewards
 }

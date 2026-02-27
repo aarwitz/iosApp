@@ -276,7 +276,7 @@ struct SignUpView: View {
                     .padding(14)
                     .background(RoundedRectangle(cornerRadius: 12).fill(EPTheme.card))
                     .overlay(RoundedRectangle(cornerRadius: 12).stroke(EPTheme.cardStroke, lineWidth: 1))
-                    .onChange(of: buildingName) { _ in
+                    .onChange(of: buildingName) { newValue, oldValue in
                         if buildingOptions.first(where: { $0.name == buildingName }) == nil {
                             selectedBuilding = nil
                         }

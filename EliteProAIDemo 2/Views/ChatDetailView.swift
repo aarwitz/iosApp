@@ -85,7 +85,7 @@ struct ChatDetailView: View {
                     // Refresh conversation list so preview is up-to-date
                     Task { await store.refreshConversations() }
                 }
-                .onChange(of: messages.count) { _ in
+                .onChange(of: messages.count) { newCount, oldCount in
                     if let last = messages.last {
                         withAnimation(.easeOut(duration: 0.2)) {
                             proxy.scrollTo(last.id, anchor: .bottom)

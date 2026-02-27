@@ -103,9 +103,9 @@ final class APIClient {
 
     private init() {
         let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 30
-        config.timeoutIntervalForResource = 60
-        config.waitsForConnectivity = true
+        config.timeoutIntervalForRequest = 10   // Fail fast — never freeze the UI for 30s+
+        config.timeoutIntervalForResource = 30
+        config.waitsForConnectivity = false      // Fail immediately when offline; callers handle the error
         config.httpAdditionalHeaders = [
             "Accept": "application/json",
             "Content-Type": "application/json"

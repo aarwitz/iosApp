@@ -19,7 +19,7 @@ final class APIClientTests: XCTestCase {
     func testStagingBaseURL() {
         let client = APIClient.shared
         client.environment = .staging
-        XCTAssertEqual(client.environment.baseURL.absoluteString, "https://staging-api.eliteproai.com/api/v1")
+        XCTAssertEqual(client.environment.baseURL.absoluteString, "https://backend-production-1013.up.railway.app/api/v1")
     }
 
     func testProductionBaseURL() {

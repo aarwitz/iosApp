@@ -210,12 +210,13 @@ struct FriendProfileView: View {
         }
         .navigationTitle(friend.name)
         .navigationBarTitleDisplayMode(.inline)
-        .background(
-            NavigationLink(
-                destination: chatDestination.map { ChatDetailView(conversation: $0) },
-                isActive: $navigateToChat
-            ) { EmptyView() }
-        )
+        .navigationDestination(
+            isPresented: $navigateToChat
+        ) {
+            if let convo = chatDestination {
+                ChatDetailView(conversation: convo)
+            }
+        }
         .confirmationDialog("", isPresented: $showFriendshipMenu, titleVisibility: .hidden) {
             Button(isMuted ? "Unmute" : "Mute") {
                 isMuted.toggle()

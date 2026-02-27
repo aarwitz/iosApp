@@ -49,6 +49,69 @@ struct Trainer: Codable, Identifiable {
     var pricePerSession: Int
 }
 
+// MARK: – Staff (Coaches & Nutritionists)
+
+enum StaffRole: String, Codable, CaseIterable {
+    case coach = "Coach"
+    case nutritionist = "Nutritionist"
+}
+
+struct StaffShift: Identifiable {
+    var id: UUID = UUID()
+    var label: String           // e.g. "Morning", "Afternoon", "Evening"
+    var startHour: Int          // 0-23
+    var endHour: Int
+    var displayRange: String    // e.g. "6 AM – 12 PM"
+}
+
+struct StaffMember: Identifiable {
+    var id: UUID = UUID()
+    var name: String
+    var role: StaffRole
+    var credentials: [String]        // e.g. ["NASM-CPT", "BS Kinesiology"]
+    var bio: String
+    var avatarPlaceholder: String    // SF Symbol
+    var shift: StaffShift
+    var availableSlots: [Date]       // bookable time slots for the day
+    var tipOfTheWeek: String?
+}
+
+// MARK: – Meal / Delivery
+
+struct MealSuggestion: Identifiable {
+    var id: UUID = UUID()
+    var name: String
+    var restaurant: String
+    var price: Double
+    var tags: [String]               // e.g. ["Vegetarian", "High Protein"]
+    var imagePlaceholder: String     // SF Symbol
+    var previouslyOrdered: Bool
+    var nutritionistRecommended: Bool
+    var nutritionistName: String?
+}
+
+struct QuickRecipe: Identifiable {
+    var id: UUID = UUID()
+    var title: String
+    var prepTime: String             // e.g. "15 min"
+    var calories: Int
+    var protein: Int
+    var tags: [String]
+    var ingredients: [String]
+    var imagePlaceholder: String
+}
+
+// MARK: – Booked Session
+
+struct BookedSession: Identifiable {
+    var id: UUID = UUID()
+    var staffName: String
+    var staffRole: StaffRole
+    var date: Date
+    var durationMinutes: Int
+    var location: String
+}
+
 struct Group: Codable, Identifiable {
     var id: UUID = UUID()
     var name: String

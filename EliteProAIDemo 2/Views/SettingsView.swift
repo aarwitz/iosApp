@@ -3,7 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject private var store: AppStore
     @State private var notificationsEnabled: Bool = true
-    @AppStorage("darkModeEnabled") private var darkModeEnabled: Bool = true
+    @AppStorage("appearanceMode") private var appearanceMode: String = "system"
     @State private var showEditProfile = false
     @State private var showDeleteConfirmation = false
     @State private var showLogoutConfirmation = false
@@ -63,16 +63,21 @@ struct SettingsView: View {
 
                         Divider().overlay(EPTheme.divider)
 
-                        Toggle(isOn: $darkModeEnabled) {
-                            HStack(spacing: 10) {
-                                Image(systemName: "moon.fill")
-                                    .foregroundStyle(EPTheme.accent)
-                                    .frame(width: 24)
-                                Text("Dark Mode")
-                                    .font(.system(.body, design: .rounded))
+                        HStack(spacing: 10) {
+                            Image(systemName: "moon.fill")
+                                .foregroundStyle(EPTheme.accent)
+                                .frame(width: 24)
+                            Text("Appearance")
+                                .font(.system(.body, design: .rounded))
+                            Spacer()
+                            Picker("", selection: $appearanceMode) {
+                                Text("System").tag("system")
+                                Text("Light").tag("light")
+                                Text("Dark").tag("dark")
                             }
+                            .pickerStyle(.menu)
+                            .tint(EPTheme.accent)
                         }
-                        .tint(EPTheme.accent)
 
                         Divider().overlay(EPTheme.divider)
 

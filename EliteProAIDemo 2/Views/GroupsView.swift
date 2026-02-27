@@ -58,10 +58,9 @@ struct GroupsView: View {
         .onReceive(NotificationCenter.default.publisher(for: .openCommunityFeed)) { _ in
             openCommunity = true
         }
-        .background(
-            NavigationLink("", destination: CommunityFeedView(), isActive: $openCommunity)
-                .opacity(0)
-        )
+        .navigationDestination(isPresented: $openCommunity) {
+            CommunityFeedView()
+        }
     }
 }
 

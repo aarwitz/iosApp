@@ -1,14 +1,15 @@
 import SwiftUI
 
 enum EPTheme {
-    static let accent = Color(red: 1.0, green: 0.45, blue: 0.10)   // orange-ish
+//    static let accent = Color(red: 1.0, green: 0.45, blue: 0.10)   // orange-ish
+    static let accent = Color(red: 0.73, green: 0.30, blue: 0.12)
     
     // Adaptive colors — automatically respond to light/dark mode
     // Create UIColors once to avoid recreating closures on every access
     private static let _cardUIColor = UIColor { traits in
         traits.userInterfaceStyle == .dark
             ? UIColor(red: 0.12, green: 0.12, blue: 0.14, alpha: 1)
-            : UIColor(red: 0.95, green: 0.95, blue: 0.97, alpha: 1)
+            : UIColor.white
     }
     static let card = Color(_cardUIColor)
     
@@ -18,6 +19,14 @@ enum EPTheme {
             : UIColor.black.withAlphaComponent(0.08)
     }
     static let cardStroke = Color(_cardStrokeUIColor)
+
+    private static let _cardShadowUIColor = UIColor { traits in
+        traits.userInterfaceStyle == .dark ? .clear : UIColor.black.withAlphaComponent(0.065)
+    }
+    static let cardShadow = Color(_cardShadowUIColor)
+
+    /// Light gray grouped page background (matches iOS Settings-style)
+    static let pageBackground = Color(UIColor.systemGroupedBackground)
     
     private static let _softTextUIColor = UIColor { traits in
         traits.userInterfaceStyle == .dark
@@ -75,5 +84,6 @@ struct EPCard<Content: View>: View {
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .stroke(EPTheme.cardStroke, lineWidth: 1)
             )
+            .shadow(color: EPTheme.cardShadow, radius: 5, x: 0, y: 2)
     }
 }

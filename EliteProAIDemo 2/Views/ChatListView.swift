@@ -54,15 +54,16 @@ struct ChatListView: View {
             .environmentObject(store)
         }
         // Navigate to the new/existing conversation after sheet dismisses
-        .background(
-            NavigationLink(
-                destination: navigationTarget.map { ChatDetailView(conversation: $0) },
-                isActive: Binding(
-                    get: { navigationTarget != nil },
-                    set: { if !$0 { navigationTarget = nil } }
-                )
-            ) { EmptyView() }
-        )
+        .navigationDestination(
+            isPresented: Binding(
+                get: { navigationTarget != nil },
+                set: { if !$0 { navigationTarget = nil } }
+            )
+        ) {
+            if let convo = navigationTarget {
+                ChatDetailView(conversation: convo)
+            }
+        }
         .alert(
             "Delete Conversation",
             isPresented: Binding(

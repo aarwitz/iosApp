@@ -2,7 +2,15 @@ import SwiftUI
 
 struct RootView: View {
     @EnvironmentObject private var store: AppStore
-    @AppStorage("darkModeEnabled") private var darkModeEnabled: Bool = true
+    @AppStorage("appearanceMode") private var appearanceMode: String = "system"
+
+    private var resolvedColorScheme: ColorScheme? {
+        switch appearanceMode {
+        case "light": return .light
+        case "dark": return .dark
+        default: return nil
+        }
+    }
 
     var body: some View {
         ZStack {
@@ -36,25 +44,32 @@ struct RootView: View {
                 .tag(AppTab.home)
 
                 NavigationStack {
-                    ConnectorView()
+                    CoachingView()
                         .toolbar { menuToolbar }
                 }
-                .tabItem { Label("Connect", systemImage: "person.2.wave.2") }
-                .tag(AppTab.connector)
+                .tabItem { Label("Coaching", systemImage: "dumbbell") }
+                .tag(AppTab.coaching)
+
+                NavigationStack {
+                    NutritionView()
+                        .toolbar { menuToolbar }
+                }
+                .tabItem { Label("Nutrition", systemImage: "leaf") }
+                .tag(AppTab.nutrition)
 
                 NavigationStack {
                     CommunityView()
                         .toolbar { menuToolbar }
                 }
-                .tabItem { Label("Community", systemImage: "hands.sparkles") }
+                .tabItem { Label("Community", systemImage: "person.2") }
                 .tag(AppTab.community)
 
                 NavigationStack {
-                    ChallengesView()
+                    RewardsView()
                         .toolbar { menuToolbar }
                 }
-                .tabItem { Label("Challenges", systemImage: "flag.checkered") }
-                .tag(AppTab.challenges)
+                .tabItem { Label("Rewards", systemImage: "gift") }
+                .tag(AppTab.rewards)
             }
             .tint(EPTheme.accent)
 
@@ -63,7 +78,7 @@ struct RootView: View {
                     .transition(.opacity)
             }
         }
-        .preferredColorScheme(darkModeEnabled ? .dark : .light)
+        .preferredColorScheme(resolvedColorScheme)
     }
 
     private var menuToolbar: some ToolbarContent {
