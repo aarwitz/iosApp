@@ -112,49 +112,44 @@ struct NutritionView: View {
         EPCard {
             VStack(spacing: 12) {
 
-                HStack(spacing: 14) {
+                HStack(spacing: 12) {
                     // Avatar from Assets
                     Image(nutritionist.name.replacingOccurrences(of: " ", with: ""))
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 70, height: 70)
+                        .offset(y: 15)
                         .clipShape(Circle())
                         .overlay(Circle().stroke(.green, lineWidth: 2.5))
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(nutritionist.name)
-                            .font(.system(.headline, design: .rounded))
-                        HStack(spacing: 4) {
-                            Image(systemName: "leaf.fill")
-                                .font(.system(size: 10))
+                        HStack(spacing: 6) {
+                            Text(nutritionist.name)
+                                .font(.system(.headline, design: .rounded))
                             Text("Nutritionist")
-                                .font(.system(.caption, design: .rounded).weight(.semibold))
+                                .font(.system(.caption2, design: .rounded).weight(.semibold))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 2)
+                                .background(Capsule().fill(Color.green))
                         }
-                        .foregroundStyle(.green)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 3)
-                        .background(Capsule().fill(Color.green.opacity(0.12)))
 
-                        HStack(spacing: 4) {
-                            Image(systemName: "clock")
-                                .font(.system(size: 10))
-                            Text(nutritionist.shift.displayRange)
-                                .font(.system(.caption2, design: .rounded))
-                        }
-                        .foregroundStyle(EPTheme.softText)
+                        Text(nutritionist.shift.label + " Shift · " + nutritionist.shift.displayRange)
+                            .font(.system(.caption, design: .rounded))
+                            .foregroundStyle(EPTheme.softText)
                     }
                     Spacer()
                 }
 
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 6) {
+                    HStack(spacing: 4) {
                         ForEach(nutritionist.credentials, id: \.self) { cred in
                             Text(cred)
-                                .font(.system(.caption2, design: .rounded).weight(.medium))
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Capsule().fill(EPTheme.card.opacity(0.6)))
-                                .foregroundStyle(Color.primary.opacity(0.8))
+                                .font(.system(size: 9, design: .rounded).weight(.medium))
+                                .foregroundStyle(EPTheme.softText)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Capsule().fill(EPTheme.softText.opacity(0.10)))
                         }
                     }
                 }

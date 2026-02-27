@@ -42,8 +42,8 @@ struct HomeFeedView: View {
                     .padding(.bottom, 12)
 
                 // MARK: – Quick Actions
-                quickActions
-                    .padding(.bottom, 16)
+//                quickActions
+//                    .padding(.bottom, 16)
 
                 // MARK: – Feed Header + Sort
                 HStack {
@@ -194,8 +194,10 @@ struct HomeFeedView: View {
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 70, height: 70)
+                        .offset(y: 15)          // shift upward to crop bottom of full‑body shots
                         .clipShape(Circle())
-                        .overlay(Circle().stroke(staff.role == .coach ? EPTheme.accent : .green, lineWidth: 2.5))
+                         .overlay(Circle().stroke(staff.role == .coach ? EPTheme.accent : .green, lineWidth: 2.5)
+                         )
 
                     VStack(alignment: .leading, spacing: 4) {
                         HStack(spacing: 6) {
@@ -230,12 +232,12 @@ struct HomeFeedView: View {
 
                 // Bio
                 Text(staff.bio)
-                    .font(.system(.caption, design: .rounded))
-                    .foregroundStyle(EPTheme.softText)
-                    .lineLimit(2)
+                .font(.system(.caption, design: .rounded))
+                .foregroundStyle(EPTheme.softText)
+                .lineLimit(2)
 
-                // Action buttons
-                HStack(spacing: 10) {
+                // Action buttons (match Coaching/Nutrition views)
+                HStack(spacing: 12) {
                     Button {
                         guard messagingStaffId == nil else { return }
                         messagingStaffId = staff.id
@@ -258,16 +260,14 @@ struct HomeFeedView: View {
                                     .scaleEffect(0.8)
                             } else {
                                 Image(systemName: "bubble.left.fill")
-                                    .font(.system(size: 12))
                             }
-                            Text("Message \(staff.name.components(separatedBy: " ").first ?? "")")
-                                .font(.system(.caption, design: .rounded).weight(.semibold))
+                            Text("Message")
+                                .font(.system(.subheadline, design: .rounded).weight(.semibold))
                         }
-                        .foregroundStyle(Color.primary)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
-                        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(EPTheme.card))
-                        .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(EPTheme.cardStroke, lineWidth: 1))
+                        .background(Capsule().fill(EPTheme.accent.opacity(0.12)))
+                        .foregroundStyle(EPTheme.accent)
                     }
                     .buttonStyle(.plain)
                     .disabled(messagingStaffId != nil)
@@ -278,22 +278,13 @@ struct HomeFeedView: View {
                     } label: {
                         HStack(spacing: 6) {
                             Image(systemName: "calendar.badge.plus")
-                                .font(.system(size: 12))
-                            Text(staff.role == .coach ? "Book 1-1 Session" : "Book Nutrition Check-in")
-                                .font(.system(.caption, design: .rounded).weight(.semibold))
+                            Text("Book")
+                                .font(.system(.subheadline, design: .rounded).weight(.semibold))
                         }
-                        .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                .fill(
-                                    LinearGradient(
-                                        colors: [EPTheme.accent, EPTheme.accent.opacity(0.8)],
-                                        startPoint: .leading, endPoint: .trailing
-                                    )
-                                )
-                        )
+                        .background(Capsule().fill(EPTheme.accent))
+                        .foregroundStyle(.white)
                     }
                     .buttonStyle(.plain)
                 }
@@ -317,76 +308,76 @@ struct HomeFeedView: View {
 
     // MARK: – Quick Actions
 
-    private var quickActions: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Quick Actions")
-                .font(.system(.caption, design: .rounded).weight(.semibold))
-                .foregroundStyle(EPTheme.softText)
+    // private var quickActions: some View {
+    //     VStack(alignment: .leading, spacing: 8) {
+    //         Text("Quick Actions")
+    //             .font(.system(.caption, design: .rounded).weight(.semibold))
+    //             .foregroundStyle(EPTheme.softText)
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10) {
-                    NavigationLink {
-                        JoinGroupView()
-                    } label: {
-                        quickActionPill(icon: "person.3.fill", label: "Join Group")
-                    }
-                    .buttonStyle(.plain)
+    //         ScrollView(.horizontal, showsIndicators: false) {
+    //             HStack(spacing: 10) {
+    //                 NavigationLink {
+    //                     JoinGroupView()
+    //                 } label: {
+    //                     quickActionPill(icon: "person.3.fill", label: "Join Group")
+    //                 }
+    //                 .buttonStyle(.plain)
 
-                    NavigationLink {
-                        CreateGroupView()
-                    } label: {
-                        quickActionPill(icon: "plus.circle.fill", label: "Create Group")
-                    }
-                    .buttonStyle(.plain)
+    //                 NavigationLink {
+    //                     CreateGroupView()
+    //                 } label: {
+    //                     quickActionPill(icon: "plus.circle.fill", label: "Create Group")
+    //                 }
+    //                 .buttonStyle(.plain)
 
-                    NavigationLink {
-                    ChallengesView()
-                    } label: {
-                        quickActionPill(icon: "flag.fill", label: "Accept Challenge")
-                    }
-                    .buttonStyle(.plain)
+    //                 NavigationLink {
+    //                 ChallengesView()
+    //                 } label: {
+    //                     quickActionPill(icon: "flag.fill", label: "Accept Challenge")
+    //                 }
+    //                 .buttonStyle(.plain)
 
-                    NavigationLink {
-                        LogMealView()
-                    } label: {
-                        quickActionPill(icon: "camera.fill", label: "Log Meal")
-                    }
-                    .buttonStyle(.plain)
+    //                 NavigationLink {
+    //                     LogMealView()
+    //                 } label: {
+    //                     quickActionPill(icon: "camera.fill", label: "Log Meal")
+    //                 }
+    //                 .buttonStyle(.plain)
 
-                    Button {
-                        store.selectedTab = .nutrition
-                    } label: {
-                        quickActionPill(icon: "bag.fill", label: "Order Meal")
-                    }
-                    .buttonStyle(.plain)
-                }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 10)
-            }
-            .background(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(EPTheme.card)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .stroke(EPTheme.cardStroke, lineWidth: 1)
-            )
-        }
-    }
+    //                 Button {
+    //                     store.selectedTab = .nutrition
+    //                 } label: {
+    //                     quickActionPill(icon: "bag.fill", label: "Order Meal")
+    //                 }
+    //                 .buttonStyle(.plain)
+    //             }
+    //             .padding(.horizontal, 14)
+    //             .padding(.vertical, 10)
+    //         }
+    //         .background(
+    //             RoundedRectangle(cornerRadius: 14, style: .continuous)
+    //                 .fill(EPTheme.card)
+    //         )
+    //         .overlay(
+    //             RoundedRectangle(cornerRadius: 14, style: .continuous)
+    //                 .stroke(EPTheme.cardStroke, lineWidth: 1)
+    //         )
+    //     }
+    // }
 
-    private func quickActionPill(icon: String, label: String) -> some View {
-        HStack(spacing: 6) {
-            Image(systemName: icon)
-                .font(.system(size: 14))
-            Text(label)
-                .font(.system(.caption, design: .rounded).weight(.medium))
-        }
-        .foregroundStyle(Color.primary.opacity(0.9))
-        .padding(.horizontal, 9)
-        .padding(.vertical, 8)
-        .background(Capsule().fill(EPTheme.card))
-        .overlay(Capsule().stroke(EPTheme.cardStroke, lineWidth: 1))
-    }
+    // private func quickActionPill(icon: String, label: String) -> some View {
+    //     HStack(spacing: 6) {
+    //         Image(systemName: icon)
+    //             .font(.system(size: 14))
+    //         Text(label)
+    //             .font(.system(.caption, design: .rounded).weight(.medium))
+    //     }
+    //     .foregroundStyle(Color.primary.opacity(0.9))
+    //     .padding(.horizontal, 9)
+    //     .padding(.vertical, 8)
+    //     .background(Capsule().fill(EPTheme.card))
+    //     .overlay(Capsule().stroke(EPTheme.cardStroke, lineWidth: 1))
+    // }
 
     // MARK: – Feed Post Card
 
