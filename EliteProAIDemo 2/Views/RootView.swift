@@ -93,3 +93,5 @@ struct RootView: View {
         }
     }
 }
+#Preview {RootView()
+    .environmentObject(AppStore())}

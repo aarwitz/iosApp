@@ -17,7 +17,7 @@ struct NutritionView: View {
             ChatListView()
         } label: {
             ZStack(alignment: .topTrailing) {
-                Image(systemName: "bubble.left.and.bubble.right")
+                Image(systemName: "bubble.left")
                     .font(.system(size: 18, weight: .semibold))
                 let unreadCount = store.conversations.reduce(0) { $0 + $1.unreadCount }
                 if unreadCount > 0 {
@@ -613,7 +613,7 @@ struct NutritionView: View {
     private func nutritionistChatSheet(_ staff: StaffMember) -> some View {
         NavigationStack {
             VStack(spacing: 16) {
-                Image(systemName: "bubble.left.and.bubble.right.fill")
+                Image(systemName: "bubble.left.fill")
                     .font(.system(size: 44))
                     .foregroundStyle(Color.green.opacity(0.6))
                 Text("Chat with \(staff.name)")

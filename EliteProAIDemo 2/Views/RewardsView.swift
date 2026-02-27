@@ -59,7 +59,7 @@ struct RewardsView: View {
                     ChatListView()
                 } label: {
                     ZStack(alignment: .topTrailing) {
-                        Image(systemName: "bubble.left.and.bubble.right")
+                        Image(systemName: "bubble.left")
                             .font(.system(size: 18, weight: .semibold))
                         let unreadCount = store.conversations.reduce(0) { $0 + $1.unreadCount }
                         if unreadCount > 0 {

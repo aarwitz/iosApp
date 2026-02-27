@@ -124,8 +124,9 @@ struct HomeFeedView: View {
                     ChatListView()
                 } label: {
                     ZStack(alignment: .topTrailing) {
-                        Image(systemName: "bubble.left.and.bubble.right")
-                            .font(.system(size: 18, weight: .semibold))
+//                        Image(systemName: "bubble.left")
+                        Image(systemName: "bubble.left")
+                            .font(.system(size: 16, weight: .semibold))
 
                         let unreadCount = store.conversations.reduce(0) { $0 + $1.unreadCount }
                         if unreadCount > 0 {
@@ -160,7 +161,7 @@ struct HomeFeedView: View {
                 .foregroundColor(Color(red: 0.73, green: 0.30, blue: 0.12))
         }
         // Matching the serif style from your original image
-        .font(.system(size: 22, weight: .thin, design: .serif))
+        .font(.system(size: 26, weight: .thin, design: .serif))
         .padding(.vertical, 2)
         .tracking(0.5)
     }

@@ -88,7 +88,7 @@ struct ChatListView: View {
     private var emptyState: some View {
         VStack(spacing: 20) {
             Spacer()
-            Image(systemName: "bubble.left.and.bubble.right")
+            Image(systemName: "bubble.left")
                 .font(.system(size: 56))
                 .foregroundStyle(EPTheme.softText.opacity(0.4))
             Text("No Conversations Yet")
