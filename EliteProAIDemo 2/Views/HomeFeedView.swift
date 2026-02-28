@@ -193,7 +193,7 @@ struct HomeFeedView: View {
                     Image(staff.name.replacingOccurrences(of: " ", with: ""))
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: 70, height: 70)
+                        .frame(width: 60, height: 60)
                         .offset(y: 15)          // shift upward to crop bottom of full‑body shots
                         .clipShape(Circle())
                          .overlay(Circle().stroke(staff.role == .coach ? EPTheme.accent : .green, lineWidth: 2.5)
@@ -265,7 +265,7 @@ struct HomeFeedView: View {
                                 .font(.system(.subheadline, design: .rounded).weight(.semibold))
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
+                        .padding(.vertical, 9)
                         .background(Capsule().fill(EPTheme.accent.opacity(0.12)))
                         .foregroundStyle(EPTheme.accent)
                     }
@@ -282,7 +282,7 @@ struct HomeFeedView: View {
                                 .font(.system(.subheadline, design: .rounded).weight(.semibold))
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
+                        .padding(.vertical, 9)
                         .background(Capsule().fill(EPTheme.accent))
                         .foregroundStyle(.white)
                     }
@@ -305,79 +305,6 @@ struct HomeFeedView: View {
             }
         }
     }
-
-    // MARK: – Quick Actions
-
-    // private var quickActions: some View {
-    //     VStack(alignment: .leading, spacing: 8) {
-    //         Text("Quick Actions")
-    //             .font(.system(.caption, design: .rounded).weight(.semibold))
-    //             .foregroundStyle(EPTheme.softText)
-
-    //         ScrollView(.horizontal, showsIndicators: false) {
-    //             HStack(spacing: 10) {
-    //                 NavigationLink {
-    //                     JoinGroupView()
-    //                 } label: {
-    //                     quickActionPill(icon: "person.3.fill", label: "Join Group")
-    //                 }
-    //                 .buttonStyle(.plain)
-
-    //                 NavigationLink {
-    //                     CreateGroupView()
-    //                 } label: {
-    //                     quickActionPill(icon: "plus.circle.fill", label: "Create Group")
-    //                 }
-    //                 .buttonStyle(.plain)
-
-    //                 NavigationLink {
-    //                 ChallengesView()
-    //                 } label: {
-    //                     quickActionPill(icon: "flag.fill", label: "Accept Challenge")
-    //                 }
-    //                 .buttonStyle(.plain)
-
-    //                 NavigationLink {
-    //                     LogMealView()
-    //                 } label: {
-    //                     quickActionPill(icon: "camera.fill", label: "Log Meal")
-    //                 }
-    //                 .buttonStyle(.plain)
-
-    //                 Button {
-    //                     store.selectedTab = .nutrition
-    //                 } label: {
-    //                     quickActionPill(icon: "bag.fill", label: "Order Meal")
-    //                 }
-    //                 .buttonStyle(.plain)
-    //             }
-    //             .padding(.horizontal, 14)
-    //             .padding(.vertical, 10)
-    //         }
-    //         .background(
-    //             RoundedRectangle(cornerRadius: 14, style: .continuous)
-    //                 .fill(EPTheme.card)
-    //         )
-    //         .overlay(
-    //             RoundedRectangle(cornerRadius: 14, style: .continuous)
-    //                 .stroke(EPTheme.cardStroke, lineWidth: 1)
-    //         )
-    //     }
-    // }
-
-    // private func quickActionPill(icon: String, label: String) -> some View {
-    //     HStack(spacing: 6) {
-    //         Image(systemName: icon)
-    //             .font(.system(size: 14))
-    //         Text(label)
-    //             .font(.system(.caption, design: .rounded).weight(.medium))
-    //     }
-    //     .foregroundStyle(Color.primary.opacity(0.9))
-    //     .padding(.horizontal, 9)
-    //     .padding(.vertical, 8)
-    //     .background(Capsule().fill(EPTheme.card))
-    //     .overlay(Capsule().stroke(EPTheme.cardStroke, lineWidth: 1))
-    // }
 
     // MARK: – Feed Post Card
 
@@ -693,93 +620,6 @@ struct LogMealView: View {
     }
 }
 
-// MARK: – Compose Post Sheet
-
-struct ComposePostView: View {
-    @EnvironmentObject private var store: AppStore
-    @Environment(\.dismiss) private var dismiss
-    @State private var postText: String = ""
-    @State private var selectedCommunity: String = ""
-    @State private var selectedGroup: String = ""
-    @State private var isPosting: Bool = false
-
-    private var availableGroups: [Group] {
-        if selectedCommunity.isEmpty {
-            return store.communities.flatMap { $0.groups }
-        }
-        return store.communities.first(where: { $0.name == selectedCommunity })?.groups ?? []
-    }
-
-    var body: some View {
-        NavigationStack {
-            Form {
-                Section("Community") {
-                    Picker("Community", selection: $selectedCommunity) {
-                        Text("All Communities").tag("")
-                        ForEach(store.communities, id: \.name) { community in
-                            Text(community.name).tag(community.name)
-                        }
-                    }
-                    .onChange(of: selectedCommunity) { newValue, oldValue in
-                        if !availableGroups.contains(where: { $0.name == selectedGroup }) {
-                            selectedGroup = availableGroups.first?.name ?? ""
-                        }
-                    }
-                }
-
-                Section("Group") {
-                    Picker("Group", selection: $selectedGroup) {
-                        Text("Select a group…").tag("")
-                        ForEach(availableGroups) { group in
-                            Text(group.name).tag(group.name)
-                        }
-                    }
-                }
-
-                Section("What's on your mind?") {
-                    TextField("Write your post…", text: $postText, axis: .vertical)
-                        .lineLimit(3...10)
-                }
-            }
-            .navigationTitle("New Post")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button {
-                        isPosting = true
-                        Task {
-                            await store.addPost(
-                                groupName: selectedGroup,
-                                text: postText.trimmingCharacters(in: .whitespacesAndNewlines),
-                                communityName: selectedCommunity
-                            )
-                            store.earnCredits(1)
-                            isPosting = false
-                            dismiss()
-                        }
-                    } label: {
-                        if isPosting {
-                            ProgressView()
-                        } else {
-                            Text("Post")
-                                .fontWeight(.semibold)
-                        }
-                    }
-                    .disabled(postText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || selectedGroup.isEmpty || isPosting)
-                }
-            }
-            .onAppear {
-                if let first = store.communities.first {
-                    selectedCommunity = first.name
-                    selectedGroup = first.groups.first?.name ?? ""
-                }
-            }
-        }
-    }
-}
 
 #Preview {HomeFeedView()
     .environmentObject(AppStore())}
