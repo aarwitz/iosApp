@@ -17,7 +17,6 @@ struct RootView: View {
             TabView(selection: $store.selectedTab) {
                 NavigationStack {
                     HomeFeedView()
-                        .toolbar { menuToolbar }
                         .navigationDestination(isPresented: $store.showProfile) {
                             ProfileView()
                         }

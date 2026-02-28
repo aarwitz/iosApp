@@ -50,6 +50,14 @@ enum EPTheme {
     static func softText(for colorScheme: ColorScheme) -> Color { softText }
     static func divider(for colorScheme: ColorScheme) -> Color { divider }
     static func primaryText(for colorScheme: ColorScheme) -> Color { primaryText }
+
+    static let backgroundLuxury = Color(
+        UIColor { traits in
+            traits.userInterfaceStyle == .dark
+                ? UIColor(red: 0.05, green: 0.05, blue: 0.07, alpha: 1)
+                : UIColor.systemGroupedBackground
+        }
+    )
 }
 
 struct EPButtonStyle: ButtonStyle {
