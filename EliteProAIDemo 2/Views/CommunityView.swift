@@ -28,6 +28,7 @@ struct CommunityView: View {
         }
         .navigationTitle("Community")
         .navigationBarTitleDisplayMode(.inline)
+        .background(EPTheme.pageBackground, ignoresSafeAreaEdges: .all)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button {

@@ -53,6 +53,7 @@ struct RewardsView: View {
         }
         .navigationTitle("Rewards")
         .navigationBarTitleDisplayMode(.inline)
+        .background(EPTheme.pageBackground, ignoresSafeAreaEdges: .all)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 NavigationLink {

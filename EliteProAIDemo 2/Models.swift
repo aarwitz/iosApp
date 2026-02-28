@@ -69,11 +69,19 @@ struct StaffMember: Identifiable {
     var name: String
     var role: StaffRole
     var credentials: [String]        // e.g. ["NASM-CPT", "BS Kinesiology"]
+    var specialties: [String]        // e.g. ["HIIT", "Fat Loss", "Mobility"]
     var bio: String
+    var motivationalQuote: String    // conversion-focused nudge shown on card
     var avatarPlaceholder: String    // SF Symbol
     var shift: StaffShift
     var availableSlots: [Date]       // bookable time slots for the day
     var tipOfTheWeek: String?
+
+    /// Whether this staff member is currently on shift right now.
+    var isOnShift: Bool {
+        let hour = Calendar.current.component(.hour, from: Date())
+        return shift.startHour <= hour && hour < shift.endHour
+    }
 }
 
 // MARK: – Meal / Delivery

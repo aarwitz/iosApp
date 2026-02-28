@@ -10,6 +10,7 @@ struct HomeFeedView: View {
     @State private var navigateToChat: Bool = false
     @State private var chatConversation: Conversation? = nil
     @State private var messagingStaffId: UUID? = nil   // tracks in-flight "Message" tap
+    @State private var dotsVisible: Bool = false          // shows page dots during swipe
 
     enum FeedSort: String, CaseIterable {
         case recent = "Recent"
@@ -51,7 +52,7 @@ struct HomeFeedView: View {
                         .font(.system(.headline, design: .rounded))
                     Spacer()
                     Menu {
-                        ForEach(FeedSort.allCases, id: \.self) { opt in
+                        ForEach(FeedSort.allCases, id: \ .self) { opt in
                             Button {
                                 sortOption = opt
                             } label: {
@@ -124,7 +125,6 @@ struct HomeFeedView: View {
                     ChatListView()
                 } label: {
                     ZStack(alignment: .topTrailing) {
-//                        Image(systemName: "bubble.left")
                         Image(systemName: "bubble.left")
                             .font(.system(size: 16, weight: .semibold))
 
@@ -139,7 +139,7 @@ struct HomeFeedView: View {
                 }
             }
         }
-                .sheet(isPresented: $showBooking) {
+        .sheet(isPresented: $showBooking) {
             if let staff = bookingStaff {
                 BookingSessionView(staff: staff)
                     .environmentObject(store)
@@ -182,24 +182,47 @@ struct HomeFeedView: View {
         }
         .scrollTargetBehavior(.viewAligned)
         .scrollPosition(id: $selectedStaffIndex)
+        .overlay(alignment: .bottom) {
+            if staffCards.count > 1 {
+                HStack(spacing: 7) {
+                    ForEach(0..<staffCards.count, id: \.self) { i in
+                        Circle()
+                            .fill((selectedStaffIndex ?? 0) == i ? EPTheme.accent : Color.gray.opacity(0.45))
+                            .frame(width: 7, height: 7)
+                    }
+                }
+                .padding(.vertical, 6)
+                .padding(.horizontal, 14)
+                .background(Capsule().fill(.ultraThinMaterial))
+                .opacity(dotsVisible ? 1 : 0)
+                .animation(.easeInOut(duration: 0.25), value: dotsVisible)
+                .padding(.bottom, 8)
+            }
+        }
+        .onChange(of: selectedStaffIndex) { _, _ in
+            dotsVisible = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
+                dotsVisible = false
+            }
+        }
     }
 
     private func staffCard(_ staff: StaffMember, index: Int) -> some View {
         EPCard {
-            VStack(alignment: .leading, spacing: 12) {
-                // Header row: avatar + name + shift badge
+            VStack(alignment: .leading, spacing: 10) {
+                // Header row: avatar + name/credentials/specialties
                 HStack(spacing: 12) {
                     // Avatar from Assets
                     Image(staff.name.replacingOccurrences(of: " ", with: ""))
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: 60, height: 60)
-                        .offset(y: 15)          // shift upward to crop bottom of full‑body shots
+                        .frame(width: 65, height: 65)
+                        .offset(y: 15)
                         .clipShape(Circle())
-                         .overlay(Circle().stroke(staff.role == .coach ? EPTheme.accent : .green, lineWidth: 2.5)
-                         )
+                        .overlay(Circle().stroke(EPTheme.accent.opacity(0.4), lineWidth: 2))
 
                     VStack(alignment: .leading, spacing: 4) {
+                        // Name + Role badge
                         HStack(spacing: 6) {
                             Text(staff.name)
                                 .font(.system(.headline, design: .rounded))
@@ -208,36 +231,55 @@ struct HomeFeedView: View {
                                 .foregroundStyle(.white)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 2)
-                                .background(Capsule().fill(staff.role == .coach ? EPTheme.accent : .green))
+                                .background(Capsule().fill(EPTheme.accent))
                         }
 
-                        Text(staff.shift.label + " Shift · " + staff.shift.displayRange)
+                        // Credentials as subtitle
+                        Text(staff.credentials.joined(separator: " · "))
                             .font(.system(.caption, design: .rounded))
                             .foregroundStyle(EPTheme.softText)
+                            .lineLimit(1)
 
-                        // Credentials
+                        // Specialty pills
                         HStack(spacing: 4) {
-                            ForEach(staff.credentials.prefix(3), id: \.self) { cred in
-                                Text(cred)
-                                    .font(.system(size: 9, design: .rounded).weight(.medium))
-                                    .foregroundStyle(EPTheme.softText)
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 2)
-                                    .background(Capsule().fill(EPTheme.softText.opacity(0.10)))
+                            ForEach(staff.specialties.prefix(3), id: \.self) { spec in
+                                Text(spec)
+                                    .font(.system(size: 10, design: .rounded).weight(.medium))
+                                    .foregroundStyle(Color.primary.opacity(0.7))
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 3)
+                                    .background(Capsule().fill(Color.primary.opacity(0.06)))
                             }
                         }
                     }
                     Spacer()
                 }
 
-                // Bio
-                Text(staff.bio)
-                .font(.system(.caption, design: .rounded))
-                .foregroundStyle(EPTheme.softText)
-                .lineLimit(2)
+                // Shift / Available Now line
+                HStack(spacing: 6) {
+                    if staff.isOnShift {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 12))
+                            .foregroundStyle(.green)
+                        Text("Available Now")
+                            .font(.system(.caption, design: .rounded).weight(.semibold))
+                            .foregroundStyle(.green)
+                        Text("·")
+                            .foregroundStyle(EPTheme.softText)
+                    }
+                    Text(staff.shift.label + " Shift · " + staff.shift.displayRange)
+                        .font(.system(.caption, design: .rounded))
+                        .foregroundStyle(EPTheme.softText)
+                }
 
-                // Action buttons (match Coaching/Nutrition views)
-                HStack(spacing: 12) {
+                // Motivational quote (replaces bio)
+                Text(staff.motivationalQuote)
+                    .font(.system(.subheadline, design: .rounded).weight(.medium))
+                    .foregroundStyle(Color.primary.opacity(0.8))
+                    .padding(.vertical, 4)
+
+                // Action buttons — icon + label, .caption sized to fit
+                HStack(spacing: 10) {
                     Button {
                         guard messagingStaffId == nil else { return }
                         messagingStaffId = staff.id
@@ -257,15 +299,18 @@ struct HomeFeedView: View {
                         HStack(spacing: 6) {
                             if messagingStaffId == staff.id {
                                 ProgressView()
-                                    .scaleEffect(0.8)
+                                    .scaleEffect(0.7)
                             } else {
                                 Image(systemName: "bubble.left.fill")
+                                    .font(.system(size: 12))
                             }
-                            Text("Message")
-                                .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                            Text(staff.role == .coach ? "Message Coach" : "Message Nutritionist")
+                                .font(.system(.caption, design: .rounded).weight(.semibold))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 9)
+                        .frame(height: 36)
                         .background(Capsule().fill(EPTheme.accent.opacity(0.12)))
                         .foregroundStyle(EPTheme.accent)
                     }
@@ -277,31 +322,20 @@ struct HomeFeedView: View {
                         showBooking = true
                     } label: {
                         HStack(spacing: 6) {
-                            Image(systemName: "calendar.badge.plus")
-                            Text("Book")
-                                .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                            Image(systemName: "calendar")
+                                .font(.system(size: 12))
+                            Text(staff.role == .coach ? "Book 1-1 Session" : "Book Nutrition Session")
+                                .font(.system(.caption, design: .rounded).weight(.semibold))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 9)
+                        .frame(height: 36)
                         .background(Capsule().fill(EPTheme.accent))
                         .foregroundStyle(.white)
                     }
                     .buttonStyle(.plain)
                 }
-
-                // Dots (inside card, below content)
-                HStack(spacing: 6) {
-                    ForEach(0..<staffCards.count, id: \.self) { i in
-                        Circle()
-                            .fill((selectedStaffIndex ?? 0) == i ? EPTheme.accent : Color.gray.opacity(0.4))
-                            .frame(width: 7, height: 7)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.top, 4)
-                .padding(.bottom, 2)
-                .opacity((selectedStaffIndex ?? 0) == index ? 1 : 0)
-                .animation(.easeInOut(duration: 0.15), value: selectedStaffIndex)
             }
         }
     }
@@ -315,7 +349,7 @@ struct HomeFeedView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "building.2.fill")
                         .font(.system(size: 12))
-                        .foregroundStyle(EPTheme.accent)
+                        .foregroundStyle(EPTheme.softText)
 
                     if !post.communityName.isEmpty {
                         NavigationLink {
@@ -323,7 +357,7 @@ struct HomeFeedView: View {
                         } label: {
                             Text(post.communityName)
                                 .font(.system(.caption, design: .rounded).weight(.semibold))
-                                .foregroundStyle(EPTheme.accent)
+                                .foregroundStyle(Color.primary.opacity(0.7))
                         }
                         .buttonStyle(.plain)
 
@@ -340,7 +374,7 @@ struct HomeFeedView: View {
                     } label: {
                         Text(post.groupName)
                             .font(.system(.caption, design: .rounded).weight(.medium))
-                            .foregroundStyle(EPTheme.accent.opacity(0.8))
+                            .foregroundStyle(EPTheme.softText)
                     }
                     .buttonStyle(.plain)
 
@@ -350,11 +384,11 @@ struct HomeFeedView: View {
                 HStack {
                     ZStack {
                         Circle()
-                            .fill(EPTheme.accent.opacity(0.15))
+                            .fill(Color.primary.opacity(0.08))
                             .frame(width: 32, height: 32)
                         Text(String(post.author.prefix(1)))
                             .font(.system(.caption, design: .rounded).weight(.bold))
-                            .foregroundStyle(EPTheme.accent)
+                            .foregroundStyle(Color.primary.opacity(0.6))
                     }
 
                     VStack(alignment: .leading, spacing: 1) {

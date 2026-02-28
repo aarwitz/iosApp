@@ -7,6 +7,7 @@ struct NutritionView: View {
     @State private var staffToBook: StaffMember?
     @State private var showChat = false
     @State private var staffToMessage: StaffMember?
+    @State private var dotsVisible: Bool = false
     @State private var mealCardIndex: Int = 0
     @State private var selectedTag: String? = nil
     @State private var showMealScanner = false
@@ -67,6 +68,7 @@ struct NutritionView: View {
         }
         .navigationTitle("Nutrition")
         .navigationBarTitleDisplayMode(.inline)
+        .background(EPTheme.pageBackground, ignoresSafeAreaEdges: .all)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 chatButton
@@ -106,11 +108,34 @@ struct NutritionView: View {
         }
         .scrollTargetBehavior(.viewAligned)
         .scrollPosition(id: $selectedStaffIndex)
+        .overlay(alignment: .bottom) {
+            if nutritionists.count > 1 {
+                HStack(spacing: 7) {
+                    ForEach(0..<nutritionists.count, id: \.self) { i in
+                        Circle()
+                            .fill((selectedStaffIndex ?? 0) == i ? EPTheme.accent : Color.gray.opacity(0.45))
+                            .frame(width: 7, height: 7)
+                    }
+                }
+                .padding(.vertical, 6)
+                .padding(.horizontal, 14)
+                .background(Capsule().fill(.ultraThinMaterial))
+                .opacity(dotsVisible ? 1 : 0)
+                .animation(.easeInOut(duration: 0.25), value: dotsVisible)
+                .padding(.bottom, 8)
+            }
+        }
+        .onChange(of: selectedStaffIndex) { _, _ in
+            dotsVisible = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
+                dotsVisible = false
+            }
+        }
     }
 
     private func nutritionistCard(_ nutritionist: StaffMember, index: Int) -> some View {
         EPCard {
-            VStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 10) {
 
                 HStack(spacing: 12) {
                     // Avatar from Assets
@@ -120,7 +145,7 @@ struct NutritionView: View {
                         .frame(width: 70, height: 70)
                         .offset(y: 15)
                         .clipShape(Circle())
-                        .overlay(Circle().stroke(.green, lineWidth: 2.5))
+                        .overlay(Circle().stroke(EPTheme.accent.opacity(0.4), lineWidth: 2))
 
                     VStack(alignment: .leading, spacing: 4) {
                         HStack(spacing: 6) {
@@ -131,48 +156,70 @@ struct NutritionView: View {
                                 .foregroundStyle(.white)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 2)
-                                .background(Capsule().fill(Color.green))
+                                .background(Capsule().fill(EPTheme.accent))
                         }
 
-                        Text(nutritionist.shift.label + " Shift · " + nutritionist.shift.displayRange)
+                        // Credentials as subtitle
+                        Text(nutritionist.credentials.joined(separator: " · "))
                             .font(.system(.caption, design: .rounded))
                             .foregroundStyle(EPTheme.softText)
+                            .lineLimit(1)
+
+                        // Specialty pills
+                        HStack(spacing: 4) {
+                            ForEach(nutritionist.specialties.prefix(3), id: \.self) { spec in
+                                Text(spec)
+                                    .font(.system(size: 10, design: .rounded).weight(.medium))
+                                    .foregroundStyle(Color.primary.opacity(0.7))
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 3)
+                                    .background(Capsule().fill(Color.primary.opacity(0.06)))
+                            }
+                        }
                     }
                     Spacer()
                 }
 
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 4) {
-                        ForEach(nutritionist.credentials, id: \.self) { cred in
-                            Text(cred)
-                                .font(.system(size: 9, design: .rounded).weight(.medium))
-                                .foregroundStyle(EPTheme.softText)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Capsule().fill(EPTheme.softText.opacity(0.10)))
-                        }
+                // Shift / Available Now line
+                HStack(spacing: 6) {
+                    if nutritionist.isOnShift {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 12))
+                            .foregroundStyle(.green)
+                        Text("Available Now")
+                            .font(.system(.caption, design: .rounded).weight(.semibold))
+                            .foregroundStyle(.green)
+                        Text("·")
+                            .foregroundStyle(EPTheme.softText)
                     }
+                    Text(nutritionist.shift.label + " Shift · " + nutritionist.shift.displayRange)
+                        .font(.system(.caption, design: .rounded))
+                        .foregroundStyle(EPTheme.softText)
                 }
 
-                Text(nutritionist.bio)
-                    .font(.system(.caption, design: .rounded))
-                    .foregroundStyle(EPTheme.softText)
-                    .lineLimit(2)
+                // Motivational quote
+                Text(nutritionist.motivationalQuote)
+                    .font(.system(.subheadline, design: .rounded).weight(.medium))
+                    .foregroundStyle(Color.primary.opacity(0.8))
+                    .padding(.vertical, 4)
 
-                HStack(spacing: 12) {
+                HStack(spacing: 10) {
                     Button {
                         staffToMessage = nutritionist
                         showChat = true
                     } label: {
                         HStack(spacing: 6) {
                             Image(systemName: "bubble.left.fill")
-                            Text("Message")
+                                .font(.system(size: 12))
+                            Text("Message Nutritionist")
+                                .font(.system(.caption, design: .rounded).weight(.semibold))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
                         }
-                        .font(.system(.subheadline, design: .rounded).weight(.semibold))
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(Capsule().fill(Color.green.opacity(0.12)))
-                        .foregroundStyle(.green)
+                        .frame(height: 36)
+                        .background(Capsule().fill(EPTheme.accent.opacity(0.12)))
+                        .foregroundStyle(EPTheme.accent)
                     }
 
                     Button {
@@ -180,30 +227,19 @@ struct NutritionView: View {
                         showBooking = true
                     } label: {
                         HStack(spacing: 6) {
-                            Image(systemName: "calendar.badge.plus")
-                            Text("Book")
+                            Image(systemName: "calendar")
+                                .font(.system(size: 12))
+                            Text("Book Nutrition Session")
+                                .font(.system(.caption, design: .rounded).weight(.semibold))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
                         }
-                        .font(.system(.subheadline, design: .rounded).weight(.semibold))
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(Capsule().fill(Color.green))
+                        .frame(height: 36)
+                        .background(Capsule().fill(EPTheme.accent))
                         .foregroundStyle(.white)
                     }
                 }
-
-                // Dots (inside card, below content)
-                HStack(spacing: 6) {
-                    ForEach(0..<nutritionists.count, id: \.self) { i in
-                        Circle()
-                            .fill((selectedStaffIndex ?? 0) == i ? .green : Color.gray.opacity(0.4))
-                            .frame(width: 7, height: 7)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.top, 4)
-                .padding(.bottom, 2)
-                .opacity((selectedStaffIndex ?? 0) == index ? 1 : 0)
-                .animation(.easeInOut(duration: 0.15), value: selectedStaffIndex)
             }
         }
         .padding(.horizontal, 2)
@@ -297,11 +333,11 @@ struct NutritionView: View {
         HStack(spacing: 12) {
             ZStack {
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(meal.nutritionistRecommended ? Color.green.opacity(0.12) : EPTheme.accent.opacity(0.08))
+                    .fill(EPTheme.accent.opacity(meal.nutritionistRecommended ? 0.12 : 0.08))
                     .frame(width: 44, height: 44)
                 Image(systemName: meal.nutritionistRecommended ? "leaf.fill" : "fork.knife")
                     .font(.system(size: 18))
-                    .foregroundStyle(meal.nutritionistRecommended ? .green : EPTheme.accent)
+                    .foregroundStyle(EPTheme.accent)
             }
 
             VStack(alignment: .leading, spacing: 2) {
@@ -311,7 +347,7 @@ struct NutritionView: View {
                     if meal.nutritionistRecommended {
                         Image(systemName: "checkmark.seal.fill")
                             .font(.system(size: 10))
-                            .foregroundStyle(.green)
+                            .foregroundStyle(EPTheme.accent)
                     }
                 }
                 Text(meal.restaurant)
@@ -610,7 +646,7 @@ struct NutritionView: View {
             VStack(spacing: 16) {
                 Image(systemName: "bubble.left.fill")
                     .font(.system(size: 44))
-                    .foregroundStyle(Color.green.opacity(0.6))
+                    .foregroundStyle(EPTheme.accent.opacity(0.6))
                 Text("Chat with \(staff.name)")
                     .font(.system(.title3, design: .rounded).weight(.bold))
                 Text("Messaging will be available in a future update. For now, book a session to connect.")

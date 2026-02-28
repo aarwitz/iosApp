@@ -7,6 +7,7 @@ struct CoachingView: View {
     @State private var staffToBook: StaffMember?
     @State private var showChat = false
     @State private var staffToMessage: StaffMember?
+    @State private var dotsVisible: Bool = false
 
     // chat button helps keep top-right icon consistent across tabs
     private var chatButton: some View {
@@ -54,6 +55,7 @@ struct CoachingView: View {
         }
         .navigationTitle("Coaching")
         .navigationBarTitleDisplayMode(.inline)
+        .background(EPTheme.pageBackground, ignoresSafeAreaEdges: .all)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 chatButton
@@ -87,13 +89,36 @@ struct CoachingView: View {
         }
         .scrollTargetBehavior(.viewAligned)
         .scrollPosition(id: $selectedStaffIndex)
+        .overlay(alignment: .bottom) {
+            if coaches.count > 1 {
+                HStack(spacing: 7) {
+                    ForEach(0..<coaches.count, id: \.self) { i in
+                        Circle()
+                            .fill((selectedStaffIndex ?? 0) == i ? EPTheme.accent : Color.gray.opacity(0.45))
+                            .frame(width: 7, height: 7)
+                    }
+                }
+                .padding(.vertical, 6)
+                .padding(.horizontal, 14)
+                .background(Capsule().fill(.ultraThinMaterial))
+                .opacity(dotsVisible ? 1 : 0)
+                .animation(.easeInOut(duration: 0.25), value: dotsVisible)
+                .padding(.bottom, 8)
+            }
+        }
+        .onChange(of: selectedStaffIndex) { _, _ in
+            dotsVisible = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
+                dotsVisible = false
+            }
+        }
     }
 
     private func coachCard(_ coach: StaffMember, index: Int) -> some View {
         EPCard {
-            VStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 10) {
 
-                // Avatar + Name/Role
+                // Avatar + Name/Credentials/Specialties
                 HStack(spacing: 12) {
                     // Avatar from Assets
                     Image(coach.name.replacingOccurrences(of: " ", with: ""))
@@ -102,7 +127,7 @@ struct CoachingView: View {
                         .frame(width: 70, height: 70)
                         .offset(y: 15)
                         .clipShape(Circle())
-                        .overlay(Circle().stroke(EPTheme.accent, lineWidth: 2.5))
+                        .overlay(Circle().stroke(EPTheme.accent.opacity(0.4), lineWidth: 2))
 
                     VStack(alignment: .leading, spacing: 4) {
                         HStack(spacing: 6) {
@@ -116,46 +141,66 @@ struct CoachingView: View {
                                 .background(Capsule().fill(EPTheme.accent))
                         }
 
-                        Text(coach.shift.label + " Shift · " + coach.shift.displayRange)
+                        // Credentials as subtitle
+                        Text(coach.credentials.joined(separator: " · "))
                             .font(.system(.caption, design: .rounded))
                             .foregroundStyle(EPTheme.softText)
+                            .lineLimit(1)
+
+                        // Specialty pills
+                        HStack(spacing: 4) {
+                            ForEach(coach.specialties.prefix(3), id: \.self) { spec in
+                                Text(spec)
+                                    .font(.system(size: 10, design: .rounded).weight(.medium))
+                                    .foregroundStyle(Color.primary.opacity(0.7))
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 3)
+                                    .background(Capsule().fill(Color.primary.opacity(0.06)))
+                            }
+                        }
                     }
                     Spacer()
                 }
 
-                // Credentials (matching HomeFeed style)
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 4) {
-                        ForEach(coach.credentials, id: \.self) { cred in
-                            Text(cred)
-                                .font(.system(size: 9, design: .rounded).weight(.medium))
-                                .foregroundStyle(EPTheme.softText)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Capsule().fill(EPTheme.softText.opacity(0.10)))
-                        }
+                // Shift / Available Now line
+                HStack(spacing: 6) {
+                    if coach.isOnShift {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 12))
+                            .foregroundStyle(.green)
+                        Text("Available Now")
+                            .font(.system(.caption, design: .rounded).weight(.semibold))
+                            .foregroundStyle(.green)
+                        Text("·")
+                            .foregroundStyle(EPTheme.softText)
                     }
+                    Text(coach.shift.label + " Shift · " + coach.shift.displayRange)
+                        .font(.system(.caption, design: .rounded))
+                        .foregroundStyle(EPTheme.softText)
                 }
 
-                // Bio
-                Text(coach.bio)
-                    .font(.system(.caption, design: .rounded))
-                    .foregroundStyle(EPTheme.softText)
-                    .lineLimit(2)
+                // Motivational quote
+                Text(coach.motivationalQuote)
+                    .font(.system(.subheadline, design: .rounded).weight(.medium))
+                    .foregroundStyle(Color.primary.opacity(0.8))
+                    .padding(.vertical, 4)
 
-                // Action Buttons
-                HStack(spacing: 12) {
+                // Action Buttons — .caption sized, icon + label
+                HStack(spacing: 10) {
                     Button {
                         staffToMessage = coach
                         showChat = true
                     } label: {
                         HStack(spacing: 6) {
                             Image(systemName: "bubble.left.fill")
-                            Text("Message")
+                                .font(.system(size: 12))
+                            Text("Message Coach")
+                                .font(.system(.caption, design: .rounded).weight(.semibold))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
                         }
-                        .font(.system(.subheadline, design: .rounded).weight(.semibold))
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
+                        .frame(height: 36)
                         .background(Capsule().fill(EPTheme.accent.opacity(0.12)))
                         .foregroundStyle(EPTheme.accent)
                     }
@@ -165,30 +210,19 @@ struct CoachingView: View {
                         showBooking = true
                     } label: {
                         HStack(spacing: 6) {
-                            Image(systemName: "calendar.badge.plus")
-                            Text("Book")
+                            Image(systemName: "calendar")
+                                .font(.system(size: 12))
+                            Text("Book 1-1 Session")
+                                .font(.system(.caption, design: .rounded).weight(.semibold))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
                         }
-                        .font(.system(.subheadline, design: .rounded).weight(.semibold))
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
+                        .frame(height: 36)
                         .background(Capsule().fill(EPTheme.accent))
                         .foregroundStyle(.white)
                     }
                 }
-
-                // Dots (inside card, below content)
-                HStack(spacing: 6) {
-                    ForEach(0..<coaches.count, id: \.self) { i in
-                        Circle()
-                            .fill((selectedStaffIndex ?? 0) == i ? EPTheme.accent : Color.gray.opacity(0.4))
-                            .frame(width: 7, height: 7)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.top, 4)
-                .padding(.bottom, 2)
-                .opacity((selectedStaffIndex ?? 0) == index ? 1 : 0)
-                .animation(.easeInOut(duration: 0.15), value: selectedStaffIndex)
             }
         }
         .padding(.horizontal, 2)

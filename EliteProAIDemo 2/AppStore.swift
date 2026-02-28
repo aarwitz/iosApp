@@ -625,7 +625,9 @@ final class AppStore: ObservableObject {
             StaffMember(
                 name: "Jason Chen", role: .coach,
                 credentials: ["NASM-CPT", "BS Kinesiology", "TRX Certified"],
+                specialties: ["Strength", "Mobility", "Functional"],
                 bio: "Strength & mobility specialist. 8 years experience helping residents move better and feel great.",
+                motivationalQuote: "🔥 You're 1 workout away from your weekly goal!",
                 avatarPlaceholder: "figure.strengthtraining.traditional",
                 shift: morningShift,
                 availableSlots: slots(for: morningShift),
@@ -634,7 +636,9 @@ final class AppStore: ObservableObject {
             StaffMember(
                 name: "Andre Silva", role: .coach,
                 credentials: ["CSCS", "MS Exercise Science", "USA Weightlifting L2"],
+                specialties: ["Hypertrophy", "Olympic Lifting", "Powerlifting"],
                 bio: "Hypertrophy and performance coach. Former collegiate athlete passionate about helping you hit PRs.",
+                motivationalQuote: "💪 Only 2 evening slots left this week — lock yours in!",
                 avatarPlaceholder: "dumbbell.fill",
                 shift: afternoonShift,
                 availableSlots: slots(for: afternoonShift),
@@ -642,8 +646,10 @@ final class AppStore: ObservableObject {
             ),
             StaffMember(
                 name: "Sarah Martinez", role: .coach,
-                credentials: ["ACE-CPT", "Precision Nutrition L1", "HIIT Specialist"],
+                credentials: ["ACE-CPT", "Precision Nutrition L1"],
+                specialties: ["HIIT", "Fat Loss", "Functional Fitness"],
                 bio: "High-energy HIIT & functional fitness coach. Let's build a workout you actually love.",
+                motivationalQuote: "⚡ This week decides next month's results.",
                 avatarPlaceholder: "bolt.heart.fill",
                 shift: eveningShift,
                 availableSlots: slots(for: eveningShift),
@@ -653,7 +659,9 @@ final class AppStore: ObservableObject {
             StaffMember(
                 name: "Priya Nair", role: .nutritionist,
                 credentials: ["RDN", "MS Clinical Nutrition", "CSSD"],
+                specialties: ["Sports Nutrition", "Meal Prep", "Recovery"],
                 bio: "Registered dietitian specializing in sports nutrition and sustainable meal planning.",
+                motivationalQuote: "🥤 Log a meal today to earn a 150-point reward!",
                 avatarPlaceholder: "leaf.fill",
                 shift: morningShift,
                 availableSlots: slots(for: morningShift),
@@ -662,7 +670,9 @@ final class AppStore: ObservableObject {
             StaffMember(
                 name: "Marcus Lee", role: .nutritionist,
                 credentials: ["CNS", "BS Nutrition Science", "Gut Health Cert."],
+                specialties: ["Gut Health", "Anti-Inflammatory", "Supplements"],
                 bio: "Certified nutrition specialist focused on gut health and anti-inflammatory eating.",
+                motivationalQuote: "🍽️ Fuel your next workout properly — book a check-in!",
                 avatarPlaceholder: "carrot.fill",
                 shift: afternoonShift,
                 availableSlots: slots(for: afternoonShift),
@@ -671,7 +681,9 @@ final class AppStore: ObservableObject {
             StaffMember(
                 name: "Elena Torres", role: .nutritionist,
                 credentials: ["RD", "Certified Diabetes Educator", "Plant-Based Cert."],
+                specialties: ["Plant-Based", "Diabetes Mgmt", "Weight Loss"],
                 bio: "Plant-forward nutrition expert. Making healthy eating simple, affordable, and delicious.",
+                motivationalQuote: "✨ Don't let momentum slip — your future self will thank you!",
                 avatarPlaceholder: "fork.knife",
                 shift: eveningShift,
                 availableSlots: slots(for: eveningShift),
