@@ -414,6 +414,71 @@ struct AmenityInvitation: Identifiable {
 
 // MARK: – Shared Community Filter
 
+// MARK: – Scheduled Event
+
+struct ScheduledEvent: Identifiable {
+    let id: UUID
+    let title: String
+    let type: EventType
+    let time: Date
+    let duration: Int  // minutes
+    let location: String
+    let trainer: String?
+
+    init(id: UUID = UUID(), title: String, type: EventType, time: Date, duration: Int, location: String, trainer: String? = nil) {
+        self.id = id
+        self.title = title
+        self.type = type
+        self.time = time
+        self.duration = duration
+        self.location = location
+        self.trainer = trainer
+    }
+
+    enum EventType {
+        case coaching
+        case groupClass
+        case nutrition
+        case community
+
+        var icon: String {
+            switch self {
+            case .coaching: return "person.fill"
+            case .groupClass: return "figure.run"
+            case .nutrition: return "leaf.fill"
+            case .community: return "person.3.fill"
+            }
+        }
+
+        var color: Color {
+            switch self {
+            case .coaching: return .blue
+            case .groupClass: return .green
+            case .nutrition: return .orange
+            case .community: return .purple
+            }
+        }
+    }
+
+    /// Short display label — e.g. "Session with Jason" or "Pickleball at Ballers"
+    var shortLabel: String {
+        switch type {
+        case .coaching:
+            if let t = trainer?.components(separatedBy: " ").first {
+                return "Session with \(t)"
+            }
+            return title
+        case .nutrition:
+            if let t = trainer?.components(separatedBy: " ").first {
+                return "Check-in with \(t)"
+            }
+            return title
+        case .groupClass, .community:
+            return "\(title) at \(location)"
+        }
+    }
+}
+
 enum CommunityFilter: String, CaseIterable, Codable {
     case echelon = "Echelon"
     case barkan = "Barkan Mgmt. Buildings"

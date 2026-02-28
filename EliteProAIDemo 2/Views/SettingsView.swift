@@ -18,7 +18,7 @@ struct SettingsView: View {
                 EPCard {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Account")
-                            .font(.system(.headline, design: .rounded))
+                            .font(.system(.headline, design: .serif))
 
                         Button {
                             showEditProfile = true
@@ -48,7 +48,7 @@ struct SettingsView: View {
                 EPCard {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Preferences")
-                            .font(.system(.headline, design: .rounded))
+                            .font(.system(.headline, design: .serif))
 
                         Toggle(isOn: $notificationsEnabled) {
                             HStack(spacing: 10) {
@@ -89,7 +89,7 @@ struct SettingsView: View {
                 EPCard {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Data & Storage")
-                            .font(.system(.headline, design: .rounded))
+                            .font(.system(.headline, design: .serif))
 
                         settingsRow(icon: "arrow.down.circle", title: "Download My Data", action: {})
                         Divider().overlay(EPTheme.divider)
@@ -107,7 +107,7 @@ struct SettingsView: View {
                 EPCard {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Support")
-                            .font(.system(.headline, design: .rounded))
+                            .font(.system(.headline, design: .serif))
 
                         settingsRow(icon: "questionmark.circle", title: "Help Center", action: {})
                         Divider().overlay(EPTheme.divider)

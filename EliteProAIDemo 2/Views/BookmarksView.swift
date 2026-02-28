@@ -20,11 +20,11 @@ struct BookmarksView: View {
                                 .font(.system(size: 24))
                                 .foregroundStyle(EPTheme.accent)
                             Text("Bookmarks")
-                                .font(.system(.title3, design: .rounded).weight(.semibold))
+                                .font(.system(.title3, design: .serif).weight(.semibold))
                         }
                         Text("Your saved challenges, posts, and groups")
                             .foregroundStyle(EPTheme.softText)
-                            .font(.system(.subheadline, design: .rounded))
+                            .font(.system(.subheadline, design: .serif))
                     }
                 }
 
@@ -59,9 +59,9 @@ struct BookmarksView: View {
                                 .font(.system(size: 48))
                                 .foregroundStyle(EPTheme.softText)
                             Text("No bookmarks yet")
-                                .font(.system(.headline, design: .rounded))
+                                .font(.system(.headline, design: .serif))
                             Text("Bookmark posts, challenges, and groups to find them later")
-                                .font(.system(.subheadline, design: .rounded))
+                                .font(.system(.subheadline, design: .serif))
                                 .foregroundStyle(EPTheme.softText)
                                 .multilineTextAlignment(.center)
                         }
@@ -79,7 +79,7 @@ struct BookmarksView: View {
     private func sectionHeader(title: String) -> some View {
         HStack {
             Text(title)
-                .font(.system(.headline, design: .rounded))
+                .font(.system(.headline, design: .serif))
                 .foregroundStyle(EPTheme.softText)
             Spacer()
         }
@@ -100,7 +100,7 @@ struct BookmarksView: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
-                        .font(.system(.subheadline, design: .rounded).weight(.medium))
+                        .font(.system(.subheadline, design: .serif).weight(.medium))
                     Text(subtitle)
                         .font(.system(.caption, design: .rounded))
                         .foregroundStyle(EPTheme.softText)

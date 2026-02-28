@@ -13,6 +13,7 @@ final class AppStore: ObservableObject {
     @Published var showSettings: Bool = false
     @Published var showBookmarks: Bool = false
     @Published var showChallenges: Bool = false
+    @Published var showConnector: Bool = false
     @Published var showNotifications: Bool = false
     @Published var showSchedule: Bool = false
     @Published var communityFilter: CommunityFilter = .usa
@@ -46,6 +47,7 @@ final class AppStore: ObservableObject {
     @Published var mealSuggestions: [MealSuggestion] = []
     @Published var quickRecipes: [QuickRecipe] = []
     @Published var bookedSessions: [BookedSession] = []
+    @Published var todaySchedule: [ScheduledEvent] = []
 
     private let filename = "elitepro_demo_store.json"
 
@@ -599,9 +601,10 @@ final class AppStore: ObservableObject {
         ]
         
         // MARK: – Staff Members (Coaches & Nutritionists with shifts)
-        let morningShift = StaffShift(label: "Morning", startHour: 6, endHour: 12, displayRange: "6 AM – 12 PM")
+        // Shifts cover all 24 hours so at least one staff member is always "Available Now"
+        let morningShift = StaffShift(label: "Morning", startHour: 0, endHour: 12, displayRange: "6 AM – 12 PM")
         let afternoonShift = StaffShift(label: "Afternoon", startHour: 12, endHour: 18, displayRange: "12 PM – 6 PM")
-        let eveningShift = StaffShift(label: "Evening", startHour: 18, endHour: 22, displayRange: "6 PM – 10 PM")
+        let eveningShift = StaffShift(label: "Evening", startHour: 18, endHour: 24, displayRange: "6 PM – 10 PM")
         
         let cal = Calendar.current
         let today = cal.startOfDay(for: Date())
@@ -691,6 +694,22 @@ final class AppStore: ObservableObject {
             )
         ]
         
+        // MARK: – Today's Schedule (demo events visible on Home + Schedule)
+        // Use fixed hours so events are always "today" regardless of when the app launches.
+        func scheduleTime(hour: Int, minute: Int = 0, daysFromNow: Int = 0) -> Date {
+            let base = cal.date(byAdding: .day, value: daysFromNow, to: today)!
+            return cal.date(bySettingHour: hour, minute: minute, second: 0, of: base)!
+        }
+        self.todaySchedule = [
+            ScheduledEvent(title: "1-on-1 Coaching", type: .coaching, time: scheduleTime(hour: 10), duration: 60, location: "Echelon Gym", trainer: "Jason Chen"),
+            ScheduledEvent(title: "Pickleball", type: .community, time: scheduleTime(hour: 12, minute: 30), duration: 60, location: "Ballers"),
+            ScheduledEvent(title: "HIIT Class", type: .groupClass, time: scheduleTime(hour: 16), duration: 45, location: "Studio A", trainer: "Sarah Martinez"),
+            ScheduledEvent(title: "Yoga Flow", type: .groupClass, time: scheduleTime(hour: 9, daysFromNow: 1), duration: 60, location: "Studio B", trainer: "Maya Patel"),
+            ScheduledEvent(title: "Nutrition Check-in", type: .nutrition, time: scheduleTime(hour: 11, daysFromNow: 2), duration: 30, location: "Virtual", trainer: "Priya Nair"),
+            ScheduledEvent(title: "Group Run", type: .community, time: scheduleTime(hour: 7, daysFromNow: 3), duration: 45, location: "Seaport"),
+            ScheduledEvent(title: "Strength Training", type: .coaching, time: scheduleTime(hour: 17, daysFromNow: 4), duration: 60, location: "Echelon Gym", trainer: "Andre Silva")
+        ]
+
         // MARK: – Meal Suggestions (Eat Smart Delivery)
         self.mealSuggestions = [
             MealSuggestion(name: "Chicken Protein Bowl", restaurant: "Cava", price: 12.49, tags: ["High Protein", "Gluten-Free"], imagePlaceholder: "takeoutbag.and.cup.and.straw.fill", previouslyOrdered: true, nutritionistRecommended: true, nutritionistName: "Priya Nair"),

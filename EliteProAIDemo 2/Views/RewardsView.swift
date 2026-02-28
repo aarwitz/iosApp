@@ -16,7 +16,7 @@ struct RewardsView: View {
                 // Ways to earn section
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Ways to Earn")
-                        .font(.system(.title2, design: .rounded).weight(.bold))
+                        .font(.system(.title2, design: .serif).weight(.bold))
                         .foregroundStyle(Color.primary)
                         .padding(.horizontal, 16)
                     
@@ -36,7 +36,7 @@ struct RewardsView: View {
                 // Redeem rewards section
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Redeem Rewards")
-                        .font(.system(.title2, design: .rounded).weight(.bold))
+                        .font(.system(.title2, design: .serif).weight(.bold))
                         .foregroundStyle(Color.primary)
                         .padding(.horizontal, 16)
                     
@@ -88,10 +88,10 @@ struct RewardsView: View {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Your Credits")
-                            .font(.system(.title3, design: .rounded).weight(.semibold))
+                            .font(.system(.title3, design: .serif).weight(.semibold))
                             .foregroundStyle(Color.primary)
                         Text("Earn from activities, redeem for perks")
-                            .font(.system(.subheadline, design: .rounded))
+                            .font(.system(.subheadline, design: .serif))
                             .foregroundStyle(EPTheme.softText)
                     }
                     
@@ -109,7 +109,7 @@ struct RewardsView: View {
                         .frame(width: 56, height: 56)
                         
                         Text("\(store.credits.current)")
-                            .font(.system(.title2, design: .rounded).weight(.bold))
+                            .font(.system(.title2, design: .serif).weight(.bold))
                             .foregroundStyle(Color.primary)
                     }
                 }
@@ -147,7 +147,7 @@ struct RewardsView: View {
                         }
                     } label: {
                         Text(category.rawValue)
-                            .font(.system(.subheadline, design: .rounded).weight(.medium))
+                            .font(.system(.subheadline, design: .serif).weight(.medium))
                             .foregroundStyle(selectedEarningCategory == category ? .black : Color.primary)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 8)
@@ -184,7 +184,7 @@ struct RewardsView: View {
                     
                     VStack(alignment: .leading, spacing: 4) {
                         Text(opportunity.title)
-                            .font(.system(.headline, design: .rounded).weight(.semibold))
+                            .font(.system(.headline, design: .serif).weight(.semibold))
                             .foregroundStyle(Color.primary)
                         
                         if let sponsor = opportunity.sponsorName {
@@ -204,7 +204,7 @@ struct RewardsView: View {
                         }
                         
                         Text(opportunity.description)
-                            .font(.system(.subheadline, design: .rounded))
+                            .font(.system(.subheadline, design: .serif))
                             .foregroundStyle(EPTheme.softText)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -242,7 +242,7 @@ struct RewardsView: View {
                         Image(systemName: "star.fill")
                             .font(.system(size: 12))
                         Text("+\(opportunity.creditsReward)")
-                            .font(.system(.subheadline, design: .rounded).weight(.bold))
+                            .font(.system(.subheadline, design: .serif).weight(.bold))
                     }
                     .foregroundStyle(.black)
                     .padding(.horizontal, 12)
@@ -258,7 +258,7 @@ struct RewardsView: View {
                     store.completeEarningOpportunity(opportunity.id)
                 } label: {
                     Text("Complete (Demo)")
-                        .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                        .font(.system(.subheadline, design: .serif).weight(.semibold))
                         .foregroundStyle(Color.primary)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
@@ -288,7 +288,7 @@ struct RewardsView: View {
                         }
                     } label: {
                         Text(category.rawValue)
-                            .font(.system(.subheadline, design: .rounded).weight(.medium))
+                            .font(.system(.subheadline, design: .serif).weight(.medium))
                             .foregroundStyle(selectedRewardCategory == category ? .black : Color.primary)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 8)
@@ -325,7 +325,7 @@ struct RewardsView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         HStack {
                             Text(reward.title)
-                                .font(.system(.headline, design: .rounded).weight(.semibold))
+                                .font(.system(.headline, design: .serif).weight(.semibold))
                                 .foregroundStyle(Color.primary)
                             
                             if reward.isLimited {
@@ -342,7 +342,7 @@ struct RewardsView: View {
                         }
                         
                         Text(reward.description)
-                            .font(.system(.subheadline, design: .rounded))
+                            .font(.system(.subheadline, design: .serif))
                             .foregroundStyle(EPTheme.softText)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -381,7 +381,7 @@ struct RewardsView: View {
                         }
                     } label: {
                         Text("Redeem")
-                            .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                            .font(.system(.subheadline, design: .serif).weight(.semibold))
                             .foregroundStyle(canAfford(reward) ? .black : EPTheme.softText)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 8)

@@ -39,7 +39,7 @@ struct CreateGroupView: View {
                             .font(.system(size: 36))
                             .foregroundStyle(.white)
                         Text("Start Something New")
-                            .font(.system(.title3, design: .rounded).weight(.bold))
+                            .font(.system(.title3, design: .serif).weight(.bold))
                             .foregroundStyle(.white)
                         Text("Create a group, invite friends, build community")
                             .font(.system(.caption, design: .rounded))
@@ -51,7 +51,7 @@ struct CreateGroupView: View {
                 EPCard {
                     VStack(alignment: .leading, spacing: 14) {
                         Label("Group Details", systemImage: "pencil.and.outline")
-                            .font(.system(.headline, design: .rounded))
+                            .font(.system(.headline, design: .serif))
 
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Name")
@@ -96,7 +96,7 @@ struct CreateGroupView: View {
                 EPCard {
                     VStack(alignment: .leading, spacing: 10) {
                         Label("Community", systemImage: "building.2")
-                            .font(.system(.headline, design: .rounded))
+                            .font(.system(.headline, design: .serif))
 
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 10) {
@@ -132,7 +132,7 @@ struct CreateGroupView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {
                             Label("Invite Friends", systemImage: "person.badge.plus")
-                                .font(.system(.headline, design: .rounded))
+                                .font(.system(.headline, design: .serif))
                             Spacer()
                             if !invitedFriends.isEmpty {
                                 Text("\(invitedFriends.count) invited")
@@ -145,7 +145,7 @@ struct CreateGroupView: View {
                             Image(systemName: "magnifyingglass")
                                 .foregroundStyle(EPTheme.softText)
                             TextField("Search friends…", text: $searchFriends)
-                                .font(.system(.subheadline, design: .rounded))
+                                .font(.system(.subheadline, design: .serif))
                         }
                         .padding(10)
                         .background(RoundedRectangle(cornerRadius: 10).fill(EPTheme.card.opacity(0.5)))
@@ -175,7 +175,7 @@ struct CreateGroupView: View {
                                                 .foregroundStyle(EPTheme.accent)
                                         }
                                         Text(friend.name)
-                                            .font(.system(.subheadline, design: .rounded))
+                                            .font(.system(.subheadline, design: .serif))
                                             .foregroundStyle(Color.primary)
                                         Spacer()
                                         Image(systemName: invitedFriends.contains(friend.id) ? "checkmark.circle.fill" : "circle")
@@ -205,7 +205,7 @@ struct CreateGroupView: View {
                     HStack {
                         Image(systemName: "plus.circle.fill")
                         Text("Create Group")
-                            .font(.system(.headline, design: .rounded).weight(.bold))
+                            .font(.system(.headline, design: .serif).weight(.bold))
                     }
                     .frame(maxWidth: .infinity)
                 }
@@ -220,12 +220,12 @@ struct CreateGroupView: View {
                                 .font(.system(size: 38))
                                 .foregroundStyle(EPTheme.accent)
                             Text("Group Created!")
-                                .font(.system(.headline, design: .rounded))
+                                .font(.system(.headline, design: .serif))
                             Text("You earned 12 credits")
                                 .font(.system(.caption, design: .rounded))
                                 .foregroundStyle(EPTheme.softText)
                             Button("Done") { dismiss() }
-                                .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                                .font(.system(.subheadline, design: .serif).weight(.semibold))
                                 .foregroundStyle(EPTheme.accent)
                                 .padding(.top, 4)
                         }

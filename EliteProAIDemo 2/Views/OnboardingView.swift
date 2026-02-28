@@ -36,7 +36,7 @@ struct OnboardingView: View {
                     showOnboarding = false
                 } label: {
                     Text("Get Started")
-                        .font(.system(.headline, design: .rounded).weight(.semibold))
+                        .font(.system(.headline, design: .serif).weight(.semibold))
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
@@ -50,7 +50,7 @@ struct OnboardingView: View {
                     showOnboarding = false
                 } label: {
                     Text("I already have an account")
-                        .font(.system(.subheadline, design: .rounded))
+                        .font(.system(.subheadline, design: .serif))
                         .foregroundStyle(EPTheme.accent)
                 }
             }
@@ -74,7 +74,7 @@ struct OnboardingView: View {
             }
 
             Text(page.title)
-                .font(.system(.title, design: .rounded).weight(.bold))
+                .font(.system(.title, design: .serif).weight(.bold))
 
             Text(page.subtitle)
                 .font(.system(.body, design: .rounded))

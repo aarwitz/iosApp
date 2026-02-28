@@ -16,10 +16,10 @@ struct NotificationsView: View {
                                 .font(.system(size: 16))
                                 .foregroundStyle(.blue)
                             Text("Friend Requests")
-                                .font(.system(.title3, design: .rounded).weight(.semibold))
+                                .font(.system(.title3, design: .serif).weight(.semibold))
                             Spacer()
                             Text("\(store.friendRequests.count)")
-                                .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                                .font(.system(.subheadline, design: .serif).weight(.semibold))
                                 .foregroundStyle(EPTheme.softText)
                         }
 
@@ -39,7 +39,7 @@ struct NotificationsView: View {
                                 .font(.system(size: 16))
                                 .foregroundStyle(EPTheme.accent)
                             Text("Invitations")
-                                .font(.system(.title3, design: .rounded).weight(.semibold))
+                                .font(.system(.title3, design: .serif).weight(.semibold))
                         }
 
                         ForEach(store.amenityInvitations) { invitation in
@@ -58,11 +58,11 @@ struct NotificationsView: View {
                                 .font(.system(size: 16))
                                 .foregroundStyle(.purple)
                             Text("Suggested Connections")
-                                .font(.system(.title3, design: .rounded).weight(.semibold))
+                                .font(.system(.title3, design: .serif).weight(.semibold))
                         }
 
                         Text("People you might want to meet")
-                            .font(.system(.subheadline, design: .rounded))
+                            .font(.system(.subheadline, design: .serif))
                             .foregroundStyle(EPTheme.softText)
 
                         ForEach(store.discoverableFriends.prefix(4)) { friend in
@@ -80,7 +80,7 @@ struct NotificationsView: View {
                             .font(.system(size: 16))
                             .foregroundStyle(.blue)
                         Text("Activity")
-                            .font(.system(.title3, design: .rounded).weight(.semibold))
+                            .font(.system(.title3, design: .serif).weight(.semibold))
                     }
 
                     if store.notifications.isEmpty {
@@ -91,7 +91,7 @@ struct NotificationsView: View {
                                     .font(.system(size: 32))
                                     .foregroundStyle(EPTheme.softText.opacity(0.4))
                                 Text("No activity yet")
-                                    .font(.system(.subheadline, design: .rounded))
+                                    .font(.system(.subheadline, design: .serif))
                                     .foregroundStyle(EPTheme.softText)
                             }
                             .padding(.vertical, 24)
@@ -137,7 +137,7 @@ struct NotificationsView: View {
                             )
                             .frame(width: 50, height: 50)
                         Text(initials(for: request.fromName))
-                            .font(.system(.headline, design: .rounded).weight(.bold))
+                            .font(.system(.headline, design: .serif).weight(.bold))
                             .foregroundStyle(.white)
                     }
 
@@ -167,7 +167,7 @@ struct NotificationsView: View {
                         Task { await store.acceptFriendRequest(request) }
                     } label: {
                         Text("Confirm")
-                            .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                            .font(.system(.subheadline, design: .serif).weight(.semibold))
                             .foregroundStyle(.black.opacity(0.85))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
@@ -179,7 +179,7 @@ struct NotificationsView: View {
                         Task { await store.declineFriendRequest(request) }
                     } label: {
                         Text("Delete")
-                            .font(.system(.subheadline, design: .rounded).weight(.medium))
+                            .font(.system(.subheadline, design: .serif).weight(.medium))
                             .foregroundStyle(EPTheme.softText)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
@@ -214,7 +214,7 @@ struct NotificationsView: View {
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text(invitation.fromFriend)
-                            .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                            .font(.system(.subheadline, design: .serif).weight(.semibold))
                         Text("invited you")
                             .font(.system(.caption, design: .rounded))
                             .foregroundStyle(EPTheme.softText)
@@ -265,7 +265,7 @@ struct NotificationsView: View {
 
                 // Message
                 Text(invitation.message)
-                    .font(.system(.subheadline, design: .rounded))
+                    .font(.system(.subheadline, design: .serif))
                     .foregroundStyle(Color.primary.opacity(0.9))
                     .padding(.top, 4)
 
@@ -275,7 +275,7 @@ struct NotificationsView: View {
                         // Accept invitation
                     } label: {
                         Text("Accept")
-                            .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                            .font(.system(.subheadline, design: .serif).weight(.semibold))
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
@@ -287,7 +287,7 @@ struct NotificationsView: View {
                         // Decline invitation
                     } label: {
                         Text("Maybe Later")
-                            .font(.system(.subheadline, design: .rounded).weight(.medium))
+                            .font(.system(.subheadline, design: .serif).weight(.medium))
                             .foregroundStyle(EPTheme.softText)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
@@ -321,13 +321,13 @@ struct NotificationsView: View {
                         )
                         .frame(width: 48, height: 48)
                     Text(friend.avatarInitials)
-                        .font(.system(.subheadline, design: .rounded).weight(.bold))
+                        .font(.system(.subheadline, design: .serif).weight(.bold))
                         .foregroundStyle(.white)
                 }
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text(friend.name)
-                        .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                        .font(.system(.subheadline, design: .serif).weight(.semibold))
                     HStack(spacing: 4) {
                         Image(systemName: "building.2.fill")
                             .font(.system(size: 9))
@@ -377,7 +377,7 @@ struct NotificationsView: View {
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(notif.title)
-                    .font(.system(.subheadline, design: .rounded).weight(notif.isRead ? .regular : .medium))
+                    .font(.system(.subheadline, design: .serif).weight(notif.isRead ? .regular : .medium))
                 if let body = notif.body, !body.isEmpty {
                     Text(body)
                         .font(.system(.caption, design: .rounded))

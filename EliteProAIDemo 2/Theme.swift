@@ -55,7 +55,7 @@ enum EPTheme {
 struct EPButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(.headline, design: .rounded))
+            .font(.system(.headline, design: .serif))
             .foregroundStyle(Color.primary.opacity(configuration.isPressed ? 0.7 : 1.0))
             .padding(.vertical, 14)
             .frame(maxWidth: .infinity)

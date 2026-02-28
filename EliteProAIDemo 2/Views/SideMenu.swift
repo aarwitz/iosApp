@@ -42,10 +42,10 @@ struct SideMenu: View {
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text(store.profile.name)
-                            .font(.system(.headline, design: .rounded))
+                            .font(.system(.headline, design: .serif))
                             .foregroundStyle(EPTheme.primaryText(for: colorScheme))
                         Text(store.profile.email)
-                            .font(.system(.subheadline, design: .rounded))
+                            .font(.system(.subheadline, design: .serif))
                             .foregroundStyle(EPTheme.softText(for: colorScheme))
                             .lineLimit(1)
                     }
@@ -77,11 +77,19 @@ struct SideMenu: View {
                 }
             }
 
-            MenuRow(icon: "gift", title: "Rewards") {
+            MenuRow(icon: "flag.checkered", title: "Challenges") {
                 store.selectedTab = .home
                 store.closeMenu()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    store.showRewards = true
+                    store.showChallenges = true
+                }
+            }
+
+            MenuRow(icon: "person.line.dotted.person", title: "Connector") {
+                store.selectedTab = .home
+                store.closeMenu()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    store.showConnector = true
                 }
             }
 
@@ -180,7 +188,7 @@ private struct MenuRow: View {
                 }
                 Text(title)
                     .foregroundStyle(EPTheme.primaryText(for: colorScheme))
-                    .font(.system(.headline, design: .rounded))
+                    .font(.system(.headline, design: .serif))
                 Spacer()
                 if badge > 0 {
                     Text("\(badge)")

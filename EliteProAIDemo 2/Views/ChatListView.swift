@@ -92,9 +92,9 @@ struct ChatListView: View {
                 .font(.system(size: 56))
                 .foregroundStyle(EPTheme.softText.opacity(0.4))
             Text("No Conversations Yet")
-                .font(.system(.title3, design: .rounded).weight(.semibold))
+                .font(.system(.title3, design: .serif).weight(.semibold))
             Text("Tap the compose button to start a new conversation with a friend.")
-                .font(.system(.subheadline, design: .rounded))
+                .font(.system(.subheadline, design: .serif))
                 .foregroundStyle(EPTheme.softText)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)
@@ -130,7 +130,7 @@ struct ChatListView: View {
                 
                 HStack {
                     Text(conversation.lastMessage.isEmpty ? "No messages yet" : conversation.lastMessage)
-                        .font(.system(.subheadline, design: .rounded))
+                        .font(.system(.subheadline, design: .serif))
                         .foregroundStyle(EPTheme.softText)
                         .italic(conversation.lastMessage.isEmpty)
                         .lineLimit(2)

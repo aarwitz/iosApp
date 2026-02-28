@@ -85,7 +85,7 @@ struct QRScannerView: View {
                         }
 
                         Text("Point at a friend's code to connect")
-                            .font(.system(.subheadline, design: .rounded))
+                            .font(.system(.subheadline, design: .serif))
                             .foregroundStyle(.white)
                             .padding(.top, 20)
 
@@ -138,9 +138,9 @@ struct QRScannerView: View {
                 .font(.system(size: 56))
                 .foregroundStyle(EPTheme.softText)
             Text("Camera Access Required")
-                .font(.system(.title3, design: .rounded).weight(.semibold))
+                .font(.system(.title3, design: .serif).weight(.semibold))
             Text("Go to Settings → EliteProAI → Camera to enable access, or enter the code manually below.")
-                .font(.system(.subheadline, design: .rounded))
+                .font(.system(.subheadline, design: .serif))
                 .foregroundStyle(EPTheme.softText)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
@@ -149,7 +149,7 @@ struct QRScannerView: View {
                 showManualEntry = true
             } label: {
                 Text("Enter Code Manually")
-                    .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                    .font(.system(.subheadline, design: .serif).weight(.semibold))
                     .foregroundStyle(Color.black.opacity(0.85))
                     .padding(.horizontal, 28)
                     .padding(.vertical, 12)
@@ -161,7 +161,7 @@ struct QRScannerView: View {
                     UIApplication.shared.open(url)
                 }
             }
-            .font(.system(.subheadline, design: .rounded))
+            .font(.system(.subheadline, design: .serif))
             .foregroundStyle(EPTheme.accent)
         }
         .padding()

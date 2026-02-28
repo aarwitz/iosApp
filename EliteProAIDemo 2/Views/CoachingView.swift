@@ -132,7 +132,7 @@ struct CoachingView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         HStack(spacing: 6) {
                             Text(coach.name)
-                                .font(.system(.headline, design: .rounded))
+                                .font(.system(.headline, design: .serif))
                             Text("Coach")
                                 .font(.system(.caption2, design: .rounded).weight(.semibold))
                                 .foregroundStyle(.white)
@@ -181,7 +181,7 @@ struct CoachingView: View {
 
                 // Motivational quote
                 Text(coach.motivationalQuote)
-                    .font(.system(.subheadline, design: .rounded).weight(.medium))
+                    .font(.system(.subheadline, design: .serif).weight(.medium))
                     .foregroundStyle(Color.primary.opacity(0.8))
                     .padding(.vertical, 4)
 
@@ -237,7 +237,7 @@ struct CoachingView: View {
             EPCard {
                 VStack(alignment: .leading, spacing: 10) {
                     Label("Upcoming Sessions", systemImage: "calendar")
-                        .font(.system(.headline, design: .rounded))
+                        .font(.system(.headline, design: .serif))
 
                     ForEach(coachSessions.prefix(3)) { session in
                         HStack(spacing: 10) {
@@ -247,7 +247,7 @@ struct CoachingView: View {
 
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(session.staffName)
-                                    .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                                    .font(.system(.subheadline, design: .serif).weight(.semibold))
                                 Text(session.date, style: .date)
                                     .font(.system(.caption, design: .rounded))
                                     .foregroundStyle(EPTheme.softText)
@@ -269,8 +269,8 @@ struct CoachingView: View {
     private var todaysProgramsSection: some View {
         EPCard {
             VStack(alignment: .leading, spacing: 12) {
-                Label("Today's Programs", systemImage: "flame.fill")
-                    .font(.system(.headline, design: .rounded))
+                Label("Today's Classes", systemImage: "flame.fill")
+                    .font(.system(.headline, design: .serif))
 
                 ForEach(demoProgramsList, id: \.title) { prog in
                     HStack(spacing: 12) {
@@ -284,7 +284,7 @@ struct CoachingView: View {
                         }
                         VStack(alignment: .leading, spacing: 2) {
                             Text(prog.title)
-                                .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                                .font(.system(.subheadline, design: .serif).weight(.semibold))
                             Text(prog.subtitle)
                                 .font(.system(.caption, design: .rounded))
                                 .foregroundStyle(EPTheme.softText)
@@ -306,7 +306,7 @@ struct CoachingView: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Label("Workout of the Day", systemImage: "bolt.fill")
-                        .font(.system(.headline, design: .rounded))
+                        .font(.system(.headline, design: .serif))
                     Spacer()
                     Text("35 min")
                         .font(.system(.caption, design: .rounded).weight(.bold))
@@ -332,7 +332,7 @@ struct CoachingView: View {
                         Image(systemName: "checkmark.circle.fill")
                         Text("Mark Complete")
                     }
-                    .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                    .font(.system(.subheadline, design: .serif).weight(.semibold))
                     .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(EPButtonStyle())
@@ -346,7 +346,7 @@ struct CoachingView: View {
                 .font(.system(size: 10))
                 .foregroundStyle(EPTheme.softText)
             Text(exercise)
-                .font(.system(.subheadline, design: .rounded))
+                .font(.system(.subheadline, design: .serif))
             Spacer()
             Text(reps)
                 .font(.system(.caption, design: .rounded).weight(.semibold))
@@ -365,10 +365,10 @@ struct CoachingView: View {
                         Text(coach.avatarPlaceholder)
                             .font(.system(size: 22))
                         Text("Coach's Tip of the Week")
-                            .font(.system(.headline, design: .rounded))
+                            .font(.system(.headline, design: .serif))
                     }
                     Text(coach.tipOfTheWeek ?? "Stay consistent – small daily efforts compound into big results.")
-                        .font(.system(.subheadline, design: .rounded))
+                        .font(.system(.subheadline, design: .serif))
                         .foregroundStyle(Color.primary.opacity(0.85))
                         .italic()
                 }
@@ -385,9 +385,9 @@ struct CoachingView: View {
                     .font(.system(size: 44))
                     .foregroundStyle(EPTheme.accent.opacity(0.6))
                 Text("Chat with \(staff.name)")
-                    .font(.system(.title3, design: .rounded).weight(.bold))
+                    .font(.system(.title3, design: .serif).weight(.bold))
                 Text("Messaging will be available in a future update. For now, book a session to connect.")
-                    .font(.system(.subheadline, design: .rounded))
+                    .font(.system(.subheadline, design: .serif))
                     .foregroundStyle(EPTheme.softText)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 32)
@@ -458,10 +458,10 @@ struct BookingSessionView: View {
                         // .overlay(Circle().stroke(staff.role == .coach ? EPTheme.accent : .green, lineWidth: 2.5))
 
                     Text("Book with \(staff.name)")
-                        .font(.system(.title3, design: .rounded).weight(.bold))
+                        .font(.system(.title3, design: .serif).weight(.bold))
 
                     Text(staff.shift.label + " Shift · " + staff.shift.displayRange)
-                        .font(.system(.subheadline, design: .rounded))
+                        .font(.system(.subheadline, design: .serif))
                         .foregroundStyle(EPTheme.softText)
                 }
                 .padding(.top, 20)
@@ -479,23 +479,23 @@ struct BookingSessionView: View {
                         }
 
                         Text("Session Booked!")
-                            .font(.system(.title2, design: .rounded).weight(.bold))
+                            .font(.system(.title2, design: .serif).weight(.bold))
 
                         if let slot = selectedSlot {
                             Text(slot, style: .date)
-                                .font(.system(.headline, design: .rounded))
+                                .font(.system(.headline, design: .serif))
                             Text(slot, style: .time)
-                                .font(.system(.subheadline, design: .rounded))
+                                .font(.system(.subheadline, design: .serif))
                                 .foregroundStyle(EPTheme.softText)
                         }
 
                         Text("Added to your Schedule")
-                            .font(.system(.subheadline, design: .rounded))
+                            .font(.system(.subheadline, design: .serif))
                             .foregroundStyle(EPTheme.softText)
 
                         Button { dismiss() } label: {
                             Text("Done")
-                                .font(.system(.headline, design: .rounded).weight(.semibold))
+                                .font(.system(.headline, design: .serif).weight(.semibold))
                                 .foregroundStyle(.white)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 14)
@@ -508,7 +508,7 @@ struct BookingSessionView: View {
                     .transition(.scale.combined(with: .opacity))
                 } else {
                     Text("Available Times")
-                        .font(.system(.headline, design: .rounded))
+                        .font(.system(.headline, design: .serif))
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 24)
 
@@ -518,9 +518,9 @@ struct BookingSessionView: View {
                                 .font(.system(size: 40))
                                 .foregroundStyle(EPTheme.softText.opacity(0.5))
                             Text("No slots available today")
-                                .font(.system(.headline, design: .rounded))
+                                .font(.system(.headline, design: .serif))
                             Text("Check back tomorrow — slots refresh at midnight.")
-                                .font(.system(.subheadline, design: .rounded))
+                                .font(.system(.subheadline, design: .serif))
                                 .foregroundStyle(EPTheme.softText)
                                 .multilineTextAlignment(.center)
                                 .padding(.horizontal, 24)
@@ -538,7 +538,7 @@ struct BookingSessionView: View {
                                 } label: {
                                     VStack(spacing: 4) {
                                         Text(slot, style: .time)
-                                            .font(.system(.headline, design: .rounded).weight(.semibold))
+                                            .font(.system(.headline, design: .serif).weight(.semibold))
                                         Text("60 min")
                                             .font(.system(.caption2, design: .rounded))
                                             .foregroundStyle(selectedSlot == slot ? .white.opacity(0.7) : EPTheme.softText)
@@ -573,7 +573,7 @@ struct BookingSessionView: View {
                         }
                     } label: {
                         Text("Confirm Booking")
-                            .font(.system(.headline, design: .rounded).weight(.semibold))
+                            .font(.system(.headline, design: .serif).weight(.semibold))
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)

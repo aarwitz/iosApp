@@ -15,8 +15,8 @@ struct GroupClassView: View {
                 ForEach(classes, id: \.0) { c in
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(c.0).font(.system(.headline, design: .rounded))
-                            Text(c.1).font(.system(.subheadline, design: .rounded)).foregroundStyle(EPTheme.softText)
+                            Text(c.0).font(.system(.headline, design: .serif))
+                            Text(c.1).font(.system(.subheadline, design: .serif)).foregroundStyle(EPTheme.softText)
                         }
                         Spacer()
                         Button("Join") {

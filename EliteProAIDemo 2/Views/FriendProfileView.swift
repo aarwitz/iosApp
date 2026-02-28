@@ -34,11 +34,11 @@ struct FriendProfileView: View {
                     }
 
                     Text(friend.name)
-                        .font(.system(.title2, design: .rounded).weight(.bold))
+                        .font(.system(.title2, design: .serif).weight(.bold))
 
                     if !friend.bio.isEmpty {
                         Text(friend.bio)
-                            .font(.system(.subheadline, design: .rounded))
+                            .font(.system(.subheadline, design: .serif))
                             .foregroundStyle(EPTheme.softText)
                     }
 
@@ -162,7 +162,7 @@ struct FriendProfileView: View {
                     EPCard {
                         VStack(alignment: .leading, spacing: 10) {
                             Text("Interests")
-                                .font(.system(.headline, design: .rounded))
+                                .font(.system(.headline, design: .serif))
 
                             FlowLayout(spacing: 8) {
                                 ForEach(friend.interests, id: \.self) { interest in
@@ -191,7 +191,7 @@ struct FriendProfileView: View {
                                 .foregroundStyle(EPTheme.softText)
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Muted")
-                                    .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                                    .font(.system(.subheadline, design: .serif).weight(.semibold))
                                 Text("You won't receive notifications from this user")
                                     .font(.system(.caption, design: .rounded))
                                     .foregroundStyle(EPTheme.softText)
@@ -243,7 +243,7 @@ struct FriendProfileView: View {
     private func statItem(value: String, label: String) -> some View {
         VStack(spacing: 4) {
             Text(value)
-                .font(.system(.headline, design: .rounded).weight(.bold))
+                .font(.system(.headline, design: .serif).weight(.bold))
             Text(label)
                 .font(.system(.caption2, design: .rounded))
                 .foregroundStyle(EPTheme.softText)

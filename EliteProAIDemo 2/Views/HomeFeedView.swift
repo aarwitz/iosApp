@@ -2,8 +2,6 @@ import SwiftUI
 
 struct HomeFeedView: View {
     @EnvironmentObject private var store: AppStore
-    @Environment(\.colorScheme) private var colorScheme
-    @State private var sortOption: FeedSort = .recent
     @State private var selectedStaffIndex: Int? = 0
     @State private var showBooking: Bool = false
     @State private var bookingStaff: StaffMember? = nil
@@ -11,20 +9,6 @@ struct HomeFeedView: View {
     @State private var chatConversation: Conversation? = nil
     @State private var messagingStaffId: UUID? = nil   // tracks in-flight "Message" tap
     @State private var dotsVisible: Bool = false          // shows page dots during swipe
-
-    enum FeedSort: String, CaseIterable {
-        case recent = "Recent"
-        case popular = "Popular"
-    }
-
-    var sortedFeed: [Post] {
-        switch sortOption {
-        case .recent:
-            return store.feed.sorted { $0.timestamp > $1.timestamp }
-        case .popular:
-            return store.feed.sorted { $0.author < $1.author }
-        }
-    }
 
     /// Two cards: current coach, current nutritionist
     private var staffCards: [StaffMember] {
@@ -36,80 +20,34 @@ struct HomeFeedView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 0) {
+            VStack(spacing: 10) {
 
-                // MARK: – Staff Carousel (Coach + Nutritionist on shift)
-                staffCarousel
-                    .padding(.bottom, 12)
-
-                // MARK: – Quick Actions
-//                quickActions
-//                    .padding(.bottom, 16)
-
-                // MARK: – Feed Header + Sort
-                HStack {
-                    Text("Community Activity")
-                        .font(.system(.headline, design: .rounded))
-                    Spacer()
-                    Menu {
-                        ForEach(FeedSort.allCases, id: \ .self) { opt in
-                            Button {
-                                sortOption = opt
-                            } label: {
-                                HStack {
-                                    Text(opt.rawValue)
-                                    if sortOption == opt {
-                                        Image(systemName: "checkmark")
-                                    }
-                                }
-                            }
-                        }
-                    } label: {
-                        HStack(spacing: 4) {
-                            Text(sortOption.rawValue)
-                                .font(.system(.subheadline, design: .rounded))
-                            Image(systemName: "arrow.up.arrow.down")
-                                .font(.system(size: 12))
-                        }
-                        .foregroundStyle(EPTheme.accent)
-                    }
+                // MARK: – Personalized Greeting + Status Widget
+                HStack
+                {
+                    Spacer(minLength: 10)
+                    heroHeader
                 }
-                .padding(.bottom, 10)
 
-                // MARK: – Feed Posts
-                if store.isLoading && sortedFeed.isEmpty {
-                    VStack(spacing: 12) {
-                        ProgressView()
-                        Text("Loading feed…")
-                            .font(.system(.subheadline, design: .rounded))
-                            .foregroundStyle(EPTheme.softText)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 40)
-                } else if sortedFeed.isEmpty {
-                    VStack(spacing: 10) {
-                        Image(systemName: "text.bubble")
-                            .font(.system(size: 36))
-                            .foregroundStyle(EPTheme.softText.opacity(0.5))
-                        Text("No posts yet")
-                            .font(.system(.headline, design: .rounded))
-                        Text("Tap the compose button to create the first post!")
-                            .font(.system(.subheadline, design: .rounded))
-                            .foregroundStyle(EPTheme.softText)
-                            .multilineTextAlignment(.center)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 40)
-                } else {
-                    LazyVStack(spacing: 10) {
-                        ForEach(sortedFeed) { post in
-                            feedPostCard(post)
-                        }
-                    }
-                    .padding(.bottom, 20)
+                // MARK: – Your Wellness Team
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Your Wellness Team")
+
+                    staffCarousel
                 }
+
+                // MARK: – Today's Actions
+                todaysActionsSection
+
+                // MARK: – Your Community
+                communityPulseCard
+
+                // MARK: – Ways to Earn
+                waysToEarnSection
             }
-            .padding(16)
+            .padding(.horizontal, 16)
+            .padding(.top, 4)
+            .padding(.bottom, 20)
         }
         .refreshable { await store.refreshFeed() }
         .navigationTitle("Home")
@@ -225,7 +163,7 @@ struct HomeFeedView: View {
                         // Name + Role badge
                         HStack(spacing: 6) {
                             Text(staff.name)
-                                .font(.system(.headline, design: .rounded))
+                                .font(.system(.headline, design: .serif))
                             Text(staff.role.rawValue)
                                 .font(.system(.caption2, design: .rounded).weight(.semibold))
                                 .foregroundStyle(.white)
@@ -261,22 +199,26 @@ struct HomeFeedView: View {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 12))
                             .foregroundStyle(.green)
+                            .offset(x: 6)
                         Text("Available Now")
                             .font(.system(.caption, design: .rounded).weight(.semibold))
                             .foregroundStyle(.green)
+                            .offset(x: 4)
                         Text("·")
                             .foregroundStyle(EPTheme.softText)
+                            .offset(x: 4)
                     }
                     Text(staff.shift.label + " Shift · " + staff.shift.displayRange)
                         .font(.system(.caption, design: .rounded))
                         .foregroundStyle(EPTheme.softText)
+                        .offset(x: 4)
                 }
 
                 // Motivational quote (replaces bio)
-                Text(staff.motivationalQuote)
-                    .font(.system(.subheadline, design: .rounded).weight(.medium))
-                    .foregroundStyle(Color.primary.opacity(0.8))
-                    .padding(.vertical, 4)
+//                Text(staff.motivationalQuote)
+//                    .font(.system(.subheadline, design: .serif).weight(.medium))
+//                    .foregroundStyle(Color.primary.opacity(0.8))
+//                    .padding(.vertical, 4)
 
                 // Action buttons — icon + label, .caption sized to fit
                 HStack(spacing: 10) {
@@ -296,13 +238,13 @@ struct HomeFeedView: View {
                             navigateToChat = true
                         }
                     } label: {
-                        HStack(spacing: 6) {
+                        HStack(spacing: 4) {
                             if messagingStaffId == staff.id {
                                 ProgressView()
                                     .scaleEffect(0.7)
                             } else {
                                 Image(systemName: "bubble.left.fill")
-                                    .font(.system(size: 12))
+                                    .font(.system(size: 13))
                             }
                             Text(staff.role == .coach ? "Message Coach" : "Message Nutritionist")
                                 .font(.system(.caption, design: .rounded).weight(.semibold))
@@ -321,9 +263,9 @@ struct HomeFeedView: View {
                         bookingStaff = staff
                         showBooking = true
                     } label: {
-                        HStack(spacing: 6) {
+                        HStack(spacing: 4) {
                             Image(systemName: "calendar")
-                                .font(.system(size: 12))
+                                .font(.system(size: 16))
                             Text(staff.role == .coach ? "Book 1-1 Session" : "Book Nutrition Session")
                                 .font(.system(.caption, design: .rounded).weight(.semibold))
                                 .lineLimit(1)
@@ -340,104 +282,336 @@ struct HomeFeedView: View {
         }
     }
 
-    // MARK: – Feed Post Card
+    // MARK: – Hero Header (Greeting + Status Widget)
 
-    private func feedPostCard(_ post: Post) -> some View {
-        EPCard {
-            VStack(alignment: .leading, spacing: 10) {
+    private var heroHeader: some View {
+        HStack(alignment: .top, spacing: 14) {
+            // Left: Greeting + date
+            VStack(alignment: .leading, spacing: 4) {
+                Text("\(timeOfDayGreeting),")
+                    .font(.system(.title3, design: .serif).weight(.semibold))
+                Text(firstName)
+                    .font(.system(.title2, design: .serif).weight(.bold))
+                    .foregroundStyle(EPTheme.accent)
+                Text(Date(), format: .dateTime.weekday(.wide).month(.wide).day())
+                    .font(.system(.caption, design: .rounded))
+                    .foregroundStyle(EPTheme.softText)
+                    .padding(.top, 10)
+            }
 
-                HStack(spacing: 6) {
-                    Image(systemName: "building.2.fill")
-                        .font(.system(size: 12))
+            Spacer()
+
+            // Right: Compact status widget
+            statusWidget
+        }
+    }
+
+    @ViewBuilder
+    private var statusWidget: some View {
+        let todayEvents = store.todaySchedule
+            .filter { Calendar.current.isDateInToday($0.time) }
+            .sorted { $0.time < $1.time }
+
+        VStack(alignment: .leading, spacing: 0) {
+            // Header
+            HStack(spacing: 4) {
+                Text("TODAY")
+                    .font(.system(size: 9, design: .rounded).weight(.black))
+                    .foregroundStyle(EPTheme.accent)
+                    .tracking(0.8)
+                Spacer()
+                Text("\(todayEvents.count)")
+                    .font(.system(size: 10, design: .rounded).weight(.bold))
+                    .foregroundStyle(.white)
+                    .frame(width: 16, height: 16)
+                    .background(Circle().fill(EPTheme.accent))
+            }
+            .padding(.bottom, 6)
+
+            if todayEvents.isEmpty {
+                VStack(spacing: 4) {
+                    Text("All clear \u{2615}")
+                        .font(.system(size: 11, design: .rounded).weight(.semibold))
+                    HStack(spacing: 3) {
+                        Image(systemName: "figure.run")
+                            .font(.system(size: 8))
+                            .foregroundStyle(EPTheme.accent)
+                        Text("Morning Runners")
+                            .font(.system(size: 9, design: .rounded).weight(.semibold))
+                            .foregroundStyle(EPTheme.accent)
+                    }
+                    Text("63 neighbors · Seaport")
+                        .font(.system(size: 8, design: .rounded))
                         .foregroundStyle(EPTheme.softText)
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.top, 2)
+            } else {
+                let visibleEvents = Array(todayEvents.prefix(2))
+                let remaining = todayEvents.count - visibleEvents.count
 
-                    if !post.communityName.isEmpty {
-                        NavigationLink {
-                            CommunityView()
-                        } label: {
-                            Text(post.communityName)
-                                .font(.system(.caption, design: .rounded).weight(.semibold))
-                                .foregroundStyle(Color.primary.opacity(0.7))
+                VStack(alignment: .leading, spacing: 5) {
+                    ForEach(visibleEvents) { event in
+                        HStack(spacing: 6) {
+                            Circle()
+                                .fill(event.type.color)
+                                .frame(width: 5, height: 5)
+                            VStack(alignment: .leading, spacing: 0) {
+                                Text(event.shortLabel)
+                                    .font(.system(size: 10, design: .rounded).weight(.semibold))
+                                    .lineLimit(1)
+                                Text(event.time, format: .dateTime.hour().minute())
+                                    .font(.system(size: 9, design: .rounded))
+                                    .foregroundStyle(EPTheme.softText)
+                            }
                         }
-                        .buttonStyle(.plain)
-
-                        Text("›")
-                            .foregroundStyle(EPTheme.softText)
                     }
 
-                    NavigationLink {
-                        if let group = store.groups.first(where: { $0.name == post.groupName }) {
-                            GroupDetailView(group: group)
-                        } else {
-                            Text("Group not found")
-                        }
-                    } label: {
-                        Text(post.groupName)
-                            .font(.system(.caption, design: .rounded).weight(.medium))
+                    if remaining > 0 {
+                        Text("+\(remaining) more")
+                            .font(.system(size: 9, design: .rounded).weight(.medium))
                             .foregroundStyle(EPTheme.softText)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
+                }
+            }
+        }
+        .padding(10)
+        .frame(width: 128, height: 100, alignment: .top)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(EPTheme.card)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(EPTheme.cardStroke, lineWidth: 1)
+        )
+        .shadow(color: EPTheme.cardShadow, radius: 4, x: 0, y: 2)
+    }
+
+    private var timeOfDayGreeting: String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        switch hour {
+        case 5..<12: return "Good morning"
+        case 12..<17: return "Good afternoon"
+        case 17..<22: return "Good evening"
+        default: return "Good night"
+        }
+    }
+
+    private var firstName: String {
+        store.profile.name.components(separatedBy: " ").first ?? store.profile.name
+    }
+
+    // MARK: – Today's Actions
+
+    private var todaysActionsSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Today's Actions")
+                .font(.system(.headline, design: .serif))
+                .padding(.horizontal, 4)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    NavigationLink { WorkoutLogView() } label: {
+                        actionTile(icon: "figure.strengthtraining.traditional", title: "Log Workout", subtitle: "Track your session", color: .red)
                     }
                     .buttonStyle(.plain)
 
-                    Spacer()
-                }
-
-                HStack {
-                    ZStack {
-                        Circle()
-                            .fill(Color.primary.opacity(0.08))
-                            .frame(width: 32, height: 32)
-                        Text(String(post.author.prefix(1)))
-                            .font(.system(.caption, design: .rounded).weight(.bold))
-                            .foregroundStyle(Color.primary.opacity(0.6))
+                    NavigationLink { LogMealView() } label: {
+                        actionTile(icon: "camera.fill", title: "Scan a Meal", subtitle: "Earn 3 credits", color: .orange)
                     }
+                    .buttonStyle(.plain)
 
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text(post.author)
-                            .font(.system(.subheadline, design: .rounded).weight(.semibold))
-                        Text(post.timestamp, style: .relative)
-                            .font(.system(.caption2, design: .rounded))
-                            .foregroundStyle(EPTheme.softText)
+                    NavigationLink { HabitsTrackerView() } label: {
+                        actionTile(icon: "chart.line.uptrend.xyaxis", title: "Track Habits", subtitle: "Keep your streak", color: .cyan)
                     }
-                    Spacer()
-                }
+                    .buttonStyle(.plain)
 
-                Text(post.text)
-                    .font(.system(.body, design: .rounded))
-                    .foregroundStyle(Color.primary.opacity(0.92))
-
-                if let img = post.imagePlaceholder {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 10, style: .continuous)
-                            .fill(LinearGradient(
-                                colors: [Color.white.opacity(0.04), Color.white.opacity(0.02)],
-                                startPoint: .top, endPoint: .bottom
-                            ))
-                            .frame(height: 140)
-                        Image(systemName: img)
-                            .font(.system(size: 36))
-                            .foregroundStyle(EPTheme.softText.opacity(0.5))
+                    NavigationLink { GroupClassView() } label: {
+                        actionTile(icon: "person.3.fill", title: "Join a Class", subtitle: "See today's lineup", color: .purple)
                     }
-                }
-
-                HStack(spacing: 20) {
-                    interactionButton(icon: "heart", label: "Like")
-                    interactionButton(icon: "bubble.right", label: "Reply")
-                    interactionButton(icon: "square.and.arrow.up", label: "Share")
-                    Spacer()
+                    .buttonStyle(.plain)
                 }
             }
         }
     }
 
-    private func interactionButton(icon: String, label: String) -> some View {
-        Button {} label: {
-            HStack(spacing: 4) {
+    private func actionTile(icon: String, title: String, subtitle: String, color: Color) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(color.opacity(0.12))
+                    .frame(width: 38, height: 38)
                 Image(systemName: icon)
-                    .font(.system(size: 14))
-                Text(label)
-                    .font(.system(.caption, design: .rounded))
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(color)
             }
-            .foregroundStyle(EPTheme.softText)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.system(.subheadline, design: .serif).weight(.semibold))
+                    .foregroundStyle(Color.primary)
+                Text(subtitle)
+                    .font(.system(.caption2, design: .rounded))
+                    .foregroundStyle(EPTheme.softText)
+            }
+        }
+        .frame(width: 130, alignment: .leading)
+        .padding(14)
+        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(EPTheme.card))
+        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(EPTheme.cardStroke, lineWidth: 1))
+        .shadow(color: EPTheme.cardShadow, radius: 4, x: 0, y: 2)
+    }
+
+    // MARK: – Community Pulse
+
+    private var communityPulseCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Your Community")
+                .font(.system(.headline, design: .serif))
+                .padding(.horizontal, 4)
+
+            Button {
+                store.selectedTab = .community
+            } label: {
+                EPCard {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack(spacing: 10) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    .fill(EPTheme.accent.opacity(0.12))
+                                    .frame(width: 40, height: 40)
+                                Image(systemName: "building.2.fill")
+                                    .font(.system(size: 18))
+                                    .foregroundStyle(EPTheme.accent)
+                            }
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(store.communities.first?.name ?? "The Seaport")
+                                    .font(.system(.subheadline, design: .serif).weight(.semibold))
+                                    .foregroundStyle(Color.primary)
+
+                                let groupCount = store.communities.first?.groups.count ?? 0
+                                let friendCount = store.friends.count
+                                Text("\(groupCount) groups · \(friendCount) friends connected")
+                                    .font(.system(.caption, design: .rounded))
+                                    .foregroundStyle(EPTheme.softText)
+                            }
+
+                            Spacer()
+
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(EPTheme.softText)
+                        }
+
+                        if let latest = store.feed.sorted(by: { $0.timestamp > $1.timestamp }).first {
+                            Divider().overlay(EPTheme.divider)
+
+                            HStack(spacing: 8) {
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.primary.opacity(0.08))
+                                        .frame(width: 26, height: 26)
+                                    Text(String(latest.author.prefix(1)))
+                                        .font(.system(.caption2, design: .rounded).weight(.bold))
+                                        .foregroundStyle(Color.primary.opacity(0.6))
+                                }
+
+                                VStack(alignment: .leading, spacing: 1) {
+                                    Text(latest.author)
+                                        .font(.system(.caption, design: .rounded).weight(.semibold))
+                                        .foregroundStyle(Color.primary)
+                                    Text(latest.text)
+                                        .font(.system(.caption, design: .rounded))
+                                        .foregroundStyle(EPTheme.softText)
+                                        .lineLimit(1)
+                                }
+
+                                Spacer()
+
+                                Text(latest.timestamp, style: .relative)
+                                    .font(.system(.caption2, design: .rounded))
+                                    .foregroundStyle(EPTheme.softText)
+                            }
+                        }
+                    }
+                }
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    // MARK: – Ways to Earn
+
+    private var waysToEarnSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("Ways to Earn")
+                    .font(.system(.headline, design: .serif))
+                Spacer()
+                Button {
+                    store.selectedTab = .rewards
+                } label: {
+                    Text("See All")
+                        .font(.system(.caption, design: .rounded).weight(.semibold))
+                        .foregroundStyle(EPTheme.accent)
+                }
+            }
+            .padding(.horizontal, 4)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(Array(store.earningOpportunities.filter { !$0.isCompleted }.prefix(4))) { opp in
+                        earnTile(opp)
+                    }
+                }
+            }
+        }
+    }
+
+    private func earnTile(_ opportunity: EarningOpportunity) -> some View {
+        Button {
+            store.selectedTab = .rewards
+        } label: {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Image(systemName: opportunity.sponsorLogo)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(EPTheme.accent)
+
+                    Spacer()
+
+                    Text("+\(opportunity.creditsReward)")
+                        .font(.system(.caption2, design: .rounded).weight(.bold))
+                        .foregroundStyle(EPTheme.accent)
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 3)
+                        .background(Capsule().fill(EPTheme.accent.opacity(0.12)))
+                }
+
+                Text(opportunity.title)
+                    .font(.system(.caption, design: .rounded).weight(.semibold))
+                    .foregroundStyle(Color.primary)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+
+                if let sponsor = opportunity.sponsorName {
+                    Text(sponsor)
+                        .font(.system(.caption2, design: .rounded))
+                        .foregroundStyle(EPTheme.softText)
+                } else {
+                    Text(opportunity.requirements)
+                        .font(.system(.caption2, design: .rounded))
+                        .foregroundStyle(EPTheme.softText)
+                }
+            }
+            .frame(width: 152, alignment: .leading)
+            .padding(12)
+            .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(EPTheme.card))
+            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(EPTheme.cardStroke, lineWidth: 1))
+            .shadow(color: EPTheme.cardShadow, radius: 4, x: 0, y: 2)
         }
         .buttonStyle(.plain)
     }
@@ -501,7 +675,7 @@ struct JoinGroupView: View {
                                 }
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(group.name)
-                                        .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                                        .font(.system(.subheadline, design: .serif).weight(.semibold))
                                         .foregroundStyle(Color.primary)
                                     Text("\(group.members) members · \(group.locationHint)")
                                         .font(.system(.caption, design: .rounded))
@@ -559,9 +733,9 @@ struct LogMealView: View {
                                     .font(.system(size: 44))
                                     .foregroundStyle(EPTheme.accent)
                                 Text("Scan Your Meal")
-                                    .font(.system(.title3, design: .rounded).weight(.bold))
+                                    .font(.system(.title3, design: .serif).weight(.bold))
                                 Text("Take a photo — AI tags it. No calorie counting needed.")
-                                    .font(.system(.subheadline, design: .rounded))
+                                    .font(.system(.subheadline, design: .serif))
                                     .foregroundStyle(EPTheme.softText)
                                     .multilineTextAlignment(.center)
                                     .padding(.horizontal, 20)
@@ -575,7 +749,7 @@ struct LogMealView: View {
                                 Image(systemName: "camera.fill")
                                 Text("Take Photo")
                             }
-                            .font(.system(.headline, design: .rounded).weight(.semibold))
+                            .font(.system(.headline, design: .serif).weight(.semibold))
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)
@@ -592,9 +766,9 @@ struct LogMealView: View {
                                 .font(.system(size: 36))
                                 .foregroundStyle(.green)
                             Text("Meal Logged!")
-                                .font(.system(.headline, design: .rounded))
+                                .font(.system(.headline, design: .serif))
                             Text("Your coach can view and comment on your meal.")
-                                .font(.system(.subheadline, design: .rounded))
+                                .font(.system(.subheadline, design: .serif))
                                 .foregroundStyle(EPTheme.softText)
                                 .multilineTextAlignment(.center)
                         }
@@ -605,7 +779,7 @@ struct LogMealView: View {
                     EPCard {
                         VStack(alignment: .leading, spacing: 12) {
                             Text("Quick Note (optional)")
-                                .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                                .font(.system(.subheadline, design: .serif).weight(.semibold))
                             TextField("e.g. Post-workout lunch", text: $mealNote, axis: .vertical)
                                 .lineLimit(2...4)
                                 .textFieldStyle(.roundedBorder)
@@ -624,7 +798,7 @@ struct LogMealView: View {
                 EPCard {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("How It Works")
-                            .font(.system(.headline, design: .rounded))
+                            .font(.system(.headline, design: .serif))
                         stepRow(num: "1", text: "Take a photo of your meal")
                         stepRow(num: "2", text: "AI automatically tags the food items")
                         stepRow(num: "3", text: "Your nutritionist can review and comment")
@@ -648,7 +822,7 @@ struct LogMealView: View {
                     .foregroundStyle(EPTheme.accent)
             }
             Text(text)
-                .font(.system(.subheadline, design: .rounded))
+                .font(.system(.subheadline, design: .serif))
             Spacer()
         }
     }

@@ -11,10 +11,10 @@ struct GroupsView: View {
                 EPCard {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Groups")
-                            .font(.system(.title3, design: .rounded).weight(.semibold))
+                            .font(.system(.title3, design: .serif).weight(.semibold))
                         Text("Region-based or activity-based communities.")
                             .foregroundStyle(EPTheme.softText)
-                            .font(.system(.subheadline, design: .rounded))
+                            .font(.system(.subheadline, design: .serif))
 
                         NavigationLink {
                             CommunityFeedView()
@@ -34,9 +34,9 @@ struct GroupsView: View {
                             HStack {
                                 VStack(alignment: .leading, spacing: 6) {
                                     Text(g.name)
-                                        .font(.system(.headline, design: .rounded))
+                                        .font(.system(.headline, design: .serif))
                                     Text("\(g.kind.rawValue) · \(g.locationHint)")
-                                        .font(.system(.subheadline, design: .rounded))
+                                        .font(.system(.subheadline, design: .serif))
                                         .foregroundStyle(EPTheme.softText)
                                     Text("\(g.members) members")
                                         .font(.system(.footnote, design: .rounded))
@@ -80,7 +80,7 @@ struct GroupDetailView: View {
                 EPCard {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(group.name)
-                            .font(.system(.title3, design: .rounded).weight(.semibold))
+                            .font(.system(.title3, design: .serif).weight(.semibold))
                         Text("\(group.kind.rawValue) · \(group.locationHint)")
                             .foregroundStyle(EPTheme.softText)
                         Text("\(group.members) members")
@@ -92,7 +92,7 @@ struct GroupDetailView: View {
                 EPCard {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("New post")
-                            .font(.system(.headline, design: .rounded))
+                            .font(.system(.headline, design: .serif))
                         TextField("What’s happening?", text: $draft, axis: .vertical)
                             .lineLimit(2...6)
                             .textFieldStyle(.roundedBorder)
@@ -125,7 +125,7 @@ struct GroupDetailView: View {
                         VStack(alignment: .leading, spacing: 6) {
                             HStack {
                                 Text(p.author)
-                                    .font(.system(.headline, design: .rounded))
+                                    .font(.system(.headline, design: .serif))
                                 Spacer()
                                 Text(p.timestamp, style: .relative)
                                     .font(.system(.footnote, design: .rounded))
@@ -155,11 +155,11 @@ struct CommunityFeedView: View {
                     EPCard {
                         VStack(alignment: .leading, spacing: 6) {
                             Text(p.groupName)
-                                .font(.system(.subheadline, design: .rounded))
+                                .font(.system(.subheadline, design: .serif))
                                 .foregroundStyle(EPTheme.softText)
                             HStack {
                                 Text(p.author)
-                                    .font(.system(.headline, design: .rounded))
+                                    .font(.system(.headline, design: .serif))
                                 Spacer()
                                 Text(p.timestamp, style: .relative)
                                     .font(.system(.footnote, design: .rounded))

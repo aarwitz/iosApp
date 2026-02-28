@@ -12,24 +12,12 @@ struct ScheduleView: View {
         case month = "Month"
     }
     
-    // Mock scheduled events
-    private var scheduledEvents: [ScheduledEvent] {
-        [
-            ScheduledEvent(title: "1-on-1 Coaching", type: .coaching, time: Date().addingTimeInterval(3600), duration: 60, location: "Echelon Gym", trainer: "Jason Chen"),
-            ScheduledEvent(title: "HIIT Class", type: .groupClass, time: Date().addingTimeInterval(7200), duration: 45, location: "Studio A", trainer: "Sarah Martinez"),
-            ScheduledEvent(title: "Yoga Flow", type: .groupClass, time: Date().addingTimeInterval(86400 + 3600), duration: 60, location: "Studio B", trainer: "Maya Patel"),
-            ScheduledEvent(title: "Nutrition Check-in", type: .nutrition, time: Date().addingTimeInterval(86400 * 2), duration: 30, location: "Virtual", trainer: "Priya Nair"),
-            ScheduledEvent(title: "Group Run", type: .community, time: Date().addingTimeInterval(86400 * 3), duration: 45, location: "Seaport", trainer: nil),
-            ScheduledEvent(title: "Strength Training", type: .coaching, time: Date().addingTimeInterval(86400 * 4), duration: 60, location: "Echelon Gym", trainer: "Andre Silva")
-        ]
-    }
-    
     private var todayEvents: [ScheduledEvent] {
-        scheduledEvents.filter { Calendar.current.isDate($0.time, inSameDayAs: selectedDate) }
+        store.todaySchedule.filter { Calendar.current.isDate($0.time, inSameDayAs: selectedDate) }
     }
-    
+
     private var upcomingEvents: [ScheduledEvent] {
-        scheduledEvents.filter { $0.time > Date() }.sorted { $0.time < $1.time }
+        store.todaySchedule.filter { $0.time > Date() }.sorted { $0.time < $1.time }
     }
     
     var body: some View {
@@ -44,11 +32,11 @@ struct ScheduleView: View {
                                 .font(.system(size: 24))
                                 .foregroundStyle(EPTheme.accent)
                             Text("My Schedule")
-                                .font(.system(.title3, design: .rounded).weight(.semibold))
+                                .font(.system(.title3, design: .serif).weight(.semibold))
                         }
                         
                         Text("Manage your fitness activities, classes, and coaching sessions.")
-                            .font(.system(.subheadline, design: .rounded))
+                            .font(.system(.subheadline, design: .serif))
                             .foregroundStyle(EPTheme.softText)
                     }
                 }
@@ -62,7 +50,7 @@ struct ScheduleView: View {
                             }
                         } label: {
                             Text(mode.rawValue)
-                                .font(.system(.subheadline, design: .rounded).weight(viewMode == mode ? .bold : .regular))
+                                .font(.system(.subheadline, design: .serif).weight(viewMode == mode ? .bold : .regular))
                                 .foregroundStyle(viewMode == mode ? Color.primary : EPTheme.softText)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 10)
@@ -89,7 +77,7 @@ struct ScheduleView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
                         Text("Today")
-                            .font(.system(.headline, design: .rounded))
+                            .font(.system(.headline, design: .serif))
                         Spacer()
                         Text(selectedDate, style: .date)
                             .font(.system(.caption, design: .rounded))
@@ -103,14 +91,14 @@ struct ScheduleView: View {
                                     .font(.system(size: 32))
                                     .foregroundStyle(EPTheme.softText)
                                 Text("No events scheduled for today")
-                                    .font(.system(.subheadline, design: .rounded))
+                                    .font(.system(.subheadline, design: .serif))
                                     .foregroundStyle(EPTheme.softText)
                                 
                                 Button {
                                     // Add event action
                                 } label: {
                                     Text("Book a Session")
-                                        .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                                        .font(.system(.subheadline, design: .serif).weight(.semibold))
                                         .foregroundStyle(EPTheme.accent)
                                         .padding(.horizontal, 16)
                                         .padding(.vertical, 8)
@@ -132,7 +120,7 @@ struct ScheduleView: View {
                 // MARK: – Upcoming Events
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Upcoming")
-                        .font(.system(.headline, design: .rounded))
+                        .font(.system(.headline, design: .serif))
                     
                     ForEach(upcomingEvents.filter { !Calendar.current.isDate($0.time, inSameDayAs: selectedDate) }) { event in
                         eventCard(event)
@@ -142,7 +130,7 @@ struct ScheduleView: View {
                 // MARK: – Quick Actions
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Quick Actions")
-                        .font(.system(.headline, design: .rounded))
+                        .font(.system(.headline, design: .serif))
                     
                     HStack(spacing: 12) {
                         NavigationLink {
@@ -184,7 +172,7 @@ struct ScheduleView: View {
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Text("Schedule")
-                    .font(.system(.headline, design: .rounded))
+                    .font(.system(.headline, design: .serif))
             }
         }
     }
@@ -198,7 +186,7 @@ struct ScheduleView: View {
                     .font(.system(size: 20))
                     .foregroundStyle(EPTheme.accent)
                 Text(value)
-                    .font(.system(.title3, design: .rounded).weight(.bold))
+                    .font(.system(.title3, design: .serif).weight(.bold))
                 Text(label)
                     .font(.system(.caption2, design: .rounded))
                     .foregroundStyle(EPTheme.softText)
@@ -216,7 +204,7 @@ struct ScheduleView: View {
                 // Time indicator
                 VStack(spacing: 2) {
                     Text(event.time, style: .time)
-                        .font(.system(.subheadline, design: .rounded).weight(.bold))
+                        .font(.system(.subheadline, design: .serif).weight(.bold))
                     Text("\(event.duration)m")
                         .font(.system(.caption2, design: .rounded))
                         .foregroundStyle(EPTheme.softText)
@@ -236,7 +224,7 @@ struct ScheduleView: View {
                 // Event details
                 VStack(alignment: .leading, spacing: 4) {
                     Text(event.title)
-                        .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                        .font(.system(.subheadline, design: .serif).weight(.semibold))
                         .foregroundStyle(Color.primary)
                     
                     HStack(spacing: 4) {
@@ -295,39 +283,4 @@ struct ScheduleView: View {
     }
 }
 
-// MARK: – Supporting Types
 
-struct ScheduledEvent: Identifiable {
-    let id = UUID()
-    let title: String
-    let type: EventType
-    let time: Date
-    let duration: Int  // minutes
-    let location: String
-    let trainer: String?
-    
-    enum EventType {
-        case coaching
-        case groupClass
-        case nutrition
-        case community
-        
-        var icon: String {
-            switch self {
-            case .coaching: return "person.fill"
-            case .groupClass: return "figure.run"
-            case .nutrition: return "leaf.fill"
-            case .community: return "person.3.fill"
-            }
-        }
-        
-        var color: Color {
-            switch self {
-            case .coaching: return .blue
-            case .groupClass: return .green
-            case .nutrition: return .orange
-            case .community: return .purple
-            }
-        }
-    }
-}

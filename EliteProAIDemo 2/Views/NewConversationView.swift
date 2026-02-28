@@ -84,7 +84,7 @@ struct NewConversationView: View {
                     .fill(EPTheme.accent.opacity(0.15))
                     .frame(width: 44, height: 44)
                 Text(friend.avatarInitials)
-                    .font(.system(.subheadline, design: .rounded).weight(.bold))
+                    .font(.system(.subheadline, design: .serif).weight(.bold))
                     .foregroundStyle(EPTheme.accent)
             }
 
@@ -128,9 +128,9 @@ struct NewConversationView: View {
                 .font(.system(size: 56))
                 .foregroundStyle(EPTheme.softText.opacity(0.5))
             Text("No Friends Yet")
-                .font(.system(.title3, design: .rounded).weight(.semibold))
+                .font(.system(.title3, design: .serif).weight(.semibold))
             Text("Add friends using the Find Friends or Scan Code features to start messaging.")
-                .font(.system(.subheadline, design: .rounded))
+                .font(.system(.subheadline, design: .serif))
                 .foregroundStyle(EPTheme.softText)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)

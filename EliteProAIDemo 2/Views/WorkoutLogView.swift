@@ -11,7 +11,7 @@ struct WorkoutLogView: View {
                 EPCard {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Workout Log")
-                            .font(.system(.headline, design: .rounded))
+                            .font(.system(.headline, design: .serif))
 
                         TextField("Add a workout (e.g. Squat 3x5)", text: $workout)
                             .textFieldStyle(.roundedBorder)
@@ -30,7 +30,7 @@ struct WorkoutLogView: View {
                         ForEach(saved, id: \.self) { item in
                             Text("• \(item)")
                                 .foregroundStyle(Color.primary.opacity(0.9))
-                                .font(.system(.subheadline, design: .rounded))
+                                .font(.system(.subheadline, design: .serif))
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }

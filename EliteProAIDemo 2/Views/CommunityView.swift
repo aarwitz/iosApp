@@ -71,7 +71,7 @@ struct CommunityView: View {
                     } label: {
                         VStack(spacing: 6) {
                             Text(community.name)
-                                .font(.system(.subheadline, design: .rounded).weight(selectedCommunityIndex == idx ? .bold : .regular))
+                                .font(.system(.subheadline, design: .serif).weight(selectedCommunityIndex == idx ? .bold : .regular))
                                 .foregroundStyle(selectedCommunityIndex == idx ? Color.primary : EPTheme.softText)
                                 .lineLimit(1)
                                 .padding(.horizontal, 16)
@@ -162,7 +162,7 @@ struct CommunityView: View {
                         .fill(EPTheme.accent.opacity(0.15))
                         .frame(width: 54, height: 54)
                     Text(friend.avatarInitials)
-                        .font(.system(.subheadline, design: .rounded).weight(.bold))
+                        .font(.system(.subheadline, design: .serif).weight(.bold))
                         .foregroundStyle(EPTheme.accent)
                 }
                 Text(friend.name.components(separatedBy: " ").first ?? "")
@@ -200,7 +200,7 @@ struct CommunityView: View {
                                 }
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(community.name)
-                                        .font(.system(.headline, design: .rounded))
+                                        .font(.system(.headline, design: .serif))
                                     Text(community.locationHint)
                                         .font(.system(.caption, design: .rounded))
                                         .foregroundStyle(EPTheme.softText)
@@ -236,7 +236,7 @@ struct CommunityView: View {
                                     .font(.system(size: 32))
                                     .foregroundStyle(EPTheme.softText)
                                 Text("No posts yet in \(community.name)")
-                                    .font(.system(.subheadline, design: .rounded))
+                                    .font(.system(.subheadline, design: .serif))
                                     .foregroundStyle(EPTheme.softText)
                             }
                             .frame(maxWidth: .infinity)
@@ -294,7 +294,7 @@ struct CommunityView: View {
                         Image(systemName: "mappin.and.ellipse")
                             .foregroundStyle(EPTheme.accent)
                         Text("\(store.activityPins.count) activities nearby")
-                            .font(.system(.subheadline, design: .rounded))
+                            .font(.system(.subheadline, design: .serif))
                         Spacer()
                         Text("Tap a pin for details")
                             .font(.system(.caption, design: .rounded))
@@ -375,7 +375,7 @@ struct CommunityView: View {
                             .foregroundStyle(EPTheme.accent)
                     }
                     Text(post.author)
-                        .font(.system(.subheadline, design: .rounded).weight(.medium))
+                        .font(.system(.subheadline, design: .serif).weight(.medium))
                 }
 
                 Text(post.text)

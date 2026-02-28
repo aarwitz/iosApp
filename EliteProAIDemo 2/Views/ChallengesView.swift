@@ -30,11 +30,11 @@ struct ChallengesView: View {
                                 .font(.system(size: 24))
                                 .foregroundStyle(EPTheme.accent)
                             Text("Challenges")
-                                .font(.system(.title3, design: .rounded).weight(.semibold))
+                                .font(.system(.title3, design: .serif).weight(.semibold))
                         }
                         Text("Push yourself, compete with friends, and earn credits.")
                             .foregroundStyle(EPTheme.softText)
-                            .font(.system(.subheadline, design: .rounded))
+                            .font(.system(.subheadline, design: .serif))
                     }
                 }
 
@@ -47,7 +47,7 @@ struct ChallengesView: View {
                             }
                         } label: {
                             Text(cat.rawValue)
-                                .font(.system(.subheadline, design: .rounded).weight(selectedCategory == cat ? .bold : .regular))
+                                .font(.system(.subheadline, design: .serif).weight(selectedCategory == cat ? .bold : .regular))
                                 .foregroundStyle(selectedCategory == cat ? Color.primary : EPTheme.softText)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 10)
@@ -75,7 +75,7 @@ struct ChallengesView: View {
                                 .font(.system(size: 36))
                                 .foregroundStyle(EPTheme.softText)
                             Text("No challenges yet in this category")
-                                .font(.system(.subheadline, design: .rounded))
+                                .font(.system(.subheadline, design: .serif))
                                 .foregroundStyle(EPTheme.softText)
                         }
                         .frame(maxWidth: .infinity)
@@ -113,7 +113,7 @@ struct ChallengesView: View {
         } label: {
             HStack(spacing: 4) {
                 Text("Challenges")
-                    .font(.system(.headline, design: .rounded))
+                    .font(.system(.headline, design: .serif))
                     .foregroundStyle(Color.primary)
                 
                 Image(systemName: "chevron.down")
@@ -148,9 +148,9 @@ struct ChallengesView: View {
                 // Title + subtitle
                 VStack(alignment: .leading, spacing: 4) {
                     Text(challenge.title)
-                        .font(.system(.headline, design: .rounded))
+                        .font(.system(.headline, design: .serif))
                     Text(challenge.subtitle)
-                        .font(.system(.subheadline, design: .rounded))
+                        .font(.system(.subheadline, design: .serif))
                         .foregroundStyle(EPTheme.softText)
                         .lineLimit(2)
                 }
@@ -196,7 +196,7 @@ struct ChallengesView: View {
                         store.earnCredits(5)
                     } label: {
                         Text(challenge.progress > 0 ? "Continue" : "Join Challenge")
-                            .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                            .font(.system(.subheadline, design: .serif).weight(.semibold))
                             .foregroundStyle(Color.white)
                             .padding(.horizontal, 20)
                             .padding(.vertical, 10)

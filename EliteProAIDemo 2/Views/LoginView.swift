@@ -31,9 +31,9 @@ struct LoginView: View {
                     }
 
                     Text("Elite Pro AI")
-                        .font(.system(.largeTitle, design: .rounded).weight(.bold))
+                        .font(.system(.largeTitle, design: .serif).weight(.bold))
                     Text("Sign in to continue")
-                        .font(.system(.subheadline, design: .rounded))
+                        .font(.system(.subheadline, design: .serif))
                         .foregroundStyle(EPTheme.softText)
                 }
                 .padding(.top, 40)
@@ -95,7 +95,7 @@ struct LoginView: View {
                             .padding(.vertical, 16)
                     } else {
                         Text("Sign In")
-                            .font(.system(.headline, design: .rounded).weight(.semibold))
+                            .font(.system(.headline, design: .serif).weight(.semibold))
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
@@ -125,12 +125,12 @@ struct LoginView: View {
                 // Sign up link
                 HStack(spacing: 4) {
                     Text("Don't have an account?")
-                        .font(.system(.subheadline, design: .rounded))
+                        .font(.system(.subheadline, design: .serif))
                         .foregroundStyle(EPTheme.softText)
                     Button("Sign Up") {
                         showSignUp = true
                     }
-                    .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                    .font(.system(.subheadline, design: .serif).weight(.semibold))
                     .foregroundStyle(EPTheme.accent)
                 }
                 .padding(.top, 4)
@@ -170,7 +170,7 @@ struct LoginView: View {
                 Image(systemName: icon)
                     .font(.system(size: 18))
                 Text(label)
-                    .font(.system(.subheadline, design: .rounded).weight(.medium))
+                    .font(.system(.subheadline, design: .serif).weight(.medium))
             }
             .foregroundStyle(fg)
             .frame(maxWidth: .infinity)
@@ -191,7 +191,7 @@ struct LoginView: View {
                             .font(.system(size: 56))
                             .foregroundStyle(EPTheme.accent)
                         Text("Check your inbox")
-                            .font(.system(.title3, design: .rounded).weight(.semibold))
+                            .font(.system(.title3, design: .serif).weight(.semibold))
                         Text("We sent a password reset link to **\(forgotEmail)**.")
                             .font(.system(.body, design: .rounded))
                             .foregroundStyle(EPTheme.softText)
@@ -220,7 +220,7 @@ struct LoginView: View {
                         }
                     } label: {
                         Text("Send Reset Link")
-                            .font(.system(.headline, design: .rounded).weight(.semibold))
+                            .font(.system(.headline, design: .serif).weight(.semibold))
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)

@@ -20,7 +20,7 @@ struct FindFriendsView: View {
             // Top bar with barcode scanner
 //            HStack {
 //                Text("Find Friends")
-//                    .font(.system(.title2, design: .rounded).weight(.bold))
+//                    .font(.system(.title2, design: .serif).weight(.bold))
 //                Spacer()
 //                Button {
 //                    showBarcodeSheet = true
@@ -158,9 +158,9 @@ struct FindFriendsView: View {
                         .font(.system(size: 64))
                         .foregroundStyle(EPTheme.softText.opacity(0.5))
                     Text("You've seen everyone nearby!")
-                        .font(.system(.title3, design: .rounded).weight(.semibold))
+                        .font(.system(.title3, design: .serif).weight(.semibold))
                     Text("Check back later for new people in your community.")
-                        .font(.system(.subheadline, design: .rounded))
+                        .font(.system(.subheadline, design: .serif))
                         .foregroundStyle(EPTheme.softText)
                         .multilineTextAlignment(.center)
 
@@ -168,7 +168,7 @@ struct FindFriendsView: View {
                         withAnimation { currentIndex = 0 }
                     } label: {
                         Text("Start Over")
-                            .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                            .font(.system(.subheadline, design: .serif).weight(.semibold))
                             .foregroundStyle(EPTheme.accent)
                             .padding(.horizontal, 24)
                             .padding(.vertical, 10)
@@ -272,9 +272,9 @@ struct FindFriendsView: View {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(friend.name)
-                            .font(.system(.title3, design: .rounded).weight(.bold))
+                            .font(.system(.title3, design: .serif).weight(.bold))
                         Text("\(friend.age) • \(friend.favoriteActivity)")
-                            .font(.system(.subheadline, design: .rounded))
+                            .font(.system(.subheadline, design: .serif))
                             .foregroundStyle(EPTheme.softText)
                     }
                     Spacer()
@@ -293,7 +293,7 @@ struct FindFriendsView: View {
                 }
 
                 Text(friend.bio)
-                    .font(.system(.subheadline, design: .rounded))
+                    .font(.system(.subheadline, design: .serif))
                     .foregroundStyle(Color.primary.opacity(0.85))
                     .lineLimit(3)
 
@@ -411,7 +411,7 @@ struct FindFriendsView: View {
                 Spacer()
 
                 Text("My Friend Code")
-                    .font(.system(.title3, design: .rounded).weight(.semibold))
+                    .font(.system(.title3, design: .serif).weight(.semibold))
 
                 // Real QR code generated from the user's backend ID
                 ZStack {
@@ -430,14 +430,14 @@ struct FindFriendsView: View {
                 }
 
                 Text(store.profile.name)
-                    .font(.system(.headline, design: .rounded))
+                    .font(.system(.headline, design: .serif))
                 Text("@\(store.profile.name.lowercased().replacingOccurrences(of: " ", with: "."))")
-                    .font(.system(.subheadline, design: .rounded))
+                    .font(.system(.subheadline, design: .serif))
                     .foregroundStyle(EPTheme.softText)
 
                 VStack(spacing: 8) {
                     Text("Share your code or scan a friend's to connect instantly")
-                        .font(.system(.subheadline, design: .rounded))
+                        .font(.system(.subheadline, design: .serif))
                         .foregroundStyle(EPTheme.softText)
                         .multilineTextAlignment(.center)
 
@@ -451,7 +451,7 @@ struct FindFriendsView: View {
                             Image(systemName: "camera.fill")
                             Text("Scan Code")
                         }
-                        .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                        .font(.system(.subheadline, design: .serif).weight(.semibold))
                         .foregroundStyle(.black.opacity(0.85))
                         .padding(.horizontal, 28)
                         .padding(.vertical, 12)
@@ -510,12 +510,12 @@ struct FriendDetailView: View {
 
                 VStack(spacing: 6) {
                     Text(friend.name)
-                        .font(.system(.title2, design: .rounded).weight(.bold))
+                        .font(.system(.title2, design: .serif).weight(.bold))
                         .padding(.top, 36)
 
                     if friend.age > 0 {
                         Text("\(friend.age) years old")
-                            .font(.system(.subheadline, design: .rounded))
+                            .font(.system(.subheadline, design: .serif))
                             .foregroundStyle(EPTheme.softText)
                     }
 
@@ -525,7 +525,7 @@ struct FriendDetailView: View {
                                 .font(.system(size: 12))
                                 .foregroundStyle(EPTheme.accent)
                             Text(friend.buildingName)
-                                .font(.system(.subheadline, design: .rounded).weight(.medium))
+                                .font(.system(.subheadline, design: .serif).weight(.medium))
                             if !friend.buildingOwner.isEmpty {
                                 Text("•")
                                     .foregroundStyle(EPTheme.softText)
@@ -542,7 +542,7 @@ struct FriendDetailView: View {
                     EPCard {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("About")
-                                .font(.system(.headline, design: .rounded))
+                                .font(.system(.headline, design: .serif))
                             Text(friend.bio)
                                 .font(.system(.body, design: .rounded))
                                 .foregroundStyle(Color.primary.opacity(0.85))
@@ -555,11 +555,11 @@ struct FriendDetailView: View {
                     EPCard {
                         VStack(alignment: .leading, spacing: 10) {
                             Text("Interests")
-                                .font(.system(.headline, design: .rounded))
+                                .font(.system(.headline, design: .serif))
                             FlowLayout(spacing: 8) {
                                 ForEach(friend.interests, id: \.self) { interest in
                                     Text(interest)
-                                        .font(.system(.subheadline, design: .rounded).weight(.medium))
+                                        .font(.system(.subheadline, design: .serif).weight(.medium))
                                         .foregroundStyle(EPTheme.accent)
                                         .padding(.horizontal, 14)
                                         .padding(.vertical, 7)
@@ -575,7 +575,7 @@ struct FriendDetailView: View {
                     EPCard {
                         VStack(alignment: .leading, spacing: 10) {
                             Text("Activity")
-                                .font(.system(.headline, design: .rounded))
+                                .font(.system(.headline, design: .serif))
                             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                                 detailStat(icon: "flame.fill", value: "\(friend.workoutsThisWeek)", label: "Workouts this week", color: .orange)
                                 detailStat(icon: "person.2.fill", value: "\(friend.mutualFriends)", label: "Mutual friends", color: .purple)
@@ -613,7 +613,7 @@ struct FriendDetailView: View {
                                 }
                                 Text("Message")
                             }
-                            .font(.system(.headline, design: .rounded))
+                            .font(.system(.headline, design: .serif))
                             .foregroundStyle(.black.opacity(0.85))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)
@@ -647,7 +647,7 @@ struct FriendDetailView: View {
                                 }
                                 Text("Connect")
                             }
-                            .font(.system(.headline, design: .rounded))
+                            .font(.system(.headline, design: .serif))
                             .foregroundStyle(.black.opacity(0.85))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)

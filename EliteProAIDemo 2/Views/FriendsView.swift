@@ -13,7 +13,7 @@ struct FriendsView: View {
                 // MARK: – Stories Section
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Stories")
-                        .font(.system(.headline, design: .rounded))
+                        .font(.system(.headline, design: .serif))
                         .padding(.horizontal, 4)
                     
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -32,10 +32,10 @@ struct FriendsView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
                         Text("All Friends")
-                            .font(.system(.headline, design: .rounded))
+                            .font(.system(.headline, design: .serif))
                         Spacer()
                         Text("\(store.friends.count)")
-                            .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                            .font(.system(.subheadline, design: .serif).weight(.semibold))
                             .foregroundStyle(EPTheme.softText)
                     }
                     .padding(.horizontal, 4)
@@ -102,7 +102,7 @@ struct FriendsView: View {
                         .frame(width: 54, height: 54)
 
                     Text(friend.avatarInitials)
-                        .font(.system(.subheadline, design: .rounded).weight(.bold))
+                        .font(.system(.subheadline, design: .serif).weight(.bold))
                         .foregroundStyle(EPTheme.accent)
                 }
 
@@ -131,7 +131,7 @@ struct FriendsView: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(friend.name)
-                    .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                    .font(.system(.subheadline, design: .serif).weight(.semibold))
                     .foregroundStyle(Color.primary)
                 HStack(spacing: 4) {
                     Image(systemName: "building.2")

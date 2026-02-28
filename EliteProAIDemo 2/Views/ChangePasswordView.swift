@@ -71,7 +71,7 @@ struct ChangePasswordView: View {
                         Image(systemName: "checkmark.circle.fill")
                         Text("Password updated!")
                     }
-                    .font(.system(.subheadline, design: .rounded).weight(.medium))
+                    .font(.system(.subheadline, design: .serif).weight(.medium))
                     .foregroundStyle(.green)
                     .transition(.scale.combined(with: .opacity))
                 }
@@ -86,7 +86,7 @@ struct ChangePasswordView: View {
                             .padding(.vertical, 16)
                     } else {
                         Text("Update Password")
-                            .font(.system(.headline, design: .rounded).weight(.semibold))
+                            .font(.system(.headline, design: .serif).weight(.semibold))
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)

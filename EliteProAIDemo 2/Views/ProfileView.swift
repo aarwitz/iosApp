@@ -24,10 +24,10 @@ struct ProfileView: View {
                     }
 
                     Text(store.profile.name)
-                        .font(.system(.title2, design: .rounded).weight(.bold))
+                        .font(.system(.title2, design: .serif).weight(.bold))
 
                     Text(store.profile.email)
-                        .font(.system(.subheadline, design: .rounded))
+                        .font(.system(.subheadline, design: .serif))
                         .foregroundStyle(EPTheme.softText)
 
                     // Building info
@@ -102,7 +102,7 @@ struct ProfileView: View {
                             
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Friends")
-                                    .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                                    .font(.system(.subheadline, design: .serif).weight(.semibold))
                                     .foregroundStyle(Color.primary)
                                 Text("\(store.friends.count) friends")
                                     .font(.system(.caption, design: .rounded))
@@ -123,7 +123,7 @@ struct ProfileView: View {
                 EPCard {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Healthy Habit Credits")
-                            .font(.system(.subheadline, design: .rounded))
+                            .font(.system(.subheadline, design: .serif))
                             .foregroundStyle(EPTheme.softText)
 
                         ProgressView(value: Double(store.credits.current), total: Double(store.credits.goal))
@@ -139,7 +139,7 @@ struct ProfileView: View {
                                 store.earnCredits(5)
                             } label: {
                                 Text("+5")
-                                    .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                                    .font(.system(.subheadline, design: .serif).weight(.semibold))
                                     .padding(.horizontal, 10)
                                     .padding(.vertical, 6)
                                     .background(Capsule().fill(EPTheme.accent.opacity(0.18)))
@@ -154,10 +154,10 @@ struct ProfileView: View {
                 EPCard {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Active Challenges")
-                            .font(.system(.headline, design: .rounded))
+                            .font(.system(.headline, design: .serif))
                         Text("Complete challenges to earn credits and level up.")
                             .foregroundStyle(EPTheme.softText)
-                            .font(.system(.subheadline, design: .rounded))
+                            .font(.system(.subheadline, design: .serif))
 
                         ForEach(store.challenges.prefix(3)) { c in
                             HStack(spacing: 10) {
@@ -166,7 +166,7 @@ struct ProfileView: View {
                                     .frame(width: 28)
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(c.title)
-                                        .font(.system(.subheadline, design: .rounded).weight(.medium))
+                                        .font(.system(.subheadline, design: .serif).weight(.medium))
                                     ProgressView(value: c.progress)
                                         .tint(EPTheme.accent)
                                 }
@@ -191,18 +191,18 @@ struct ProfileView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {
                             Text("Rewards")
-                                .font(.system(.headline, design: .rounded))
+                                .font(.system(.headline, design: .serif))
                             Spacer()
                             NavigationLink {
                                 RewardsView()
                             } label: {
                                 Text("See All")
-                                    .font(.system(.subheadline, design: .rounded))
+                                    .font(.system(.subheadline, design: .serif))
                                     .foregroundStyle(EPTheme.accent)
                             }
                         }
                         Text("\(store.credits.current) credits available to redeem")
-                            .font(.system(.subheadline, design: .rounded))
+                            .font(.system(.subheadline, design: .serif))
                             .foregroundStyle(EPTheme.softText)
                     }
                 }
@@ -291,7 +291,7 @@ struct ProfileView: View {
                 Spacer()
 
                 Text("My Friend Code")
-                    .font(.system(.title3, design: .rounded).weight(.semibold))
+                    .font(.system(.title3, design: .serif).weight(.semibold))
 
                 ZStack {
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
@@ -309,14 +309,14 @@ struct ProfileView: View {
                 }
 
                 Text(store.profile.name)
-                    .font(.system(.headline, design: .rounded))
+                    .font(.system(.headline, design: .serif))
                 Text("@\(store.profile.name.lowercased().replacingOccurrences(of: " ", with: "."))")
-                    .font(.system(.subheadline, design: .rounded))
+                    .font(.system(.subheadline, design: .serif))
                     .foregroundStyle(EPTheme.softText)
 
                 VStack(spacing: 8) {
                     Text("Share your code or scan a friend's to connect instantly")
-                        .font(.system(.subheadline, design: .rounded))
+                        .font(.system(.subheadline, design: .serif))
                         .foregroundStyle(EPTheme.softText)
                         .multilineTextAlignment(.center)
 
@@ -330,7 +330,7 @@ struct ProfileView: View {
                             Image(systemName: "camera.fill")
                             Text("Scan Code")
                         }
-                        .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                        .font(.system(.subheadline, design: .serif).weight(.semibold))
                         .foregroundStyle(.black.opacity(0.85))
                         .padding(.horizontal, 28)
                         .padding(.vertical, 12)
@@ -360,7 +360,7 @@ struct ProfileView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
                         Text("Last Week")
-                            .font(.system(.title3, design: .rounded).weight(.semibold))
+                            .font(.system(.title3, design: .serif).weight(.semibold))
                         Spacer()
                         Text("Feb 3 – 9")
                             .font(.system(.caption, design: .rounded))
@@ -382,7 +382,7 @@ struct ProfileView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
                         Text("This Week")
-                            .font(.system(.title3, design: .rounded).weight(.semibold))
+                            .font(.system(.title3, design: .serif).weight(.semibold))
                         Spacer()
                         Text("Feb 10 – 16")
                             .font(.system(.caption, design: .rounded))
@@ -410,7 +410,7 @@ struct ProfileView: View {
                     .font(.system(size: 16))
                     .foregroundStyle(color)
                 Text(value)
-                    .font(.system(.headline, design: .rounded).weight(.bold))
+                    .font(.system(.headline, design: .serif).weight(.bold))
             }
             Text(label)
                 .font(.system(.caption2, design: .rounded))
@@ -428,7 +428,7 @@ struct ProfileView: View {
         EPCard {
             VStack(alignment: .leading, spacing: 12) {
                 Text("My Wellness Tools")
-                    .font(.system(.title3, design: .rounded).weight(.semibold))
+                    .font(.system(.title3, design: .serif).weight(.semibold))
                     .foregroundStyle(Color.primary)
 
                 wellnessToolRow(
@@ -510,7 +510,7 @@ struct StoryViewer: View {
 
                     VStack(alignment: .leading, spacing: 1) {
                         Text(friend.name)
-                            .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                            .font(.system(.subheadline, design: .serif).weight(.semibold))
                             .foregroundStyle(.white)
                         if let story = currentStory {
                             Text(story.timestamp, style: .relative)
@@ -544,7 +544,7 @@ struct StoryViewer: View {
                             .foregroundStyle(.white.opacity(0.9))
 
                         Text(story.caption)
-                            .font(.system(.title3, design: .rounded).weight(.semibold))
+                            .font(.system(.title3, design: .serif).weight(.semibold))
                             .foregroundStyle(.white)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 40)

@@ -33,6 +33,9 @@ struct RootView: View {
                         .navigationDestination(isPresented: $store.showChallenges) {
                             ChallengesView()
                         }
+                        .navigationDestination(isPresented: $store.showConnector) {
+                            ConnectorView()
+                        }
                         .navigationDestination(isPresented: $store.showNotifications) {
                             NotificationsView()
                         }

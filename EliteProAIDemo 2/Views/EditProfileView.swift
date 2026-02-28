@@ -61,7 +61,7 @@ struct EditProfileView: View {
                             Image(systemName: "checkmark.circle.fill")
                             Text("Saved!")
                         }
-                        .font(.system(.subheadline, design: .rounded).weight(.medium))
+                        .font(.system(.subheadline, design: .serif).weight(.medium))
                         .foregroundStyle(.green)
                         .transition(.scale.combined(with: .opacity))
                     }

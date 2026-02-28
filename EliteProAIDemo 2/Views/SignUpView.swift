@@ -169,7 +169,7 @@ struct SignUpView: View {
                 withAnimation { step = .building }
             } label: {
                 Text("Continue")
-                    .font(.system(.headline, design: .rounded).weight(.semibold))
+                    .font(.system(.headline, design: .serif).weight(.semibold))
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
@@ -287,7 +287,7 @@ struct SignUpView: View {
                 withAnimation { step = .review }
             } label: {
                 Text("Continue")
-                    .font(.system(.headline, design: .rounded).weight(.semibold))
+                    .font(.system(.headline, design: .serif).weight(.semibold))
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
@@ -341,7 +341,7 @@ struct SignUpView: View {
                         .padding(.vertical, 16)
                 } else {
                     Text("Create Account")
-                        .font(.system(.headline, design: .rounded).weight(.semibold))
+                        .font(.system(.headline, design: .serif).weight(.semibold))
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
@@ -358,11 +358,11 @@ struct SignUpView: View {
     private func reviewRow(label: String, value: String) -> some View {
         HStack {
             Text(label)
-                .font(.system(.subheadline, design: .rounded))
+                .font(.system(.subheadline, design: .serif))
                 .foregroundStyle(EPTheme.softText)
             Spacer()
             Text(value)
-                .font(.system(.subheadline, design: .rounded).weight(.medium))
+                .font(.system(.subheadline, design: .serif).weight(.medium))
         }
     }
 

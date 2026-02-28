@@ -83,9 +83,9 @@ struct HomeView: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(store.profile.name)
-                        .font(.system(.title3, design: .rounded).weight(.semibold))
+                        .font(.system(.title3, design: .serif).weight(.semibold))
                     Text(store.profile.email)
-                        .font(.system(.subheadline, design: .rounded))
+                        .font(.system(.subheadline, design: .serif))
                         .foregroundStyle(EPTheme.softText)
                         .lineLimit(1)
                 }
@@ -98,7 +98,7 @@ struct HomeView: View {
         EPCard {
             VStack(alignment: .leading, spacing: 10) {
                 Text("Healthy Habit Credits:")
-                    .font(.system(.subheadline, design: .rounded))
+                    .font(.system(.subheadline, design: .serif))
                     .foregroundStyle(EPTheme.softText)
 
                 ProgressView(value: Double(store.credits.current), total: Double(store.credits.goal))
@@ -115,7 +115,7 @@ struct HomeView: View {
                         store.earnCredits(5)
                     } label: {
                         Text("+5")
-                            .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                            .font(.system(.subheadline, design: .serif).weight(.semibold))
                             .padding(.horizontal, 10)
                             .padding(.vertical, 6)
                             .background(Capsule().fill(EPTheme.accent.opacity(0.18)))
@@ -127,7 +127,7 @@ struct HomeView: View {
                 Divider().overlay(EPTheme.divider)
 
                 Text("My Wellness")
-                    .font(.system(.headline, design: .rounded))
+                    .font(.system(.headline, design: .serif))
                     .foregroundStyle(EPTheme.softText)
                     .frame(maxWidth: .infinity, alignment: .center)
             }
@@ -137,7 +137,7 @@ struct HomeView: View {
     private var chatPreview: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Messages")
-                .font(.system(.headline, design: .rounded))
+                .font(.system(.headline, design: .serif))
                 .foregroundStyle(Color.primary.opacity(0.9))
 
             EPCard {
@@ -158,7 +158,7 @@ struct HomeView: View {
                                 
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(conversation.contactName)
-                                        .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                                        .font(.system(.subheadline, design: .serif).weight(.semibold))
                                         .foregroundStyle(Color.primary)
                                     Text(conversation.lastMessage)
                                         .font(.system(.caption, design: .rounded))
@@ -193,7 +193,7 @@ struct HomeView: View {
                         HStack {
                             Text("View all messages")
                                 .foregroundStyle(EPTheme.accent)
-                                .font(.system(.subheadline, design: .rounded).weight(.medium))
+                                .font(.system(.subheadline, design: .serif).weight(.medium))
                             Spacer()
                             Image(systemName: "chevron.right")
                                 .foregroundStyle(EPTheme.accent)

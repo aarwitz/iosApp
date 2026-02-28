@@ -142,16 +142,16 @@ struct ConnectorView: View {
                             .font(.system(size: 64))
                             .foregroundStyle(EPTheme.softText.opacity(0.5))
                         Text("You've seen everyone nearby!")
-                            .font(.system(.title3, design: .rounded).weight(.semibold))
+                            .font(.system(.title3, design: .serif).weight(.semibold))
                         Text("Check back later for new people in your community.")
-                            .font(.system(.subheadline, design: .rounded))
+                            .font(.system(.subheadline, design: .serif))
                             .foregroundStyle(EPTheme.softText)
                             .multilineTextAlignment(.center)
                         Button {
                             withAnimation { currentIndex = 0 }
                         } label: {
                             Text("Start Over")
-                                .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                                .font(.system(.subheadline, design: .serif).weight(.semibold))
                                 .foregroundStyle(EPTheme.accent)
                                 .padding(.horizontal, 24)
                                 .padding(.vertical, 10)
@@ -232,7 +232,7 @@ struct ConnectorView: View {
         } label: {
             HStack(spacing: 4) {
                 Text("Connect")
-                    .font(.system(.headline, design: .rounded))
+                    .font(.system(.headline, design: .serif))
                     .foregroundStyle(Color.primary)
                 
                 Image(systemName: "chevron.down")
@@ -287,9 +287,9 @@ struct ConnectorView: View {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(friend.name)
-                            .font(.system(.title2, design: .rounded).weight(.bold))
+                            .font(.system(.title2, design: .serif).weight(.bold))
                         Text("\(friend.age) • \(friend.favoriteActivity)")
-                            .font(.system(.subheadline, design: .rounded))
+                            .font(.system(.subheadline, design: .serif))
                             .foregroundStyle(EPTheme.softText)
                     }
                     Spacer()
@@ -308,7 +308,7 @@ struct ConnectorView: View {
                 }
 
                 Text(friend.bio)
-                    .font(.system(.subheadline, design: .rounded))
+                    .font(.system(.subheadline, design: .serif))
                     .foregroundStyle(Color.primary.opacity(0.85))
                     .lineLimit(3)
 
@@ -393,7 +393,7 @@ struct ConnectorView: View {
                     .foregroundStyle(EPTheme.accent)
 
                 Text("It's a Match!")
-                    .font(.system(.largeTitle, design: .rounded).weight(.bold))
+                    .font(.system(.largeTitle, design: .serif).weight(.bold))
                     .foregroundStyle(.white)
 
                 Text("You and \(friend.name) both want to connect!")
@@ -404,7 +404,7 @@ struct ConnectorView: View {
                 if !shared.isEmpty {
                     VStack(spacing: 8) {
                         Text("Suggested activities together:")
-                            .font(.system(.subheadline, design: .rounded).weight(.medium))
+                            .font(.system(.subheadline, design: .serif).weight(.medium))
                             .foregroundStyle(.white.opacity(0.7))
 
                         ForEach(suggestedActivities(from: shared), id: \.self) { activity in
@@ -413,7 +413,7 @@ struct ConnectorView: View {
                                     .font(.system(size: 10))
                                     .foregroundStyle(.yellow)
                                 Text(activity)
-                                    .font(.system(.subheadline, design: .rounded))
+                                    .font(.system(.subheadline, design: .serif))
                                     .foregroundStyle(.white)
                             }
                         }
@@ -427,7 +427,7 @@ struct ConnectorView: View {
                     withAnimation { showMatchOverlay = false; matchedFriend = nil }
                 } label: {
                     Text("Keep Swiping")
-                        .font(.system(.headline, design: .rounded))
+                        .font(.system(.headline, design: .serif))
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 14)
@@ -530,7 +530,7 @@ struct ConnectorView: View {
             VStack(spacing: 24) {
                 Spacer()
                 Text("My Friend Code")
-                    .font(.system(.title3, design: .rounded).weight(.semibold))
+                    .font(.system(.title3, design: .serif).weight(.semibold))
                 ZStack {
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
                         .fill(Color.white)
@@ -545,13 +545,13 @@ struct ConnectorView: View {
                     }
                 }
                 Text(store.profile.name)
-                    .font(.system(.headline, design: .rounded))
+                    .font(.system(.headline, design: .serif))
                 Text("@\(store.profile.name.lowercased().replacingOccurrences(of: " ", with: "."))")
-                    .font(.system(.subheadline, design: .rounded))
+                    .font(.system(.subheadline, design: .serif))
                     .foregroundStyle(EPTheme.softText)
                 VStack(spacing: 8) {
                     Text("Share your code or scan a friend's to connect instantly")
-                        .font(.system(.subheadline, design: .rounded))
+                        .font(.system(.subheadline, design: .serif))
                         .foregroundStyle(EPTheme.softText)
                         .multilineTextAlignment(.center)
                     Button {
@@ -564,7 +564,7 @@ struct ConnectorView: View {
                             Image(systemName: "camera.fill")
                             Text("Scan Code")
                         }
-                        .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                        .font(.system(.subheadline, design: .serif).weight(.semibold))
                         .foregroundStyle(.black.opacity(0.85))
                         .padding(.horizontal, 28)
                         .padding(.vertical, 12)

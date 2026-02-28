@@ -150,7 +150,7 @@ struct NutritionView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         HStack(spacing: 6) {
                             Text(nutritionist.name)
-                                .font(.system(.headline, design: .rounded))
+                                .font(.system(.headline, design: .serif))
                             Text("Nutritionist")
                                 .font(.system(.caption2, design: .rounded).weight(.semibold))
                                 .foregroundStyle(.white)
@@ -199,7 +199,7 @@ struct NutritionView: View {
 
                 // Motivational quote
                 Text(nutritionist.motivationalQuote)
-                    .font(.system(.subheadline, design: .rounded).weight(.medium))
+                    .font(.system(.subheadline, design: .serif).weight(.medium))
                     .foregroundStyle(Color.primary.opacity(0.8))
                     .padding(.vertical, 4)
 
@@ -252,7 +252,7 @@ struct NutritionView: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Label("What Should I Eat Tonight?", systemImage: "fork.knife")
-                        .font(.system(.headline, design: .rounded))
+                        .font(.system(.headline, design: .serif))
                     Spacer()
                 }
 
@@ -300,7 +300,7 @@ struct NutritionView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("🚗 Eat Smart Delivery")
-                            .font(.system(.headline, design: .rounded))
+                            .font(.system(.headline, design: .serif))
                         Text("Nutritionist-approved meals delivered to you")
                             .font(.system(.caption, design: .rounded))
                             .foregroundStyle(EPTheme.softText)
@@ -310,7 +310,7 @@ struct NutritionView: View {
 
                 if filteredMeals.isEmpty {
                     Text("No meals match this filter")
-                        .font(.system(.subheadline, design: .rounded))
+                        .font(.system(.subheadline, design: .serif))
                         .foregroundStyle(EPTheme.softText)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
@@ -343,7 +343,7 @@ struct NutritionView: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 4) {
                     Text(meal.name)
-                        .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                        .font(.system(.subheadline, design: .serif).weight(.semibold))
                     if meal.nutritionistRecommended {
                         Image(systemName: "checkmark.seal.fill")
                             .font(.system(size: 10))
@@ -368,7 +368,7 @@ struct NutritionView: View {
             Spacer()
 
             Text(String(format: "$%.2f", meal.price))
-                .font(.system(.subheadline, design: .rounded).weight(.bold))
+                .font(.system(.subheadline, design: .serif).weight(.bold))
                 .foregroundStyle(EPTheme.accent)
         }
         .padding(.vertical, 4)
@@ -403,7 +403,7 @@ struct NutritionView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("⏱ 15-Minute Meals")
-                            .font(.system(.headline, design: .rounded))
+                            .font(.system(.headline, design: .serif))
                         Text("Quick, healthy recipes you can make at home")
                             .font(.system(.caption, design: .rounded))
                             .foregroundStyle(EPTheme.softText)
@@ -442,7 +442,7 @@ struct NutritionView: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(recipe.title)
-                        .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                        .font(.system(.subheadline, design: .serif).weight(.semibold))
                     HStack(spacing: 8) {
                         Label(recipe.prepTime, systemImage: "clock")
                         Label("\(recipe.calories) cal", systemImage: "flame")
@@ -483,7 +483,7 @@ struct NutritionView: View {
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Scan Your Meal")
-                            .font(.system(.headline, design: .rounded))
+                            .font(.system(.headline, design: .serif))
                             .foregroundStyle(Color.primary)
                         Text("Take a photo and AI will estimate calories, protein, and macros")
                             .font(.system(.caption, design: .rounded))
@@ -512,10 +512,10 @@ struct NutritionView: View {
                             Text(nutritionist.avatarPlaceholder)
                                 .font(.system(size: 22))
                             Text("Nutritionist Tip of the Week")
-                                .font(.system(.headline, design: .rounded))
+                                .font(.system(.headline, design: .serif))
                         }
                         Text(nutritionist.tipOfTheWeek ?? "Aim for half your plate to be vegetables at every meal. Small changes make a big difference.")
-                            .font(.system(.subheadline, design: .rounded))
+                            .font(.system(.subheadline, design: .serif))
                             .foregroundStyle(Color.primary.opacity(0.85))
                             .italic()
                     }
@@ -538,16 +538,16 @@ struct NutritionView: View {
                             .font(.system(size: 56))
                             .foregroundStyle(EPTheme.accent.opacity(0.6))
                         Text("Point at your meal")
-                            .font(.system(.subheadline, design: .rounded))
+                            .font(.system(.subheadline, design: .serif))
                             .foregroundStyle(EPTheme.softText)
                     }
                 }
 
                 VStack(spacing: 8) {
                     Text("AI Meal Scanner")
-                        .font(.system(.title3, design: .rounded).weight(.bold))
+                        .font(.system(.title3, design: .serif).weight(.bold))
                     Text("Take a photo or choose from library. AI will estimate nutritional info.")
-                        .font(.system(.subheadline, design: .rounded))
+                        .font(.system(.subheadline, design: .serif))
                         .foregroundStyle(EPTheme.softText)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 32)
@@ -563,7 +563,7 @@ struct NutritionView: View {
                             Image(systemName: "camera.fill")
                             Text("Take Photo")
                         }
-                        .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                        .font(.system(.subheadline, design: .serif).weight(.semibold))
                     }
                     .buttonStyle(EPButtonStyle())
 
@@ -576,7 +576,7 @@ struct NutritionView: View {
                             Image(systemName: "photo.on.rectangle")
                             Text("Library")
                         }
-                        .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                        .font(.system(.subheadline, design: .serif).weight(.semibold))
                         .padding(.vertical, 12)
                         .padding(.horizontal, 20)
                         .background(Capsule().fill(EPTheme.accent.opacity(0.12)))
@@ -602,7 +602,7 @@ struct NutritionView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     Text("Based on this week's recipes, here's what you need:")
-                        .font(.system(.subheadline, design: .rounded))
+                        .font(.system(.subheadline, design: .serif))
                         .foregroundStyle(EPTheme.softText)
                         .padding(.horizontal, 16)
 
@@ -618,7 +618,7 @@ struct NutritionView: View {
                                     .font(.system(size: 12))
                                     .foregroundStyle(EPTheme.softText)
                                 Text(item)
-                                    .font(.system(.subheadline, design: .rounded))
+                                    .font(.system(.subheadline, design: .serif))
                                 Spacer()
                             }
                             .padding(.vertical, 8)
@@ -648,9 +648,9 @@ struct NutritionView: View {
                     .font(.system(size: 44))
                     .foregroundStyle(EPTheme.accent.opacity(0.6))
                 Text("Chat with \(staff.name)")
-                    .font(.system(.title3, design: .rounded).weight(.bold))
+                    .font(.system(.title3, design: .serif).weight(.bold))
                 Text("Messaging will be available in a future update. For now, book a session to connect.")
-                    .font(.system(.subheadline, design: .rounded))
+                    .font(.system(.subheadline, design: .serif))
                     .foregroundStyle(EPTheme.softText)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 32)
