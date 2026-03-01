@@ -2,38 +2,67 @@ import SwiftUI
 
 struct HomeFeedView: View {
     @EnvironmentObject private var store: AppStore
-    @State private var selectedStaffIndex: Int? = 0
     @State private var showBooking: Bool = false
     @State private var bookingStaff: StaffMember? = nil
-    @State private var navigateToChat: Bool = false
-    @State private var chatConversation: Conversation? = nil
-    @State private var messagingStaffId: UUID? = nil   // tracks in-flight "Message" tap
-    @State private var dotsVisible: Bool = false          // shows page dots during swipe
 
-    /// Two cards: current coach, current nutritionist
-    private var staffCards: [StaffMember] {
-        var cards: [StaffMember] = []
-        if let coach = store.currentCoach { cards.append(coach) }
-        if let nutri = store.currentNutritionist { cards.append(nutri) }
-        return cards
+    private var firstName: String {
+        store.profile.name.components(separatedBy: " ").first ?? store.profile.name
+    }
+
+    private var timeOfDayGreeting: String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        switch hour {
+        case 5..<12: return "Good morning"
+        case 12..<17: return "Good afternoon"
+        case 17..<22: return "Good evening"
+        default: return "Good night"
+        }
     }
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 10) {
+            VStack(spacing: 20) {
 
-                // MARK: – Personalized Greeting + Status Widget
-                HStack
-                {
-                    Spacer(minLength: 10)
-                    heroHeader
+                // MARK: – Greeting
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("\(timeOfDayGreeting), \(firstName)")
+                            .font(.system(.title3, design: .serif).weight(.semibold))
+                        Text(Date(), format: .dateTime.weekday(.wide).month(.abbreviated).day())
+                            .font(.system(.caption, design: .rounded))
+                            .foregroundStyle(EPTheme.softText)
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal, 4)
+
+                // MARK: – Primary CTAs (Book Coaching & Nutrition)
+                VStack(spacing: 10) {
+                    quickActionCoachingButton
+                    quickActionNutritionButton
                 }
 
-                // MARK: – Your Wellness Team
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("Your Wellness Team")
+                // MARK: – Secondary CTAs (Group Class & Create Group)
+                HStack(spacing: 12) {
+                    NavigationLink { GroupClassView() } label: {
+                        secondaryActionTile(
+                            icon: "person.3.fill",
+                            iconColor: .purple,
+                            title: "Join Group Class",
+                            subtitle: nextClassLabel
+                        )
+                    }
+                    .buttonStyle(.plain)
 
-                    staffCarousel
+                    NavigationLink { CreateGroupView() } label: {
+                        secondaryActionTile(
+                            icon: "plus.circle.fill",
+                            iconColor: .teal,
+                            title: "Create Group",
+                            subtitle: createGroupSubtitle
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
 
                 // MARK: – Today's Actions
@@ -46,7 +75,7 @@ struct HomeFeedView: View {
                 waysToEarnSection
             }
             .padding(.horizontal, 16)
-            .padding(.top, 4)
+            .padding(.top, 8)
             .padding(.bottom, 20)
         }
         .refreshable { await store.refreshFeed() }
@@ -55,7 +84,6 @@ struct HomeFeedView: View {
         .background(EPTheme.pageBackground, ignoresSafeAreaEdges: .all)
         .toolbar {
             ToolbarItem(placement: .principal) {
-                // logo image header
                 resiLifeHeader
             }
             ToolbarItem(placement: .topBarTrailing) {
@@ -83,324 +111,249 @@ struct HomeFeedView: View {
                     .environmentObject(store)
             }
         }
-        .navigationDestination(isPresented: $navigateToChat) {
-            if let convo = chatConversation {
-                ChatDetailView(conversation: convo)
-            }
-        }
     }
 
-    // MARK: – ResiLife Header (logo image replaces text)
+    // MARK: – ResiLife Header
     private var resiLifeHeader: some View {
         HStack(spacing: 0) {
             Text("Resi")
-                .foregroundColor(.primary) // Adapts to Light/Dark mode automatically
+                .foregroundColor(.primary)
             Text("Life")
                 .foregroundColor(Color(red: 0.73, green: 0.30, blue: 0.12))
         }
-        // Matching the serif style from your original image
         .font(.system(size: 26, weight: .thin, design: .serif))
         .padding(.vertical, 2)
         .tracking(0.5)
     }
 
-    // MARK: – Staff Carousel
+    // MARK: – Primary CTA: Book Coaching
 
-    private var staffCarousel: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            LazyHStack(spacing: 0) {
-                ForEach(Array(staffCards.enumerated()), id: \.element.id) { idx, staff in
-                    staffCard(staff, index: idx)
-                        .padding(.horizontal, 2)
-                        .containerRelativeFrame(.horizontal)
-                        .id(idx)
-                }
+    private var quickActionCoachingButton: some View {
+        Button {
+            if let coach = store.currentCoach {
+                bookingStaff = coach
+                showBooking = true
             }
-            .scrollTargetLayout()
-        }
-        .scrollTargetBehavior(.viewAligned)
-        .scrollPosition(id: $selectedStaffIndex)
-        .overlay(alignment: .bottom) {
-            if staffCards.count > 1 {
-                HStack(spacing: 7) {
-                    ForEach(0..<staffCards.count, id: \.self) { i in
-                        Circle()
-                            .fill((selectedStaffIndex ?? 0) == i ? EPTheme.accent : Color.gray.opacity(0.45))
-                            .frame(width: 7, height: 7)
-                    }
-                }
-                .padding(.vertical, 6)
-                .padding(.horizontal, 14)
-                .background(Capsule().fill(.ultraThinMaterial))
-                .opacity(dotsVisible ? 1 : 0)
-                .animation(.easeInOut(duration: 0.25), value: dotsVisible)
-                .padding(.bottom, 8)
-            }
-        }
-        .onChange(of: selectedStaffIndex) { _, _ in
-            dotsVisible = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
-                dotsVisible = false
-            }
-        }
-    }
-
-    private func staffCard(_ staff: StaffMember, index: Int) -> some View {
-        EPCard {
-            VStack(alignment: .leading, spacing: 10) {
-                // Header row: avatar + name/credentials/specialties
-                HStack(spacing: 12) {
-                    // Avatar from Assets
-                    Image(staff.name.replacingOccurrences(of: " ", with: ""))
+        } label: {
+            HStack(spacing: 12) {
+                // Avatar
+                if let coach = store.currentCoach {
+                    Image(coach.name.replacingOccurrences(of: " ", with: ""))
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: 65, height: 65)
-                        .offset(y: 15)
+                        .frame(width: 48, height: 48)
                         .clipShape(Circle())
-                        .overlay(Circle().stroke(EPTheme.accent.opacity(0.4), lineWidth: 2))
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        // Name + Role badge
-                        HStack(spacing: 6) {
-                            Text(staff.name)
-                                .font(.system(.headline, design: .serif))
-                            Text(staff.role.rawValue)
-                                .font(.system(.caption2, design: .rounded).weight(.semibold))
-                                .foregroundStyle(.white)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 2)
-                                .background(Capsule().fill(EPTheme.accent))
-                        }
-
-                        // Credentials as subtitle
-                        Text(staff.credentials.joined(separator: " · "))
-                            .font(.system(.caption, design: .rounded))
-                            .foregroundStyle(EPTheme.softText)
-                            .lineLimit(1)
-
-                        // Specialty pills
-                        HStack(spacing: 4) {
-                            ForEach(staff.specialties.prefix(3), id: \.self) { spec in
-                                Text(spec)
-                                    .font(.system(size: 10, design: .rounded).weight(.medium))
-                                    .foregroundStyle(Color.primary.opacity(0.7))
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 3)
-                                    .background(Capsule().fill(Color.primary.opacity(0.06)))
-                            }
-                        }
-                    }
-                    Spacer()
-                }
-
-                // Shift / Available Now line
-                HStack(spacing: 6) {
-                    if staff.isOnShift {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 12))
-                            .foregroundStyle(.green)
-                            .offset(x: 6)
-                        Text("Available Now")
-                            .font(.system(.caption, design: .rounded).weight(.semibold))
-                            .foregroundStyle(.green)
-                            .offset(x: 4)
-                        Text("·")
-                            .foregroundStyle(EPTheme.softText)
-                            .offset(x: 4)
-                    }
-                    Text(staff.shift.label + " Shift · " + staff.shift.displayRange)
-                        .font(.system(.caption, design: .rounded))
-                        .foregroundStyle(EPTheme.softText)
-                        .offset(x: 4)
-                }
-
-                // Motivational quote (replaces bio)
-//                Text(staff.motivationalQuote)
-//                    .font(.system(.subheadline, design: .serif).weight(.medium))
-//                    .foregroundStyle(Color.primary.opacity(0.8))
-//                    .padding(.vertical, 4)
-
-                // Action buttons — icon + label, .caption sized to fit
-                HStack(spacing: 10) {
-                    Button {
-                        guard messagingStaffId == nil else { return }
-                        messagingStaffId = staff.id
-                        Task {
-                            let convo = await store.getOrCreateConversation(
-                                with: FriendProfile(
-                                    name: staff.name, age: 0, buildingName: "", buildingOwner: "",
-                                    bio: "", interests: [], mutualFriends: 0, workoutsThisWeek: 0,
-                                    favoriteActivity: "", avatarInitials: String(staff.name.prefix(2)).uppercased()
-                                )
+                        .overlay(
+                            Circle().stroke(
+                                LinearGradient(colors: [EPTheme.accent, EPTheme.accent.opacity(0.4)],
+                                               startPoint: .topLeading, endPoint: .bottomTrailing),
+                                lineWidth: 2
                             )
-                            chatConversation = convo
-                            messagingStaffId = nil
-                            navigateToChat = true
-                        }
-                    } label: {
-                        HStack(spacing: 4) {
-                            if messagingStaffId == staff.id {
-                                ProgressView()
-                                    .scaleEffect(0.7)
-                            } else {
-                                Image(systemName: "bubble.left.fill")
-                                    .font(.system(size: 13))
-                            }
-                            Text(staff.role == .coach ? "Message Coach" : "Message Nutritionist")
-                                .font(.system(.caption, design: .rounded).weight(.semibold))
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.75)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 36)
-                        .background(Capsule().fill(EPTheme.accent.opacity(0.12)))
-                        .foregroundStyle(EPTheme.accent)
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(messagingStaffId != nil)
-
-                    Button {
-                        bookingStaff = staff
-                        showBooking = true
-                    } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "calendar")
-                                .font(.system(size: 16))
-                            Text(staff.role == .coach ? "Book 1-1 Session" : "Book Nutrition Session")
-                                .font(.system(.caption, design: .rounded).weight(.semibold))
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.75)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 36)
-                        .background(Capsule().fill(EPTheme.accent))
-                        .foregroundStyle(.white)
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-        }
-    }
-
-    // MARK: – Hero Header (Greeting + Status Widget)
-
-    private var heroHeader: some View {
-        HStack(alignment: .top, spacing: 14) {
-            // Left: Greeting + date
-            VStack(alignment: .leading, spacing: 4) {
-                Text("\(timeOfDayGreeting),")
-                    .font(.system(.title3, design: .serif).weight(.semibold))
-                Text(firstName)
-                    .font(.system(.title2, design: .serif).weight(.bold))
-                    .foregroundStyle(EPTheme.accent)
-                Text(Date(), format: .dateTime.weekday(.wide).month(.wide).day())
-                    .font(.system(.caption, design: .rounded))
-                    .foregroundStyle(EPTheme.softText)
-                    .padding(.top, 10)
-            }
-
-            Spacer()
-
-            // Right: Compact status widget
-            statusWidget
-        }
-    }
-
-    @ViewBuilder
-    private var statusWidget: some View {
-        let todayEvents = store.todaySchedule
-            .filter { Calendar.current.isDateInToday($0.time) }
-            .sorted { $0.time < $1.time }
-
-        VStack(alignment: .leading, spacing: 0) {
-            // Header
-            HStack(spacing: 4) {
-                Text("TODAY")
-                    .font(.system(size: 9, design: .rounded).weight(.black))
-                    .foregroundStyle(EPTheme.accent)
-                    .tracking(0.8)
-                Spacer()
-                Text("\(todayEvents.count)")
-                    .font(.system(size: 10, design: .rounded).weight(.bold))
-                    .foregroundStyle(.white)
-                    .frame(width: 16, height: 16)
-                    .background(Circle().fill(EPTheme.accent))
-            }
-            .padding(.bottom, 6)
-
-            if todayEvents.isEmpty {
-                VStack(spacing: 4) {
-                    Text("All clear \u{2615}")
-                        .font(.system(size: 11, design: .rounded).weight(.semibold))
-                    HStack(spacing: 3) {
-                        Image(systemName: "figure.run")
-                            .font(.system(size: 8))
-                            .foregroundStyle(EPTheme.accent)
-                        Text("Morning Runners")
-                            .font(.system(size: 9, design: .rounded).weight(.semibold))
+                        )
+                } else {
+                    ZStack {
+                        Circle()
+                            .fill(EPTheme.accent.opacity(0.12))
+                            .frame(width: 48, height: 48)
+                        Image(systemName: "figure.strengthtraining.traditional")
+                            .font(.system(size: 20, weight: .semibold))
                             .foregroundStyle(EPTheme.accent)
                     }
-                    Text("63 neighbors · Seaport")
-                        .font(.system(size: 8, design: .rounded))
-                        .foregroundStyle(EPTheme.softText)
                 }
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding(.top, 2)
-            } else {
-                let visibleEvents = Array(todayEvents.prefix(2))
-                let remaining = todayEvents.count - visibleEvents.count
 
-                VStack(alignment: .leading, spacing: 5) {
-                    ForEach(visibleEvents) { event in
-                        HStack(spacing: 6) {
+                // Text stack
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Book 1-1 Coaching Session")
+                        .font(.system(.subheadline, design: .serif).weight(.semibold))
+                        .foregroundStyle(Color.primary)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    if let coach = store.currentCoach, coach.isOnShift {
+                        HStack(spacing: 4) {
                             Circle()
-                                .fill(event.type.color)
-                                .frame(width: 5, height: 5)
-                            VStack(alignment: .leading, spacing: 0) {
-                                Text(event.shortLabel)
-                                    .font(.system(size: 10, design: .rounded).weight(.semibold))
-                                    .lineLimit(1)
-                                Text(event.time, format: .dateTime.hour().minute())
-                                    .font(.system(size: 9, design: .rounded))
-                                    .foregroundStyle(EPTheme.softText)
-                            }
+                                .fill(.green)
+                                .frame(width: 6, height: 6)
+                            Text("Available Now")
+                                .font(.system(size: 11, design: .rounded).weight(.semibold))
+                                .foregroundStyle(.green)
+                        }
+                    } else {
+                        HStack(spacing: 4) {
+                            Image(systemName: "clock")
+                                .font(.system(size: 10))
+                                .foregroundStyle(EPTheme.softText)
+                            Text(store.currentCoach?.shift.displayRange ?? "See schedule")
+                                .font(.system(size: 11, design: .rounded))
+                                .foregroundStyle(EPTheme.softText)
                         }
                     }
+                }
 
-                    if remaining > 0 {
-                        Text("+\(remaining) more")
-                            .font(.system(size: 9, design: .rounded).weight(.medium))
-                            .foregroundStyle(EPTheme.softText)
-                            .frame(maxWidth: .infinity, alignment: .trailing)
+                Spacer(minLength: 0)
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [EPTheme.accent.opacity(0.06), EPTheme.accent.opacity(0.01)],
+                            startPoint: .topLeading, endPoint: .bottomTrailing
+                        )
+                    )
+            )
+            .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(EPTheme.card))
+            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(EPTheme.accent.opacity(0.15), lineWidth: 1))
+            .shadow(color: EPTheme.cardShadow, radius: 6, x: 0, y: 3)
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: – Primary CTA: Book Nutrition
+
+    private let nutritionGreen = Color(red: 0.2, green: 0.65, blue: 0.45)
+
+    private var quickActionNutritionButton: some View {
+        Button {
+            if let nutri = store.currentNutritionist {
+                bookingStaff = nutri
+                showBooking = true
+            }
+        } label: {
+            HStack(spacing: 12) {
+                // Avatar
+                if let nutri = store.currentNutritionist {
+                    Image(nutri.name.replacingOccurrences(of: " ", with: ""))
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 48, height: 48)
+                        .clipShape(Circle())
+                        .overlay(
+                            Circle().stroke(
+                                LinearGradient(colors: [nutritionGreen, nutritionGreen.opacity(0.4)],
+                                               startPoint: .topLeading, endPoint: .bottomTrailing),
+                                lineWidth: 2
+                            )
+                        )
+                } else {
+                    ZStack {
+                        Circle()
+                            .fill(nutritionGreen.opacity(0.12))
+                            .frame(width: 48, height: 48)
+                        Image(systemName: "leaf.fill")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundStyle(nutritionGreen)
                     }
                 }
+
+                // Text stack
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Book Nutrition Check-in")
+                        .font(.system(.subheadline, design: .serif).weight(.semibold))
+                        .foregroundStyle(Color.primary)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    if let nutri = store.currentNutritionist, nutri.isOnShift {
+                        HStack(spacing: 4) {
+                            Circle()
+                                .fill(.green)
+                                .frame(width: 6, height: 6)
+                            Text("Available Now")
+                                .font(.system(size: 11, design: .rounded).weight(.semibold))
+                                .foregroundStyle(.green)
+                        }
+                    } else {
+                        HStack(spacing: 4) {
+                            Image(systemName: "clock")
+                                .font(.system(size: 10))
+                                .foregroundStyle(EPTheme.softText)
+                            Text(store.currentNutritionist?.shift.displayRange ?? "See schedule")
+                                .font(.system(size: 11, design: .rounded))
+                                .foregroundStyle(EPTheme.softText)
+                        }
+                    }
+                }
+
+                Spacer(minLength: 0)
             }
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [nutritionGreen.opacity(0.06), nutritionGreen.opacity(0.01)],
+                            startPoint: .topLeading, endPoint: .bottomTrailing
+                        )
+                    )
+            )
+            .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(EPTheme.card))
+            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(nutritionGreen.opacity(0.15), lineWidth: 1))
+            .shadow(color: EPTheme.cardShadow, radius: 6, x: 0, y: 3)
         }
-        .padding(10)
-        .frame(width: 128, height: 100, alignment: .top)
-        .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(EPTheme.card)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(EPTheme.cardStroke, lineWidth: 1)
-        )
+        .buttonStyle(.plain)
+    }
+
+    // MARK: – Secondary Action Tile (Group Class / Create Group)
+
+    private func secondaryActionTile(icon: String, iconColor: Color, title: String, subtitle: String) -> some View {
+        HStack(spacing: 12) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(iconColor.opacity(0.10))
+                    .frame(width: 38, height: 38)
+                Image(systemName: icon)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(iconColor)
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.system(.caption, design: .serif).weight(.semibold))
+                    .foregroundStyle(Color.primary)
+                    .lineLimit(1)
+                Text(subtitle)
+                    .font(.system(size: 10, design: .rounded))
+                    .foregroundStyle(EPTheme.softText)
+                    .lineLimit(1)
+            }
+
+            Spacer(minLength: 0)
+
+            Image(systemName: "chevron.right")
+                .font(.system(size: 10, weight: .semibold))
+                .foregroundStyle(EPTheme.softText)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .frame(maxWidth: .infinity)
+        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(EPTheme.card))
+        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(EPTheme.cardStroke, lineWidth: 1))
         .shadow(color: EPTheme.cardShadow, radius: 4, x: 0, y: 2)
     }
 
-    private var timeOfDayGreeting: String {
-        let hour = Calendar.current.component(.hour, from: Date())
-        switch hour {
-        case 5..<12: return "Good morning"
-        case 12..<17: return "Good afternoon"
-        case 17..<22: return "Good evening"
-        default: return "Good night"
+    /// Subtitle for the "Join Group Class" tile — shows next class hint
+    private var nextClassLabel: String {
+        // Surface the next upcoming class from today's schedule
+        let classEvents = store.todaySchedule
+            .filter { Calendar.current.isDateInToday($0.time) && $0.time > Date() }
+            .sorted { $0.time < $1.time }
+        if let next = classEvents.first {
+            let fmt = DateFormatter()
+            fmt.dateFormat = "h:mm a"
+            return "\(next.shortLabel) · \(fmt.string(from: next.time))"
         }
+        return "See today's lineup"
     }
 
-    private var firstName: String {
-        store.profile.name.components(separatedBy: " ").first ?? store.profile.name
+    /// Subtitle for the "Create Group" tile
+    private var createGroupSubtitle: String {
+        let count = store.communities.first?.groups.count ?? store.groups.count
+        return "\(count) groups in your building"
     }
 
     // MARK: – Today's Actions
